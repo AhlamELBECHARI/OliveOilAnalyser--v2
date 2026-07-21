@@ -1,15 +1,14 @@
 # OliveOilAnalyser 
  
-**Olive Oil Quality Analysis with NIR Spectroscopy and AI** 
+**Olive Oil Quality Analysis with NIR Spectroscopy ** 
  
-- **Institution:** UM6P - Laboratoire Qualite et Valorisation des Produits Naturels 
-- **Platform:** Flutter (Android) + FastAPI Backend 
+- **Institution:** UM6P - Foundation Mascir
+- **Platform:** Flutter (Android) 
 - **Database:** PostgreSQL (remote) + SQLite (local/offline) 
  
 ## Features 
 - Bluetooth NIR spectrometer connection 
 - Real-time spectral acquisition (400-2500nm) 
-- AI-powered quality classification (EVOO / VOO / Lampante) 
 - Offline-first with cloud sync 
 - Dashboard, history, ML model management 
  
@@ -37,5 +36,4 @@ flutter run
 - [Bluetooth Protocol](docs/bluetooth-protocol.md) 
  
 ## Authors 
-- Ahlam EL BECHARI - Developer 
-- Dr. [Supervisor Name] - Supervisor 
+- Ahlam EL BECHARI 
