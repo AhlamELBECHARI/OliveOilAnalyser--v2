@@ -5,12 +5,18 @@
 - **Institution :** UM6P - Foundation Mascir
 - **Auteur :** Ahlam EL BECHARI
 
-Ce dépôt contient le backend (Django REST Framework). Un frontend Flutter est prévu séparément.
+## Structure du dépôt
+
+- `backend/` — API Django REST Framework (voir ci-dessous)
+- `frontend/` — application Flutter (à venir)
+- `docs/` — diagrammes de conception et maquettes
 
 ## Documentation visuelle
 
 - Diagrammes de conception : `docs/diagrams/`
 - Maquettes de l'application : `docs/maquette/`
+
+## Backend
 
 ## Stack
 
@@ -57,6 +63,7 @@ partagé entre apps :
 ## Lancement avec Docker
 
 ```bash
+cd backend
 cp .env.example .env
 docker compose up --build
 ```
@@ -74,6 +81,7 @@ docker compose exec web python manage.py createsuperuser
 ## Migrations (hors Docker)
 
 ```bash
+cd backend
 python -m venv venv
 source venv/bin/activate   # ou venv\Scripts\activate sous Windows
 pip install -r requirements-dev.txt
