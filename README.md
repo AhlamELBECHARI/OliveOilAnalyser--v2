@@ -1,6 +1,16 @@
-# Olive IQ — Backend
+# Olive IQ — OliveOilAnalyser
 
-API backend pour **Olive IQ**, un analyseur de qualité d'huile d'olive par spectroscopie NIR (Near-InfraRed).
+**Analyse de la qualité de l'huile d'olive par spectroscopie NIR (Near-InfraRed).**
+
+- **Institution :** UM6P - Foundation Mascir
+- **Auteur :** Ahlam EL BECHARI
+
+Ce dépôt contient le backend (Django REST Framework). Un frontend Flutter est prévu séparément.
+
+## Documentation visuelle
+
+- Diagrammes de conception : `docs/diagrams/`
+- Maquettes de l'application : `docs/maquette/`
 
 ## Stack
 
