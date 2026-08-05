@@ -1,6 +1,6 @@
 # Olive IQ — OliveOilAnalyser
 
-**Analyse de la qualité de l'huile d'olive par spectroscopie .**
+**Analyse de la qualité de l'huile d'olive par spectroscopie.**
 
 - **Institution :** UM6P - Foundation Mascir
 - **Auteur :** Ahlam EL BECHARI
