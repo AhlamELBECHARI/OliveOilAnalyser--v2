@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Palette de couleurs centralisée d'Olive IQ, reprise de la maquette
-/// design/1-login.png. Aucune couleur codée en dur ne doit apparaître
-/// ailleurs dans les widgets.
+/// Palette de couleurs centralisée d'Olive IQ, reprise des maquettes
+/// design/1-login.png et design/2-dashboard.png. Aucune couleur codée en dur
+/// ne doit apparaître ailleurs dans les widgets.
 class AppColors {
   const AppColors._();
 
@@ -16,4 +16,21 @@ class AppColors {
   static const Color blanc = Color(0xFFFFFFFF);
   static const Color erreur = Color(0xFFC0392B);
   static const Color ombre = Color(0x14000000);
+
+  // --- Dashboard : catégories de qualité ---
+  static const Color evoo = vertOlive;
+  static const Color voo = Color(0xFFE0A72E);
+  static const Color lampante = Color(0xFFD9534F);
+
+  static const Color evooFond = Color(0xFFE7EFDC);
+  static const Color vooFond = Color(0xFFFBEFDA);
+  static const Color lampanteFond = Color(0xFFF9E1DF);
+
+  // --- Dashboard : icônes de cartes ---
+  static const Color bleuIcone = Color(0xFF4A7BA6);
+  static const Color bleuFond = Color(0xFFDEEAF7);
+  static const Color orangeIcone = Color(0xFFD07A2E);
+  static const Color orangeFond = Color(0xFFFBEFDA);
+
+  static const Color succes = Color(0xFF3D8B4A);
 }

@@ -1,8 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:olive_iq_app/core/demo/demo_credentials.dart';
+import 'package:olive_iq_app/core/demo/demo_mode_provider.dart';
 import 'package:olive_iq_app/core/error/failures.dart';
 import 'package:olive_iq_app/core/theme/app_theme.dart';
 import 'package:olive_iq_app/features/authentification/domain/entities/auth_session_entity.dart';
@@ -11,6 +14,7 @@ import 'package:olive_iq_app/features/authentification/domain/repositories/auth_
 import 'package:olive_iq_app/features/authentification/domain/usecases/login_usecase.dart';
 import 'package:olive_iq_app/features/authentification/presentation/providers/login_provider.dart';
 import 'package:olive_iq_app/features/authentification/presentation/screens/login_screen.dart';
+import 'package:olive_iq_app/l10n/generated/app_localizations.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -30,7 +34,7 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
   }
 
-  Widget creerWidgetTeste() {
+  Widget creerWidgetTeste({Locale locale = const Locale('fr')}) {
     return ProviderScope(
       overrides: [
         loginProvider.overrideWith(
@@ -39,6 +43,14 @@ void main() {
       ],
       child: MaterialApp(
         theme: AppTheme.theme,
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         initialRoute: '/login',
         routes: {
           '/login': (context) => const LoginScreen(),
@@ -112,6 +124,44 @@ void main() {
     expect(find.text('Accueil'), findsOneWidget);
   });
 
+  testWidgets(
+      "le bouton Mode démo déclenche une vraie connexion (POST login) avec des identifiants fixes, jamais un contournement local",
+      (tester) async {
+    const session = AuthSessionEntity(
+      accessToken: 'access',
+      refreshToken: 'refresh',
+      utilisateur: UtilisateurEntity(
+        id: 2,
+        nom: 'Laboratoire Démo',
+        email: DemoCredentials.email,
+        role: 'utilisateur',
+      ),
+    );
+    when(
+      () => mockRepository.login(
+        email: DemoCredentials.email,
+        password: DemoCredentials.password,
+      ),
+    ).thenAnswer((_) async => const Right(session));
+
+    await definirViewportTelephone(tester);
+    await tester.pumpWidget(creerWidgetTeste());
+
+    await tester.tap(find.text('Mode démo'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => mockRepository.login(
+        email: DemoCredentials.email,
+        password: DemoCredentials.password,
+      ),
+    ).called(1);
+    expect(find.text('Accueil'), findsOneWidget);
+
+    final container = ProviderScope.containerOf(tester.element(find.text('Accueil')));
+    expect(container.read(demoModeProvider), isTrue);
+  });
+
   testWidgets("affiche un message générique sur identifiants invalides, sans préciser le champ fautif",
       (tester) async {
     when(
@@ -152,5 +202,31 @@ void main() {
       find.textContaining('temporairement bloqué'),
       findsOneWidget,
     );
+  });
+
+  group('internationalisation (i18n)', () {
+    testWidgets("s'affiche en français quand la locale active est fr", (tester) async {
+      await definirViewportTelephone(tester);
+      await tester.pumpWidget(creerWidgetTeste(locale: const Locale('fr')));
+
+      expect(find.text('Bienvenue !'), findsOneWidget);
+      expect(find.text('Connectez-vous pour accéder à votre espace'), findsOneWidget);
+      expect(find.text('Se connecter'), findsOneWidget);
+      expect(find.text('Mot de passe oublié ?'), findsOneWidget);
+    });
+
+    testWidgets("s'affiche en anglais quand la locale active est en, sans aucune chaîne française résiduelle",
+        (tester) async {
+      await definirViewportTelephone(tester);
+      await tester.pumpWidget(creerWidgetTeste(locale: const Locale('en')));
+
+      expect(find.text('Welcome!'), findsOneWidget);
+      expect(find.text('Log in to access your workspace'), findsOneWidget);
+      expect(find.text('Log in'), findsOneWidget);
+      expect(find.text('Forgot password?'), findsOneWidget);
+
+      expect(find.text('Bienvenue !'), findsNothing);
+      expect(find.text('Se connecter'), findsNothing);
+    });
   });
 }

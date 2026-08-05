@@ -2,34 +2,35 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/error/failures.dart';
 import '../../domain/usecases/login_usecase.dart';
 
 class LoginState extends Equatable {
   final bool enChargement;
-  final String? messageErreur;
+  final Failure? echec;
   final bool connexionReussie;
 
   const LoginState({
     this.enChargement = false,
-    this.messageErreur,
+    this.echec,
     this.connexionReussie = false,
   });
 
   LoginState copierAvec({
     bool? enChargement,
-    String? messageErreur,
+    Failure? echec,
     bool? connexionReussie,
     bool effacerErreur = false,
   }) {
     return LoginState(
       enChargement: enChargement ?? this.enChargement,
-      messageErreur: effacerErreur ? null : (messageErreur ?? this.messageErreur),
+      echec: effacerErreur ? null : (echec ?? this.echec),
       connexionReussie: connexionReussie ?? this.connexionReussie,
     );
   }
 
   @override
-  List<Object?> get props => [enChargement, messageErreur, connexionReussie];
+  List<Object?> get props => [enChargement, echec, connexionReussie];
 }
 
 class LoginNotifier extends StateNotifier<LoginState> {
@@ -51,7 +52,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
     resultat.fold(
       (failure) => state = state.copierAvec(
         enChargement: false,
-        messageErreur: failure.message,
+        echec: failure,
       ),
       (_) => state = state.copierAvec(
         enChargement: false,

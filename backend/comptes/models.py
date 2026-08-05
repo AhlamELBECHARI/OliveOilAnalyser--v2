@@ -30,8 +30,16 @@ class Utilisateur(AbstractBaseUser):
     tentatives_echouees = models.PositiveSmallIntegerField(default=0)
     verrouille_jusqu_a = models.DateTimeField(null=True, blank=True)
 
-    token_reset_mot_de_passe_hash = models.CharField(max_length=64, blank=True, default="")
-    token_reset_expiration = models.DateTimeField(null=True, blank=True)
+    # Réinitialisation de mot de passe par code à 6 chiffres : seul le hash
+    # SHA-256 du code est persisté, jamais le code en clair (voir comptes.services).
+    code_reset_mot_de_passe_hash = models.CharField(max_length=64, blank=True, default="")
+    code_reset_expiration = models.DateTimeField(null=True, blank=True)
+    # Anti-brute-force sur la vérification du code (protège un code à 6
+    # chiffres, dont l'espace de recherche est petit).
+    code_reset_tentatives_echouees = models.PositiveSmallIntegerField(default=0)
+    # Anti-abus sur la fréquence de demande de nouveaux codes.
+    code_reset_demandes_compteur = models.PositiveSmallIntegerField(default=0)
+    code_reset_demande_fenetre_debut = models.DateTimeField(null=True, blank=True)
 
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
@@ -74,6 +82,13 @@ class Configuration(models.Model):
     notifications_actives = models.BooleanField(default=True)
     seuil_conformite_acidite = models.DecimalField(max_digits=6, decimal_places=3)
     seuil_conformite_peroxyde = models.DecimalField(max_digits=6, decimal_places=3)
+    # Seuils de classification qualité (norme du Conseil Oléicole
+    # International) utilisés par dashboard.services pour dériver la
+    # catégorie EVOO/VOO/Lampante de chaque résultat à partir de son
+    # acidité réelle — configurables ici plutôt que codés en dur, pour
+    # qu'un administrateur puisse les ajuster sans déploiement.
+    seuil_acidite_evoo = models.DecimalField(max_digits=6, decimal_places=3)
+    seuil_acidite_voo = models.DecimalField(max_digits=6, decimal_places=3)
     est_actif = models.BooleanField(default=True)
     modifie_par = models.ForeignKey(
         Utilisateur,

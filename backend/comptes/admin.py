@@ -1,8 +1,17 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.auth.models import Group, Permission
 
 from .forms import UtilisateurChangeForm, UtilisateurCreationForm
 from .models import Configuration, Utilisateur
+
+# Utilisateur n'utilise ni PermissionsMixin ni les groupes Django (voir
+# comptes.models.Utilisateur) : les sections "Groupes" et "Permissions",
+# enregistrées par défaut par django.contrib.auth, n'ont donc aucun usage
+# ici et ne feraient que prêter à confusion dans l'admin.
+for _modele in (Group, Permission):
+    if admin.site.is_registered(_modele):
+        admin.site.unregister(_modele)
 
 
 @admin.register(Utilisateur)

@@ -1,0 +1,172 @@
+{
+  "@@locale": "fr",
+
+  "appName": "OliveIQ",
+  "@appName": {"description": "Nom de l'application"},
+
+  "sousTitreApp": "Analyse d'Huile d'Olive",
+  "bienvenue": "Bienvenue !",
+  "accedezVotreEspace": "Connectez-vous pour accéder à votre espace",
+  "champEmail": "Email",
+  "champMotDePasse": "Mot de passe",
+  "erreurEmailRequis": "Email requis",
+  "erreurEmailFormatInvalide": "Format email invalide",
+  "erreurMotDePasseRequis": "Mot de passe requis",
+  "motDePasseOublie": "Mot de passe oublié ?",
+  "seConnecter": "Se connecter",
+  "ou": "ou",
+  "modeDemo": "Mode démo",
+  "versionApp": "Version 1.0.0",
+
+  "sousTitreEmailReset": "Saisissez l'email associé à votre compte : nous vous enverrons un code de vérification à 6 chiffres.",
+  "envoyerCode": "Envoyer le code",
+
+  "entrezLeCode": "Entrez le code",
+  "codeEnvoyeA": "Un code à 6 chiffres a été envoyé à {email}",
+  "@codeEnvoyeA": {
+    "placeholders": {"email": {"type": "String"}}
+  },
+  "erreurCodeRequis": "Code requis",
+  "erreurCodeFormat": "Le code doit contenir 6 chiffres",
+  "renvoyerLeCode": "Renvoyer le code",
+  "renvoyerLeCodeCompteur": "Renvoyer le code ({secondes}s)",
+  "@renvoyerLeCodeCompteur": {
+    "placeholders": {"secondes": {"type": "int"}}
+  },
+  "nouveauCodeEnvoye": "Un nouveau code a été envoyé.",
+  "verifier": "Vérifier",
+
+  "nouveauMotDePasse": "Nouveau mot de passe",
+  "choisissezNouveauMotDePasse": "Choisissez un nouveau mot de passe pour votre compte.",
+  "champConfirmerMotDePasse": "Confirmer le mot de passe",
+  "erreurMinimum8Caracteres": "Minimum 8 caractères",
+  "erreurConfirmationRequise": "Confirmation requise",
+  "erreurMotsDePasseNeCorrespondentPas": "Les mots de passe ne correspondent pas",
+  "reinitialiser": "Réinitialiser",
+  "motDePasseReinitialiseSucces": "Mot de passe réinitialisé. Vous pouvez vous reconnecter.",
+
+  "erreurIdentifiantsInvalides": "Email ou mot de passe incorrect.",
+  "erreurCompteVerrouille": "Compte temporairement bloqué suite à plusieurs tentatives échouées. Réessayez plus tard.",
+  "erreurCompteDesactive": "Ce compte est désactivé.",
+  "erreurReseau": "Impossible de joindre le serveur. Vérifiez votre connexion.",
+  "erreurServeur": "Une erreur est survenue. Réessayez plus tard.",
+  "erreurCodeInvalide": "Code invalide ou expiré.",
+  "erreurTropDeDemandes": "Trop de demandes de code. Réessayez plus tard.",
+  "erreurValidationGenerique": "Erreur de validation. Vérifiez les informations saisies.",
+
+  "bonjour": "Bonjour,",
+
+  "etatLaboratoire": "État du laboratoire",
+  "operationnel": "Opérationnel",
+  "horsLigne": "Hors ligne",
+  "appareilConnecteLabel": "Appareil connecté",
+  "aucun": "Aucun",
+  "connecte": "Connecté",
+  "bluetooth": "Bluetooth",
+  "deconnecte": "Déconnecté",
+  "batterie": "Batterie",
+  "derniereSynchro": "Dernière synchro.",
+  "aujourdHuiHeure": "Aujourd'hui, {heure}",
+  "@aujourdHuiHeure": {
+    "placeholders": {"heure": {"type": "String"}}
+  },
+  "dateEtHeure": "{date}, {heure}",
+  "@dateEtHeure": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "heure": {"type": "String"}
+    }
+  },
+
+  "analysesCeMois": "Analyses ce mois",
+  "echantillonsTotaux": "Échantillons totaux",
+  "analysesAujourdHui": "Analyses aujourd'hui",
+  "tempsMoyenParAnalyse": "Temps moyen / analyse",
+  "variationVsMoisDernier": "{pourcentage}% vs mois dernier",
+  "@variationVsMoisDernier": {
+    "placeholders": {"pourcentage": {"type": "String"}}
+  },
+  "variationVsHier": "{pourcentage}% vs hier",
+  "@variationVsHier": {
+    "placeholders": {"pourcentage": {"type": "String"}}
+  },
+  "ajoutsCeMois": "+ {nombre} ce mois",
+  "@ajoutsCeMois": {
+    "placeholders": {"nombre": {"type": "String"}}
+  },
+  "dureeMinSec": "{min} min {sec} s",
+  "@dureeMinSec": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "sec": {"type": "int"}
+    }
+  },
+
+  "analysesRecentesTitre": "Analyses récentes (7 derniers jours)",
+  "septJours": "7 jours",
+
+  "qualiteHuilesTitre": "Qualité des huiles (ce mois)",
+  "total": "Total",
+  "voirRepartitionDetaillee": "Voir la répartition détaillée",
+  "categorieEvoo": "Extra Vierge (EVOO)",
+  "categorieVoo": "Vierge (VOO)",
+  "categorieLampante": "Lampante",
+  "categorieEvooCourt": "EVOO",
+  "categorieVooCourt": "VOO",
+  "categorieLampanteCourt": "Lampante",
+
+  "activiteRecente": "Activité récente",
+  "aucuneAnalyseRecente": "Aucune analyse récente.",
+  "voirToutHistorique": "Voir tout l'historique",
+
+  "navAccueil": "Accueil",
+  "navAnalyse": "Analyse",
+  "navHistorique": "Historique",
+  "navModeles": "Modèles",
+  "navParametres": "Paramètres",
+
+  "modeDemoBanniere": "Mode démo — connecté avec le compte de démonstration.",
+  "reessayer": "Réessayer",
+
+  "parametresTitre": "Paramètres",
+  "langueSectionTitre": "Langue",
+  "langueFrancais": "Français",
+  "langueAnglais": "English",
+  "compteSectionTitre": "Compte",
+  "seDeconnecter": "Se déconnecter",
+  "quitterModeDemo": "Quitter le mode démo",
+
+  "alertesTitre": "Alertes",
+  "aucuneAlerte": "Aucune alerte.",
+  "alerteResolue": "Résolue",
+  "alerteNonResolue": "Non résolue",
+  "niveauInfo": "Info",
+  "niveauAvertissement": "Avertissement",
+  "niveauCritique": "Critique",
+
+  "aucunResultat": "Aucun résultat pour l'instant.",
+  "conforme": "Conforme",
+  "nonConforme": "Non conforme",
+
+  "aucunModele": "Aucun modèle disponible.",
+  "modeleVersionLabel": "Version {version}",
+  "@modeleVersionLabel": {
+    "placeholders": {"version": {"type": "String"}}
+  },
+  "modeleAlgorithmeLabel": "Algorithme",
+  "modeleR2Label": "R²",
+  "modeleRmsecvLabel": "RMSECV",
+  "modeleActif": "Actif",
+  "modeleDeprecie": "Déprécié",
+
+  "detailResultatTitre": "Détail de l'analyse",
+  "acidite": "Acidité",
+  "indicePeroxyde": "Indice de peroxyde",
+  "dureeAnalyseLabel": "Durée de l'analyse",
+  "dateAnalyseLabel": "Date de l'analyse",
+  "dateCalculLabel": "Date du résultat",
+  "commentaireLabel": "Commentaire",
+
+  "analyseEnAttenteTitre": "En attente du module Bluetooth",
+  "analyseEnAttenteTexte": "La connexion à l'analyseur spectroscopique n'est pas encore disponible. Ce module sera activé avec l'intégration Bluetooth."
+}

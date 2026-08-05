@@ -15,6 +15,7 @@ class EchantillonSerializer(serializers.ModelSerializer):
             "utilisateur",
             "utilisateur_email",
             "origine",
+            "variete",
             "notes",
             "date_creation",
             "date_modification",

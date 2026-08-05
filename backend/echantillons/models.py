@@ -14,6 +14,7 @@ class Echantillon(models.Model):
         related_name="echantillons",
     )
     origine = models.CharField(max_length=255, blank=True, default="")
+    variete = models.CharField(max_length=150, blank=True, default="")
     notes = models.TextField(blank=True, default="")
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)

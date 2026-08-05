@@ -18,6 +18,11 @@ class Resultat(models.Model):
     acidite = models.DecimalField(max_digits=6, decimal_places=3)
     indice_peroxyde = models.DecimalField(max_digits=6, decimal_places=3)
     date_calcul = models.DateTimeField(auto_now_add=True, db_index=True)
+    # Durée réelle de traitement de l'analyse, en secondes — nulle tant que
+    # le pipeline qui la mesure n'a pas encore tourné pour ce résultat.
+    # Utilisée par dashboard.services pour le « temps moyen par analyse »
+    # (moyenne SQL, jamais une valeur fixe).
+    duree_analyse_secondes = models.PositiveIntegerField(null=True, blank=True)
     conforme = models.BooleanField()
     commentaire = models.TextField(blank=True, default="")
     valide_par = models.ForeignKey(

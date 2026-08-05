@@ -13,9 +13,14 @@ urlpatterns = [
         name="auth-reset-password",
     ),
     path(
-        "auth/reset-password/confirmer/",
+        "auth/reset-password/verify/",
+        views.VerifierCodeResetView.as_view(),
+        name="auth-reset-password-verify",
+    ),
+    path(
+        "auth/reset-password/confirm/",
         views.ConfirmerResetMotDePasseView.as_view(),
-        name="auth-reset-password-confirmer",
+        name="auth-reset-password-confirm",
     ),
     path("utilisateurs/", views.UtilisateurListView.as_view(), name="utilisateurs-liste"),
     path(

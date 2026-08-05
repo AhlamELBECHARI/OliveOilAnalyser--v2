@@ -63,22 +63,39 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, trim_whitespace=False)
 
 
+class LoginResponseSerializer(serializers.Serializer):
+    """Documentation uniquement (drf-spectacular) : forme de la réponse de
+    POST /api/auth/login/, jamais utilisée pour valider une entrée."""
+
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+    utilisateur = UtilisateurSerializer()
+
+
 class DemandeResetMotDePasseSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
-class ConfirmerResetMotDePasseSerializer(serializers.Serializer):
-    token = serializers.CharField()
-    nouveau_mot_de_passe = serializers.CharField(write_only=True, min_length=8)
-    nouveau_mot_de_passe2 = serializers.CharField(write_only=True, min_length=8)
+class _CodeResetMixin:
+    def validate_code(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Le code doit contenir 6 chiffres.")
+        return value
 
-    def validate(self, attrs):
-        if attrs["nouveau_mot_de_passe"] != attrs["nouveau_mot_de_passe2"]:
-            raise serializers.ValidationError(
-                {"nouveau_mot_de_passe2": "Les mots de passe ne correspondent pas."}
-            )
-        password_validation.validate_password(attrs["nouveau_mot_de_passe"])
-        return attrs
+
+class VerifierCodeResetSerializer(_CodeResetMixin, serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField(min_length=6, max_length=6)
+
+
+class ConfirmerResetMotDePasseSerializer(_CodeResetMixin, serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField(min_length=6, max_length=6)
+    nouveau_mot_de_passe = serializers.CharField(write_only=True, min_length=8)
+
+    def validate_nouveau_mot_de_passe(self, value):
+        password_validation.validate_password(value)
+        return value
 
 
 class ConfigurationSerializer(serializers.ModelSerializer):
@@ -91,6 +108,8 @@ class ConfigurationSerializer(serializers.ModelSerializer):
             "notifications_actives",
             "seuil_conformite_acidite",
             "seuil_conformite_peroxyde",
+            "seuil_acidite_evoo",
+            "seuil_acidite_voo",
             "est_actif",
             "modifie_par",
             "date_creation",

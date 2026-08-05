@@ -13,6 +13,17 @@ abstract class AuthRepository {
     required String email,
   });
 
+  Future<Either<Failure, Unit>> verifierCodeReset({
+    required String email,
+    required String code,
+  });
+
+  Future<Either<Failure, Unit>> confirmerResetMotDePasse({
+    required String email,
+    required String code,
+    required String nouveauMotDePasse,
+  });
+
   /// Vrai si une session (refresh token) est déjà stockée localement.
   /// Ne fait aucun appel réseau : la validité réelle du refresh token n'est
   /// vérifiée qu'au premier appel authentifié (voir core/network/AuthInterceptor).

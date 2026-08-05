@@ -26,6 +26,8 @@ def test_put_configuration_admin_ok(client_administrateur, administrateur):
             "notifications_actives": False,
             "seuil_conformite_acidite": "1.000",
             "seuil_conformite_peroxyde": "15.000",
+            "seuil_acidite_evoo": "0.800",
+            "seuil_acidite_voo": "2.000",
             "est_actif": True,
         },
         format="json",
@@ -42,6 +44,8 @@ def test_put_configuration_non_admin_refuse(client_utilisateur):
             "notifications_actives": False,
             "seuil_conformite_acidite": "1.000",
             "seuil_conformite_peroxyde": "15.000",
+            "seuil_acidite_evoo": "0.800",
+            "seuil_acidite_voo": "2.000",
         },
         format="json",
     )

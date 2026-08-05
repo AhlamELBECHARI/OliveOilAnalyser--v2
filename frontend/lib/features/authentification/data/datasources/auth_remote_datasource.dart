@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import '../../../../core/error/exceptions.dart';
+import '../../../../core/network/dio_error_mapper.dart';
 import '../models/login_response_model.dart';
 
 abstract class AuthRemoteDataSource {
@@ -10,6 +10,14 @@ abstract class AuthRemoteDataSource {
   });
 
   Future<void> demanderResetMotDePasse({required String email});
+
+  Future<void> verifierCodeReset({required String email, required String code});
+
+  Future<void> confirmerResetMotDePasse({
+    required String email,
+    required String code,
+    required String nouveauMotDePasse,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -29,7 +37,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return LoginResponseModel.fromJson(reponse.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw _traduireErreur(e);
+      throw traduireDioException(e);
     }
   }
 
@@ -38,49 +46,42 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       await dio.post('/auth/reset-password/', data: {'email': email});
     } on DioException catch (e) {
-      throw _traduireErreur(e);
+      throw traduireDioException(e);
     }
   }
 
-  /// Le backend renvoie 401 aussi bien pour des identifiants invalides que
-  /// pour un compte verrouillé (voir comptes/services.py::login) : le seul
-  /// moyen de les distinguer est le texte du champ "detail".
-  Exception _traduireErreur(DioException e) {
-    final statusCode = e.response?.statusCode;
-
-    if (statusCode == 401) {
-      final detail = _extraireDetail(e.response?.data);
-      if (detail != null && detail.toLowerCase().contains('verrouill')) {
-        return const CompteVerrouilleException();
-      }
-      return const IdentifiantsInvalidesException();
-    }
-
-    if (statusCode != null && statusCode >= 400 && statusCode < 500) {
-      return ErreurValidationException(
-        _extraireDetail(e.response?.data) ?? 'Requête invalide.',
+  @override
+  Future<void> verifierCodeReset({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      await dio.post(
+        '/auth/reset-password/verify/',
+        data: {'email': email, 'code': code},
       );
+    } on DioException catch (e) {
+      throw traduireDioException(e);
     }
-
-    if (statusCode != null && statusCode >= 500) {
-      return const ErreurServeurException();
-    }
-
-    return const ErreurReseauException();
   }
 
-  String? _extraireDetail(dynamic data) {
-    if (data is Map<String, dynamic>) {
-      final detail = data['detail'];
-      if (detail is String) return detail;
-
-      for (final valeur in data.values) {
-        if (valeur is List && valeur.isNotEmpty) {
-          return valeur.first.toString();
-        }
-        if (valeur is String) return valeur;
-      }
+  @override
+  Future<void> confirmerResetMotDePasse({
+    required String email,
+    required String code,
+    required String nouveauMotDePasse,
+  }) async {
+    try {
+      await dio.post(
+        '/auth/reset-password/confirm/',
+        data: {
+          'email': email,
+          'code': code,
+          'nouveau_mot_de_passe': nouveauMotDePasse,
+        },
+      );
+    } on DioException catch (e) {
+      throw traduireDioException(e);
     }
-    return null;
   }
 }

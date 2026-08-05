@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "resultats",
     "rapports",
     "alertes",
+    "dashboard",
 ]
 
 MIDDLEWARE = [
@@ -126,7 +127,12 @@ PASSWORD_HASHERS = [
 
 MAX_TENTATIVES_ECHOUEES = int(env("MAX_TENTATIVES_ECHOUEES", "5"))
 DUREE_VERROUILLAGE_MINUTES = int(env("DUREE_VERROUILLAGE_MINUTES", "15"))
-DUREE_VALIDITE_TOKEN_RESET_MINUTES = int(env("DUREE_VALIDITE_TOKEN_RESET_MINUTES", "60"))
+
+# Réinitialisation de mot de passe par code à 6 chiffres.
+DUREE_VALIDITE_CODE_RESET_MINUTES = int(env("DUREE_VALIDITE_CODE_RESET_MINUTES", "15"))
+MAX_TENTATIVES_CODE_RESET = int(env("MAX_TENTATIVES_CODE_RESET", "5"))
+MAX_DEMANDES_CODE_RESET_PAR_FENETRE = int(env("MAX_DEMANDES_CODE_RESET_PAR_FENETRE", "5"))
+FENETRE_DEMANDES_CODE_RESET_MINUTES = int(env("FENETRE_DEMANDES_CODE_RESET_MINUTES", "60"))
 
 # --- Internationalisation -----------------------------------------------
 
@@ -145,7 +151,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "no-reply@olive-iq.local")
-FRONTEND_RESET_PASSWORD_URL = env("FRONTEND_RESET_PASSWORD_URL", "")
 
 # --- Django REST Framework ------------------------------------------------
 

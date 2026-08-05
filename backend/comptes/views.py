@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny
@@ -5,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.permissions import IsAdministrateur
+from core.serializers import ErreurSerializer, MessageSerializer
 
 from . import services
 from .serializers import (
@@ -12,9 +14,11 @@ from .serializers import (
     ConfirmerResetMotDePasseSerializer,
     CreerAdministrateurSerializer,
     DemandeResetMotDePasseSerializer,
+    LoginResponseSerializer,
     LoginSerializer,
     RegisterSerializer,
     UtilisateurSerializer,
+    VerifierCodeResetSerializer,
 )
 
 
@@ -23,6 +27,10 @@ class RegisterView(APIView):
 
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=RegisterSerializer,
+        responses={201: UtilisateurSerializer, 400: ErreurSerializer},
+    )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -35,6 +43,10 @@ class CreerAdministrateurView(APIView):
 
     permission_classes = [IsAdministrateur]
 
+    @extend_schema(
+        request=CreerAdministrateurSerializer,
+        responses={201: UtilisateurSerializer, 400: ErreurSerializer, 403: ErreurSerializer},
+    )
     def post(self, request):
         serializer = CreerAdministrateurSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -47,6 +59,10 @@ class LoginView(APIView):
 
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=LoginSerializer,
+        responses={200: LoginResponseSerializer, 401: ErreurSerializer},
+    )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -61,31 +77,55 @@ class LoginView(APIView):
 
 
 class DemandeResetMotDePasseView(APIView):
-    """POST /api/auth/reset-password/ — envoie un token par email si le compte existe."""
+    """POST /api/auth/reset-password/ — envoie un code à 6 chiffres par email
+    si le compte existe (réponse toujours identique, succès ou non, pour ne
+    jamais révéler l'existence d'un compte)."""
 
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=DemandeResetMotDePasseSerializer,
+        responses={200: MessageSerializer, 429: ErreurSerializer},
+    )
     def post(self, request):
         serializer = DemandeResetMotDePasseSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         services.demander_reset_mot_de_passe(**serializer.validated_data)
         return Response(
-            {"detail": "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé."}
+            {"detail": "Si un compte existe avec cet email, un code a été envoyé."}
         )
 
 
-class ConfirmerResetMotDePasseView(APIView):
-    """POST /api/auth/reset-password/confirmer/"""
+class VerifierCodeResetView(APIView):
+    """POST /api/auth/reset-password/verify/ — vérifie le code avant de
+    laisser l'utilisateur saisir un nouveau mot de passe."""
 
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=VerifierCodeResetSerializer,
+        responses={200: MessageSerializer, 400: ErreurSerializer},
+    )
+    def post(self, request):
+        serializer = VerifierCodeResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        services.verifier_code_reset(**serializer.validated_data)
+        return Response({"detail": "Code valide."})
+
+
+class ConfirmerResetMotDePasseView(APIView):
+    """POST /api/auth/reset-password/confirm/"""
+
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        request=ConfirmerResetMotDePasseSerializer,
+        responses={200: MessageSerializer, 400: ErreurSerializer},
+    )
     def post(self, request):
         serializer = ConfirmerResetMotDePasseSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        donnees = serializer.validated_data
-        services.confirmer_reset_mot_de_passe(
-            token=donnees["token"], nouveau_mot_de_passe=donnees["nouveau_mot_de_passe"]
-        )
+        services.confirmer_reset_mot_de_passe(**serializer.validated_data)
         return Response({"detail": "Mot de passe réinitialisé avec succès."})
 
 
@@ -104,10 +144,15 @@ class ConfigurationView(APIView):
 
     permission_classes = [IsAdministrateur]
 
+    @extend_schema(responses={200: ConfigurationSerializer, 403: ErreurSerializer})
     def get(self, request):
         configuration = services.obtenir_configuration()
         return Response(ConfigurationSerializer(configuration).data)
 
+    @extend_schema(
+        request=ConfigurationSerializer,
+        responses={200: ConfigurationSerializer, 400: ErreurSerializer, 403: ErreurSerializer},
+    )
     def put(self, request):
         serializer = ConfigurationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

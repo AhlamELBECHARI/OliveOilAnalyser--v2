@@ -8,7 +8,7 @@
 ## Structure du dépôt
 
 - `backend/` — API Django REST Framework (voir ci-dessous)
-- `frontend/` — application Flutter (à venir)
+- `frontend/` — application Flutter (authentification, dashboard, historique, modèles, alertes, paramètres — voir ci-dessous)
 - `docs/` — diagrammes de conception et maquettes
 
 ## Documentation visuelle
@@ -58,7 +58,8 @@ partagé entre apps :
 | `modeles` | `Modele` | `/api/modeles/` |
 | `resultats` | `Resultat` | `/api/resultats/` |
 | `rapports` | `Rapport` | modèle + admin Django uniquement (pas d'endpoint ce jalon) |
-| `alertes` | `Alerte` | modèle + admin Django uniquement (pas d'endpoint ce jalon) |
+| `alertes` | `Alerte` | `/api/alertes/` |
+| `dashboard` | *(aucun — agrège en lecture seule)* | `/api/dashboard/statistiques/` |
 
 ## Lancement avec Docker
 
@@ -146,6 +147,23 @@ Voir `.env.example`. Notamment :
 - `DUREE_VALIDITE_TOKEN_RESET_MINUTES` — durée de validité d'un token de reset.
 - `DJANGO_EMAIL_BACKEND` — `console` en dev (le mail est affiché dans les logs) ; à remplacer par un vrai backend SMTP en production.
 
+## Frontend (Flutter)
+
+Application mobile en architecture clean (`data`/`domain`/`presentation` par
+feature), state management par `provider`, appels réseau via `dio`.
+
+- **`authentification`** — connexion, réinitialisation de mot de passe en
+  trois écrans (email → code → nouveau mot de passe).
+- **`dashboard`** — écran d'accueil : statistiques, état de l'analyseur,
+  échantillons/analyses récents (consomme `/api/dashboard/statistiques/`).
+- **`historique`** — liste et détail des résultats d'analyse passés.
+- **`modeles`** — consultation des modèles NIR disponibles.
+- **`alertes`** — liste des alertes remontées par le backend.
+- **`parametres`** — choix de la langue (FR/EN), via `l10n/` (fichiers
+  `.arb` + classes générées dans `l10n/generated/`).
+- **Mode démo** — données factices affichées localement sans appel réseau
+  (`core/demo/`), pour démonstration hors backend.
+
 ## Notes de conception
 
 - **Mode démo** : ce backend ne contient aucune logique de "mode démo" (pas
@@ -158,6 +176,10 @@ Voir `.env.example`. Notamment :
   mobile). `Echantillon`, `Spectre`, `Resultat` et `Rapport` utilisent un UUID
   (peuvent être créés hors ligne sur mobile puis synchronisés, sans risque de
   collision d'ID).
-- **`rapports`/`alertes`** : modèles et admin Django prêts, mais sans
-  endpoints REST — hors périmètre des endpoints minimum de ce jalon. À
-  exposer dans un prochain jalon si besoin.
+- **`rapports`** : modèle et admin Django prêts, mais sans endpoint REST —
+  hors périmètre des endpoints minimum de ce jalon. À exposer dans un
+  prochain jalon si besoin.
+- **`dashboard`** : app sans modèle propre, agrège en lecture seule les
+  données d'`echantillons`/`resultats` (`dashboard/services.py`) pour
+  alimenter l'écran d'accueil du mobile (statistiques, état du laboratoire,
+  activité récente).

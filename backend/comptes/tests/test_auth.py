@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from comptes.models import Utilisateur
+from core.exceptions import CodesErreur
 
 pytestmark = pytest.mark.django_db
 
@@ -83,8 +84,21 @@ def test_login_mauvais_mot_de_passe(api_client, utilisateur):
         format="json",
     )
     assert response.status_code == 401
+    assert response.data["code"] == CodesErreur.IDENTIFIANTS_INVALIDES
     utilisateur.refresh_from_db()
     assert utilisateur.tentatives_echouees == 1
+
+
+def test_login_email_inconnu_renvoie_le_meme_code_que_mauvais_mot_de_passe(api_client):
+    """Le code d'erreur ne doit jamais permettre de distinguer un email
+    inconnu d'un mauvais mot de passe."""
+    response = api_client.post(
+        "/api/auth/login/",
+        {"email": "inconnu@example.com", "password": "peu-importe"},
+        format="json",
+    )
+    assert response.status_code == 401
+    assert response.data["code"] == CodesErreur.IDENTIFIANTS_INVALIDES
 
 
 def test_login_verrouillage_apres_echecs_repetes(api_client, utilisateur):
@@ -104,7 +118,7 @@ def test_login_verrouillage_apres_echecs_repetes(api_client, utilisateur):
         format="json",
     )
     assert response.status_code == 401
-    assert "verrouill" in str(response.data).lower()
+    assert response.data["code"] == CodesErreur.COMPTE_VERROUILLE
 
 
 def test_login_deverrouillage_automatique_apres_expiration(api_client, utilisateur, mot_de_passe):
@@ -123,6 +137,19 @@ def test_login_deverrouillage_automatique_apres_expiration(api_client, utilisate
     assert utilisateur.verrouille_jusqu_a is None
 
 
+def test_login_compte_desactive(api_client, utilisateur, mot_de_passe):
+    utilisateur.est_actif = False
+    utilisateur.save(update_fields=["est_actif"])
+
+    response = api_client.post(
+        "/api/auth/login/",
+        {"email": utilisateur.email, "password": mot_de_passe},
+        format="json",
+    )
+    assert response.status_code == 401
+    assert response.data["code"] == CodesErreur.COMPTE_DESACTIVE
+
+
 def test_refresh_token(api_client, utilisateur, mot_de_passe):
     connexion = api_client.post(
         "/api/auth/login/",
@@ -134,6 +161,11 @@ def test_refresh_token(api_client, utilisateur, mot_de_passe):
     )
     assert response.status_code == 200
     assert "access" in response.data
+
+
+def _extraire_code(mailoutbox):
+    correspondance = re.search(r"^(\d{6})$", mailoutbox[-1].body, re.MULTILINE)
+    return correspondance.group(1)
 
 
 def test_reset_password_flow_complet_et_blackliste_anciens_tokens(
@@ -153,17 +185,23 @@ def test_reset_password_flow_complet_et_blackliste_anciens_tokens(
     assert len(mailoutbox) == 1
 
     utilisateur.refresh_from_db()
-    assert utilisateur.token_reset_mot_de_passe_hash != ""
+    assert utilisateur.code_reset_mot_de_passe_hash != ""
 
-    correspondance = re.search(r"Token \(valable \d+ minutes\) : (\S+)", mailoutbox[0].body)
-    token_clair = correspondance.group(1)
+    code_clair = _extraire_code(mailoutbox)
+
+    reponse_verify = api_client.post(
+        "/api/auth/reset-password/verify/",
+        {"email": utilisateur.email, "code": code_clair},
+        format="json",
+    )
+    assert reponse_verify.status_code == 200
 
     reponse_confirmation = api_client.post(
-        "/api/auth/reset-password/confirmer/",
+        "/api/auth/reset-password/confirm/",
         {
-            "token": token_clair,
+            "email": utilisateur.email,
+            "code": code_clair,
             "nouveau_mot_de_passe": "NouveauMotDePasse123!",
-            "nouveau_mot_de_passe2": "NouveauMotDePasse123!",
         },
         format="json",
     )
@@ -171,7 +209,7 @@ def test_reset_password_flow_complet_et_blackliste_anciens_tokens(
 
     utilisateur.refresh_from_db()
     assert utilisateur.check_password("NouveauMotDePasse123!")
-    assert utilisateur.token_reset_mot_de_passe_hash == ""
+    assert utilisateur.code_reset_mot_de_passe_hash == ""
 
     # L'ancien refresh token émis avant le reset doit désormais être blacklisté.
     reponse_refresh = api_client.post(
@@ -186,3 +224,69 @@ def test_reset_password_email_inconnu_ne_revele_rien(api_client, mailoutbox):
     )
     assert response.status_code == 200
     assert len(mailoutbox) == 0
+
+
+def test_reset_password_mauvais_code_rejete(api_client, utilisateur, mailoutbox):
+    api_client.post("/api/auth/reset-password/", {"email": utilisateur.email}, format="json")
+
+    reponse = api_client.post(
+        "/api/auth/reset-password/verify/",
+        {"email": utilisateur.email, "code": "000000"},
+        format="json",
+    )
+    assert reponse.status_code == 400
+    assert reponse.data["code"] == CodesErreur.CODE_RESET_INVALIDE
+
+
+def test_reset_password_code_invalide_apres_trop_de_mauvais_essais(
+    api_client, utilisateur, mailoutbox, settings
+):
+    api_client.post("/api/auth/reset-password/", {"email": utilisateur.email}, format="json")
+    code_clair = _extraire_code(mailoutbox)
+
+    for _ in range(settings.MAX_TENTATIVES_CODE_RESET):
+        api_client.post(
+            "/api/auth/reset-password/verify/",
+            {"email": utilisateur.email, "code": "000000"},
+            format="json",
+        )
+
+    # Même le bon code est désormais refusé : il faut en redemander un.
+    reponse = api_client.post(
+        "/api/auth/reset-password/verify/",
+        {"email": utilisateur.email, "code": code_clair},
+        format="json",
+    )
+    assert reponse.status_code == 400
+    assert reponse.data["code"] == CodesErreur.CODE_RESET_INVALIDE
+
+
+def test_reset_password_code_expire_rejete(api_client, utilisateur, mailoutbox):
+    api_client.post("/api/auth/reset-password/", {"email": utilisateur.email}, format="json")
+    code_clair = _extraire_code(mailoutbox)
+
+    utilisateur.refresh_from_db()
+    utilisateur.code_reset_expiration = timezone.now() - timezone.timedelta(minutes=1)
+    utilisateur.save(update_fields=["code_reset_expiration"])
+
+    reponse = api_client.post(
+        "/api/auth/reset-password/verify/",
+        {"email": utilisateur.email, "code": code_clair},
+        format="json",
+    )
+    assert reponse.status_code == 400
+    assert reponse.data["code"] == CodesErreur.CODE_RESET_INVALIDE
+
+
+def test_reset_password_limite_demandes_par_fenetre(api_client, utilisateur, settings):
+    for _ in range(settings.MAX_DEMANDES_CODE_RESET_PAR_FENETRE):
+        reponse = api_client.post(
+            "/api/auth/reset-password/", {"email": utilisateur.email}, format="json"
+        )
+        assert reponse.status_code == 200
+
+    reponse_bloquee = api_client.post(
+        "/api/auth/reset-password/", {"email": utilisateur.email}, format="json"
+    )
+    assert reponse_bloquee.status_code == 429
+    assert reponse_bloquee.data["code"] == CodesErreur.TROP_DE_DEMANDES

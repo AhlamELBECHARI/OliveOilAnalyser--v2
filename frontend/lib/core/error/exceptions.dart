@@ -9,6 +9,18 @@ class CompteVerrouilleException implements Exception {
   const CompteVerrouilleException();
 }
 
+class CompteDesactiveException implements Exception {
+  const CompteDesactiveException();
+}
+
+class CodeResetInvalideException implements Exception {
+  const CodeResetInvalideException();
+}
+
+class TropDeDemandesException implements Exception {
+  const TropDeDemandesException();
+}
+
 class ErreurReseauException implements Exception {
   const ErreurReseauException();
 }

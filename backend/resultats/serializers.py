@@ -4,15 +4,26 @@ from .models import Resultat
 
 
 class ResultatSerializer(serializers.ModelSerializer):
+    # Champs de confort en lecture seule, pour éviter à un client (l'écran
+    # Historique du frontend, par ex.) une seconde requête sur /echantillons/
+    # juste pour afficher le numéro/la variété/l'origine de l'échantillon.
+    numero_echantillon = serializers.CharField(source="echantillon.numero", read_only=True)
+    variete_echantillon = serializers.CharField(source="echantillon.variete", read_only=True)
+    origine_echantillon = serializers.CharField(source="echantillon.origine", read_only=True)
+
     class Meta:
         model = Resultat
         fields = [
             "id",
             "echantillon",
+            "numero_echantillon",
+            "variete_echantillon",
+            "origine_echantillon",
             "modele_utilise",
             "acidite",
             "indice_peroxyde",
             "date_calcul",
+            "duree_analyse_secondes",
             "conforme",
             "commentaire",
             "valide_par",

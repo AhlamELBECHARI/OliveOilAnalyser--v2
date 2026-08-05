@@ -35,8 +35,10 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Left(IdentifiantsInvalidesFailure());
     } on CompteVerrouilleException {
       return const Left(CompteVerrouilleFailure());
-    } on ErreurValidationException catch (e) {
-      return Left(ErreurValidationFailure(e.message));
+    } on CompteDesactiveException {
+      return const Left(CompteDesactiveFailure());
+    } on ErreurValidationException {
+      return const Left(ErreurValidationFailure());
     } on ErreurServeurException {
       return const Left(ErreurServeurFailure());
     } on ErreurReseauException {
@@ -53,8 +55,53 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.demanderResetMotDePasse(email: email);
       return const Right(unit);
-    } on ErreurValidationException catch (e) {
-      return Left(ErreurValidationFailure(e.message));
+    } on TropDeDemandesException {
+      return const Left(TropDeDemandesFailure());
+    } on ErreurValidationException {
+      return const Left(ErreurValidationFailure());
+    } on ErreurServeurException {
+      return const Left(ErreurServeurFailure());
+    } catch (_) {
+      return const Left(ErreurReseauFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> verifierCodeReset({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      await remoteDataSource.verifierCodeReset(email: email, code: code);
+      return const Right(unit);
+    } on CodeResetInvalideException {
+      return const Left(CodeResetInvalideFailure());
+    } on ErreurValidationException {
+      return const Left(ErreurValidationFailure());
+    } on ErreurServeurException {
+      return const Left(ErreurServeurFailure());
+    } catch (_) {
+      return const Left(ErreurReseauFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> confirmerResetMotDePasse({
+    required String email,
+    required String code,
+    required String nouveauMotDePasse,
+  }) async {
+    try {
+      await remoteDataSource.confirmerResetMotDePasse(
+        email: email,
+        code: code,
+        nouveauMotDePasse: nouveauMotDePasse,
+      );
+      return const Right(unit);
+    } on CodeResetInvalideException {
+      return const Left(CodeResetInvalideFailure());
+    } on ErreurValidationException {
+      return const Left(ErreurValidationFailure());
     } on ErreurServeurException {
       return const Left(ErreurServeurFailure());
     } catch (_) {
