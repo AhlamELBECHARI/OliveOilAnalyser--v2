@@ -11,7 +11,11 @@ Complète aussi le comportement par défaut de DRF (qui gère déjà proprement
 400, 401, 403, 404) pour transformer les erreurs base de données qui,
 sinon, remonteraient en 500 :
 - ProtectedError (suppression bloquée par un on_delete=PROTECT) -> 409
-- IntegrityError non anticipée (contrainte violée en base) -> 400
+- IntegrityError de clé dupliquée (23505) -> 409 : cas du retry réseau de
+  la synchronisation hors ligne (frontend/Drift), qui renvoie parfois deux
+  fois la même requête avec le même UUID généré côté mobile ; le service
+  de synchronisation interprète ce 409 comme "déjà synchronisé".
+- IntegrityError non anticipée (autre contrainte violée en base) -> 400
 """
 
 import logging
@@ -39,6 +43,7 @@ class CodesErreur:
     TROP_DE_DEMANDES = "trop_de_demandes"
     VALIDATION = "validation"
     RESSOURCE_PROTEGEE = "ressource_protegee"
+    RESSOURCE_DEJA_EXISTANTE = "ressource_deja_existante"
     INTEGRITE = "integrite"
     NON_TROUVE = "non_trouve"
     PERMISSION_REFUSEE = "permission_refusee"
@@ -107,6 +112,23 @@ def _code_par_defaut(exc):
     return CodesErreur.ERREUR_SERVEUR
 
 
+def _est_violation_cle_dupliquee(exc):
+    """Spécifiquement une clé PRIMAIRE dupliquée (retry réseau de la
+    synchronisation hors ligne renvoyant deux fois le même UUID mobile) —
+    pas n'importe quelle contrainte unique. Une violation d'unicité métier
+    (ex. numéro d'échantillon déjà utilisé par le même utilisateur) doit
+    rester un 400 de validation classique, pas un 409 "déjà synchronisé".
+    23505 est le SQLSTATE Postgres standard pour "unique_violation" ;
+    Django expose l'exception native du driver dans `__cause__`, dont le
+    nom de contrainte suit la convention `<table>_pkey` pour une PK."""
+    cause = exc.__cause__
+    if getattr(cause, "sqlstate", None) != "23505":
+        return False
+    diag = getattr(cause, "diag", None)
+    constraint = getattr(diag, "constraint_name", None) if diag else None
+    return bool(constraint) and constraint.endswith("_pkey")
+
+
 def gestionnaire_exceptions(exc, context):
     if isinstance(exc, ProtectedError):
         return Response(
@@ -121,6 +143,14 @@ def gestionnaire_exceptions(exc, context):
         )
 
     if isinstance(exc, IntegrityError):
+        if _est_violation_cle_dupliquee(exc):
+            return Response(
+                {
+                    "code": CodesErreur.RESSOURCE_DEJA_EXISTANTE,
+                    "detail": "Une ressource avec cet identifiant existe déjà.",
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
         logger.warning("IntegrityError non gérée en amont: %s", exc)
         return Response(
             {

@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "rapports",
     "alertes",
     "dashboard",
+    "analyses",
 ]
 
 MIDDLEWARE = [

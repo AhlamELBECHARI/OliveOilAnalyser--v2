@@ -49,6 +49,9 @@ class LoginNotifier extends StateNotifier<LoginState> {
       LoginParams(email: email, password: password),
     );
 
+    // Voir AlertesNotifier.charger : évite "Bad state: ... after dispose"
+    // si l'écran a été fermé (provider autoDispose libéré) pendant l'appel.
+    if (!mounted) return;
     resultat.fold(
       (failure) => state = state.copierAvec(
         enChargement: false,

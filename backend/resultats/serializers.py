@@ -4,6 +4,9 @@ from .models import Resultat
 
 
 class ResultatSerializer(serializers.ModelSerializer):
+    # Voir EchantillonSerializer.id : UUID généré côté mobile, accepté tel
+    # quel pour que la synchronisation hors ligne soit idempotente.
+    id = serializers.UUIDField(required=False)
     # Champs de confort en lecture seule, pour éviter à un client (l'écran
     # Historique du frontend, par ex.) une seconde requête sur /echantillons/
     # juste pour afficher le numéro/la variété/l'origine de l'échantillon.
@@ -30,7 +33,7 @@ class ResultatSerializer(serializers.ModelSerializer):
             "date_creation",
             "date_modification",
         ]
-        read_only_fields = ["id", "date_calcul", "date_creation", "date_modification"]
+        read_only_fields = ["date_calcul", "date_creation", "date_modification"]
 
     def validate_acidite(self, value):
         if value < 0:

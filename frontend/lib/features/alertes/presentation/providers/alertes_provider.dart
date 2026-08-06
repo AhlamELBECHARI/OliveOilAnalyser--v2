@@ -41,6 +41,10 @@ class AlertesNotifier extends StateNotifier<AlertesState> {
   Future<void> charger() async {
     state = state.copierAvec(enChargement: true, effacerErreur: true);
     final resultat = await _listerAlertesUseCase(const NoParams());
+    // La requête peut se résoudre après que ce notifier autoDispose ait
+    // déjà été libéré (écran fermé pendant l'appel) : sans ce garde, l'appel
+    // à `state =` ci-dessous lève "Bad state: ... after dispose".
+    if (!mounted) return;
     resultat.fold(
       (failure) => state = state.copierAvec(enChargement: false, echec: failure),
       (alertes) => state = state.copierAvec(enChargement: false, alertes: alertes),

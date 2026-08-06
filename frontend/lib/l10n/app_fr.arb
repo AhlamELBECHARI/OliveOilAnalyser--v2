@@ -168,5 +168,91 @@
   "commentaireLabel": "Commentaire",
 
   "analyseEnAttenteTitre": "En attente du module Bluetooth",
-  "analyseEnAttenteTexte": "La connexion à l'analyseur spectroscopique n'est pas encore disponible. Ce module sera activé avec l'intégration Bluetooth."
+  "analyseEnAttenteTexte": "La connexion à l'analyseur spectroscopique n'est pas encore disponible. Ce module sera activé avec l'intégration Bluetooth.",
+
+  "erreurStockageLocal": "Impossible d'enregistrer localement sur cet appareil. Réessayez.",
+
+  "nouvelleAnalyseTitre": "Nouvelle Analyse",
+  "nouvelleAnalyseSousTitre": "Acquisition et analyse d'échantillon",
+  "etatRecherche": "Recherche...",
+  "etatErreurConnexion": "Erreur",
+
+  "etapeEchantillonLabel": "Échantillon",
+  "etapeAnalyseLabel": "Analyse",
+  "etapeResultatsLabel": "Résultats",
+
+  "carteInformationsEchantillonTitre": "Informations Échantillon",
+  "champIdEchantillon": "ID Échantillon",
+  "champProducteur": "Producteur",
+  "champVariete": "Variété",
+  "champRegion": "Région",
+  "champDateRecolte": "Date de récolte",
+  "champGps": "GPS",
+  "positionActuelleBouton": "Position actuelle",
+  "validerInformationsBouton": "Valider les informations",
+  "modifierBouton": "Modifier",
+  "metadonneesCompletesTitre": "Métadonnées complètes",
+  "metadonneesCompletesTexte": "Toutes les informations requises sont renseignées.",
+  "erreurLocalisationService": "Le GPS est désactivé. Activez la localisation dans les réglages de l'appareil.",
+  "erreurLocalisationPermission": "Permission de localisation refusée. Autorisez-la dans les réglages de l'application.",
+  "erreurLocalisationGenerique": "Impossible d'obtenir la position actuelle.",
+  "gpsNonRenseigne": "Non renseignée",
+  "selectionnerDate": "Sélectionner",
+
+  "carteConnexionInstrumentTitre": "Connexion & Instrument",
+  "voirDetailsInstrument": "Voir les détails de l'instrument",
+  "aucunInstrumentConnecte": "Aucun instrument connecté",
+  "rechercheInstrumentTexte": "Recherche de l'analyseur en cours...",
+  "reessayerConnexionBouton": "Réessayer",
+  "numeroSerieLabel": "SN",
+  "firmwareLabel": "Firmware",
+
+  "carteParametresAcquisitionTitre": "Paramètres d'Acquisition",
+  "parametresAcquisitionIndisponible": "Disponible une fois le protocole du fabricant documenté.",
+
+  "carteApercuTempsReelTitre": "Aperçu en Temps Réel",
+  "signalQualiteLabel": "Signal de qualité",
+  "absorbanceLabel": "Absorbance",
+  "longueurOndeLabel": "Longueur d'onde (nm)",
+  "snrLabel": "SNR",
+  "intensiteLabel": "Intensité",
+  "bruitLabel": "Bruit",
+  "qualiteGlobaleLabel": "Qualité globale",
+
+  "demarrerAnalyseBouton": "Démarrer l'analyse",
+  "annulerBouton": "Annuler",
+
+  "analyseTermineeTitre": "Analyse terminée",
+  "analyseTermineeTexte": "Le spectre a été acquis et enregistré localement. Il sera synchronisé automatiquement et pris en compte dans l'historique dès qu'un résultat sera calculé.",
+  "nouvelleAnalyseBouton": "Nouvelle analyse",
+
+  "enAttenteSynchronisation": "{nombre} en attente de synchronisation",
+  "@enAttenteSynchronisation": {
+    "placeholders": {"nombre": {"type": "int"}}
+  },
+
+  "historiquesTitre": "Historiques",
+  "historiquesSousTitre": "Consultation des analyses",
+  "rechercherPlaceholder": "Rechercher par ID, producteur, variété, région...",
+  "filtreTout": "Tout",
+  "filtreQualite": "Qualité",
+  "filtreVariete": "Variété",
+  "filtreRegion": "Région",
+  "filtrePlus": "Plus de filtres",
+  "apercuTitre": "Aperçu",
+  "totalAnalysesLabel": "Total analyses",
+  "ceMoisLabel": "Ce mois",
+  "chargerPlusAnalyses": "Charger plus d'analyses",
+  "statistiquesRapidesTitre": "Statistiques rapides",
+  "tendanceAciditeMoyenneLabel": "Acidité moyenne",
+  "meilleureQualiteLabel": "Meilleure qualité",
+  "plusForteAciditeLabel": "Plus forte acidité",
+  "analysesParJourLabel": "Analyses / jour",
+  "exporterBouton": "Exporter",
+  "exportLanceMessage": "Export lancé. Vous serez notifié une fois le rapport prêt.",
+  "filtresTitre": "Filtres",
+  "appliquerBouton": "Appliquer",
+  "reinitialiserBouton": "Réinitialiser",
+  "dateDebutLabel": "Date de début",
+  "dateFinLabel": "Date de fin"
 }

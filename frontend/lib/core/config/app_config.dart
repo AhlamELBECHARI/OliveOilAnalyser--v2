@@ -12,4 +12,16 @@ class AppConfig {
 
   static const Duration timeoutConnexion = Duration(seconds: 15);
   static const Duration timeoutReponse = Duration(seconds: 15);
+
+  /// Bascule entre l'implémentation Bluetooth réelle (AnalyseurBluetoothImpl)
+  /// et le simulateur NIR (AnalyseurSimuleImpl), tant que le protocole du
+  /// spectromètre n'est pas documenté par le fabricant. Seul point de
+  /// configuration de ce choix (voir core/di/injection_container.dart) :
+  /// jamais de `if` dispersé ailleurs dans le code. Surchargeable au build
+  /// avec `--dart-define=UTILISER_ANALYSEUR_SIMULE=false` une fois le
+  /// matériel disponible.
+  static const bool utiliserAnalyseurSimule = bool.fromEnvironment(
+    'UTILISER_ANALYSEUR_SIMULE',
+    defaultValue: true,
+  );
 }

@@ -68,6 +68,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     final alertesResultat = await alertesFuture;
     final etatResultat = await etatFuture;
 
+    // Voir AlertesNotifier.charger : évite "Bad state: ... after dispose"
+    // si l'écran a été fermé (provider autoDispose libéré) pendant l'appel.
+    if (!mounted) return;
     statsResultat.fold(
       (failure) => state = state.copierAvec(
         enChargement: false,

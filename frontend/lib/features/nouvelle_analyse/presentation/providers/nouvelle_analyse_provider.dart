@@ -1,0 +1,337 @@
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:equatable/equatable.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/usecase/usecase.dart';
+import '../../../analyseur/domain/entities/commande_analyseur.dart';
+import '../../../analyseur/domain/entities/etat_connexion_analyseur_entity.dart';
+import '../../../analyseur/domain/entities/info_appareil_analyseur_entity.dart';
+import '../../../analyseur/domain/entities/qualite_signal_entity.dart';
+import '../../../analyseur/domain/entities/spectre_entity.dart';
+import '../../../analyseur/domain/services/calculateur_qualite_signal.dart';
+import '../../../analyseur/domain/usecases/connecter_automatiquement_usecase.dart';
+import '../../../analyseur/domain/usecases/envoyer_commande_usecase.dart';
+import '../../../analyseur/domain/usecases/observer_etat_connexion_usecase.dart';
+import '../../../analyseur/domain/usecases/observer_spectre_usecase.dart';
+import '../../../analyseur/domain/usecases/obtenir_info_appareil_usecase.dart';
+import '../../domain/entities/nouvel_echantillon_entity.dart';
+import '../../domain/usecases/enregistrer_echantillon_usecase.dart';
+import '../../domain/usecases/enregistrer_spectre_usecase.dart';
+
+enum EtapeAnalyse { echantillon, analyse, resultats }
+
+enum ModeCarteEchantillon { formulaire, consultation }
+
+const _uuid = Uuid();
+
+/// Format `SMP-AAAA-NNNNN` (voir Partie A du cahier des charges) : proposé
+/// par défaut mais toujours modifiable par l'utilisateur dans le formulaire.
+String genererNumeroEchantillon() {
+  final annee = DateTime.now().year;
+  final suffixe = math.Random().nextInt(100000).toString().padLeft(5, '0');
+  return 'SMP-$annee-$suffixe';
+}
+
+NouvelEchantillonEntity _nouveauBrouillon() {
+  return NouvelEchantillonEntity(
+    id: _uuid.v4(),
+    numero: genererNumeroEchantillon(),
+    dateAnalyse: DateTime.now(),
+  );
+}
+
+class NouvelleAnalyseState extends Equatable {
+  final ModeCarteEchantillon modeCarteEchantillon;
+  final NouvelEchantillonEntity brouillon;
+  final NouvelEchantillonEntity? echantillonValide;
+  final EtatConnexionAnalyseurEntity etatConnexion;
+  final InfoAppareilAnalyseurEntity? infoAppareil;
+  final bool acquisitionEnCours;
+  final bool acquisitionTerminee;
+  final SpectreBrutEntity? dernierSpectre;
+  final QualiteSignalEntity? qualiteSignal;
+  final bool enregistrementEnCours;
+  final Failure? echecEnregistrement;
+  final bool positionEnCoursDeChargement;
+  final String? echecPosition;
+
+  NouvelleAnalyseState({
+    this.modeCarteEchantillon = ModeCarteEchantillon.formulaire,
+    NouvelEchantillonEntity? brouillon,
+    this.echantillonValide,
+    this.etatConnexion = const EtatConnexionAnalyseurEntity.deconnecte(),
+    this.infoAppareil,
+    this.acquisitionEnCours = false,
+    this.acquisitionTerminee = false,
+    this.dernierSpectre,
+    this.qualiteSignal,
+    this.enregistrementEnCours = false,
+    this.echecEnregistrement,
+    this.positionEnCoursDeChargement = false,
+    this.echecPosition,
+  }) : brouillon = brouillon ?? _nouveauBrouillon();
+
+  /// L'écran est un unique scroll (pas un assistant paginé) : l'étape
+  /// affichée par le stepper en haut est dérivée de l'avancement réel,
+  /// jamais un compteur manipulé indépendamment de l'état des cartes.
+  EtapeAnalyse get etapeCourante {
+    if (acquisitionTerminee) return EtapeAnalyse.resultats;
+    if (echantillonValide != null) return EtapeAnalyse.analyse;
+    return EtapeAnalyse.echantillon;
+  }
+
+  bool get peutDemarrerAnalyse =>
+      echantillonValide != null && etatConnexion.estConnecte && !acquisitionEnCours;
+
+  NouvelleAnalyseState copierAvec({
+    ModeCarteEchantillon? modeCarteEchantillon,
+    NouvelEchantillonEntity? brouillon,
+    NouvelEchantillonEntity? echantillonValide,
+    EtatConnexionAnalyseurEntity? etatConnexion,
+    InfoAppareilAnalyseurEntity? infoAppareil,
+    bool? acquisitionEnCours,
+    bool? acquisitionTerminee,
+    SpectreBrutEntity? dernierSpectre,
+    QualiteSignalEntity? qualiteSignal,
+    bool? enregistrementEnCours,
+    Failure? echecEnregistrement,
+    bool? positionEnCoursDeChargement,
+    String? echecPosition,
+    bool effacerEchecEnregistrement = false,
+    bool effacerEchecPosition = false,
+    bool effacerSpectre = false,
+  }) {
+    return NouvelleAnalyseState(
+      modeCarteEchantillon: modeCarteEchantillon ?? this.modeCarteEchantillon,
+      brouillon: brouillon ?? this.brouillon,
+      echantillonValide: echantillonValide ?? this.echantillonValide,
+      etatConnexion: etatConnexion ?? this.etatConnexion,
+      infoAppareil: infoAppareil ?? this.infoAppareil,
+      acquisitionEnCours: acquisitionEnCours ?? this.acquisitionEnCours,
+      acquisitionTerminee: acquisitionTerminee ?? this.acquisitionTerminee,
+      dernierSpectre: effacerSpectre ? null : (dernierSpectre ?? this.dernierSpectre),
+      qualiteSignal: effacerSpectre ? null : (qualiteSignal ?? this.qualiteSignal),
+      enregistrementEnCours: enregistrementEnCours ?? this.enregistrementEnCours,
+      echecEnregistrement:
+          effacerEchecEnregistrement ? null : (echecEnregistrement ?? this.echecEnregistrement),
+      positionEnCoursDeChargement: positionEnCoursDeChargement ?? this.positionEnCoursDeChargement,
+      echecPosition: effacerEchecPosition ? null : (echecPosition ?? this.echecPosition),
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        modeCarteEchantillon,
+        brouillon,
+        echantillonValide,
+        etatConnexion,
+        infoAppareil,
+        acquisitionEnCours,
+        acquisitionTerminee,
+        dernierSpectre,
+        qualiteSignal,
+        enregistrementEnCours,
+        echecEnregistrement,
+        positionEnCoursDeChargement,
+        echecPosition,
+      ];
+}
+
+class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
+  final ConnecterAutomatiquementUseCase _connecterAutomatiquement;
+  final ObserverEtatConnexionUseCase _observerEtatConnexion;
+  final ObserverSpectreUseCase _observerSpectre;
+  final ObtenirInfoAppareilUseCase _obtenirInfoAppareil;
+  final EnvoyerCommandeUseCase _envoyerCommande;
+  final EnregistrerEchantillonUseCase _enregistrerEchantillon;
+  final EnregistrerSpectreUseCase _enregistrerSpectre;
+
+  StreamSubscription<EtatConnexionAnalyseurEntity>? _abonnementEtat;
+  StreamSubscription<SpectreBrutEntity>? _abonnementSpectre;
+
+  NouvelleAnalyseNotifier({
+    required ConnecterAutomatiquementUseCase connecterAutomatiquement,
+    required ObserverEtatConnexionUseCase observerEtatConnexion,
+    required ObserverSpectreUseCase observerSpectre,
+    required ObtenirInfoAppareilUseCase obtenirInfoAppareil,
+    required EnvoyerCommandeUseCase envoyerCommande,
+    required EnregistrerEchantillonUseCase enregistrerEchantillon,
+    required EnregistrerSpectreUseCase enregistrerSpectre,
+  })  : _connecterAutomatiquement = connecterAutomatiquement,
+        _observerEtatConnexion = observerEtatConnexion,
+        _observerSpectre = observerSpectre,
+        _obtenirInfoAppareil = obtenirInfoAppareil,
+        _envoyerCommande = envoyerCommande,
+        _enregistrerEchantillon = enregistrerEchantillon,
+        _enregistrerSpectre = enregistrerSpectre,
+        super(NouvelleAnalyseState()) {
+    _initialiser();
+  }
+
+  void _initialiser() {
+    _abonnementEtat = _observerEtatConnexion().listen((etat) {
+      state = state.copierAvec(etatConnexion: etat);
+      if (etat.estConnecte) _rafraichirInfoAppareil();
+    });
+    _abonnementSpectre = _observerSpectre().listen((spectre) {
+      state = state.copierAvec(
+        dernierSpectre: spectre,
+        qualiteSignal: calculerQualiteSignal(spectre),
+      );
+    });
+    unawaited(_connecterAutomatiquement(const NoParams()));
+  }
+
+  Future<void> _rafraichirInfoAppareil() async {
+    final resultat = await _obtenirInfoAppareil(const NoParams());
+    if (!mounted) return;
+    resultat.fold((_) {}, (info) => state = state.copierAvec(infoAppareil: info));
+  }
+
+  void reessayerConnexion() {
+    unawaited(_connecterAutomatiquement(const NoParams()));
+  }
+
+  // --- Carte "Informations Échantillon" ---
+
+  void mettreAJourNumero(String numero) =>
+      state = state.copierAvec(brouillon: state.brouillon.copierAvec(numero: numero));
+
+  void mettreAJourProducteur(String producteur) =>
+      state = state.copierAvec(brouillon: state.brouillon.copierAvec(producteur: producteur));
+
+  void mettreAJourVariete(String variete) =>
+      state = state.copierAvec(brouillon: state.brouillon.copierAvec(variete: variete));
+
+  void mettreAJourRegion(String region) =>
+      state = state.copierAvec(brouillon: state.brouillon.copierAvec(region: region));
+
+  void mettreAJourDateRecolte(DateTime date) =>
+      state = state.copierAvec(brouillon: state.brouillon.copierAvec(dateRecolte: date));
+
+  Future<void> definirPositionActuelle() async {
+    state = state.copierAvec(positionEnCoursDeChargement: true, effacerEchecPosition: true);
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        throw const _LocalisationIndisponibleException('service');
+      }
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        throw const _LocalisationIndisponibleException('permission');
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+      if (!mounted) return;
+      state = state.copierAvec(
+        brouillon: state.brouillon.copierAvec(
+          latitude: position.latitude,
+          longitude: position.longitude,
+        ),
+        positionEnCoursDeChargement: false,
+      );
+    } on _LocalisationIndisponibleException catch (e) {
+      if (!mounted) return;
+      state = state.copierAvec(positionEnCoursDeChargement: false, echecPosition: e.raison);
+    } catch (_) {
+      if (!mounted) return;
+      state = state.copierAvec(positionEnCoursDeChargement: false, echecPosition: 'erreur');
+    }
+  }
+
+  Future<void> validerEchantillon() async {
+    state = state.copierAvec(enregistrementEnCours: true, effacerEchecEnregistrement: true);
+    final resultat = await _enregistrerEchantillon(state.brouillon);
+    if (!mounted) return;
+    resultat.fold(
+      (failure) =>
+          state = state.copierAvec(enregistrementEnCours: false, echecEnregistrement: failure),
+      (_) => state = state.copierAvec(
+        enregistrementEnCours: false,
+        echantillonValide: state.brouillon,
+        modeCarteEchantillon: ModeCarteEchantillon.consultation,
+      ),
+    );
+  }
+
+  void modifierEchantillon() {
+    state = state.copierAvec(modeCarteEchantillon: ModeCarteEchantillon.formulaire);
+  }
+
+  // --- Acquisition ---
+
+  Future<void> demarrerAnalyse() async {
+    if (!state.peutDemarrerAnalyse) return;
+    state = state.copierAvec(
+      acquisitionEnCours: true,
+      acquisitionTerminee: false,
+      effacerSpectre: true,
+      effacerEchecEnregistrement: true,
+    );
+
+    final resultat = await _envoyerCommande(CommandeAnalyseur.demarrerAcquisition);
+    if (!mounted) return;
+    // `Either.fold` exige un seul type de retour pour ses deux branches :
+    // l'enregistrement du spectre (asynchrone) ne peut donc pas vivre dans
+    // la branche `Right` de fold — il est fait séparément ci-dessous, une
+    // fois l'échec éventuel écarté.
+    final echec = resultat.fold<Failure?>((failure) => failure, (_) => null);
+    if (echec != null) {
+      state = state.copierAvec(acquisitionEnCours: false, echecEnregistrement: echec);
+      return;
+    }
+
+    state = state.copierAvec(acquisitionEnCours: false, acquisitionTerminee: true);
+    final spectre = state.dernierSpectre;
+    final echantillon = state.echantillonValide;
+    if (spectre != null && echantillon != null) {
+      await _enregistrerSpectre(
+        EnregistrerSpectreParams(echantillonId: echantillon.id, spectre: spectre),
+      );
+    }
+  }
+
+  Future<void> annulerAnalyse() async {
+    if (!state.acquisitionEnCours) return;
+    await _envoyerCommande(CommandeAnalyseur.annulerAcquisition);
+    if (!mounted) return;
+    state = state.copierAvec(acquisitionEnCours: false);
+  }
+
+  @override
+  void dispose() {
+    // Ne libère JAMAIS AnalyseurRepository ici : c'est un singleton get_it
+    // partagé avec la carte "État du laboratoire" du dashboard — seuls les
+    // abonnements propres à cet écran sont annulés.
+    _abonnementEtat?.cancel();
+    _abonnementSpectre?.cancel();
+    super.dispose();
+  }
+}
+
+class _LocalisationIndisponibleException implements Exception {
+  final String raison;
+  const _LocalisationIndisponibleException(this.raison);
+}
+
+final nouvelleAnalyseProvider =
+    StateNotifierProvider.autoDispose<NouvelleAnalyseNotifier, NouvelleAnalyseState>((ref) {
+  return NouvelleAnalyseNotifier(
+    connecterAutomatiquement: sl(),
+    observerEtatConnexion: sl(),
+    observerSpectre: sl(),
+    obtenirInfoAppareil: sl(),
+    envoyerCommande: sl(),
+    enregistrerEchantillon: sl(),
+    enregistrerSpectre: sl(),
+  );
+});

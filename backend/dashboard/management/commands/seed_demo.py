@@ -56,6 +56,33 @@ ORIGINES = [
 
 VARIETES = ["Picholine", "Arbequina", "Koroneiki", "Picual", "Haouzia", "Menara"]
 
+PRODUCTEURS = [
+    "Domaine Alami",
+    "Coopérative Saada",
+    "Domaine Atlas",
+    "Domaine Al Waha",
+    "Coopérative El Baraka",
+    "Domaine Olivea",
+]
+
+# Centroïdes approximatifs (latitude, longitude) par région, avec une
+# légère dispersion aléatoire à la génération — suffisant pour un jeu de
+# démo permettant de tester le filtre "région" et l'affichage GPS, pas des
+# coordonnées de parcelles réelles.
+CENTROIDES_REGIONS = {
+    "Marrakech-Safi": (31.6295, -7.9811),
+    "Fès-Meknès": (34.0181, -5.0078),
+    "Béni Mellal-Khénifra": (32.3373, -6.3498),
+    "Rabat-Salé-Kénitra": (34.0209, -6.8416),
+    "Souss-Massa": (30.4278, -9.5981),
+}
+REGIONS = list(CENTROIDES_REGIONS)
+
+# Étendue sur laquelle les échantillons de démo sont répartis, pour que le
+# regroupement par mois de l'écran Historique ait plusieurs mois distincts
+# à afficher (et pas seulement le mois courant).
+NOMBRE_JOURS_HISTORIQUE = 180
+
 # Pondération choisie pour un jeu de démo réaliste : majorité d'huiles extra
 # vierges, une part de vierges, une petite part de lampantes.
 BANDES_ACIDITE = [
@@ -78,8 +105,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--nombre",
             type=int,
-            default=30,
-            help="Nombre d'échantillons de démonstration à générer par utilisateur (défaut 30).",
+            default=60,
+            help="Nombre d'échantillons de démonstration à générer par utilisateur (défaut 60).",
         )
         parser.add_argument(
             "--clear",
@@ -159,14 +186,24 @@ class Command(BaseCommand):
             if Echantillon.objects.filter(utilisateur=utilisateur, numero=numero).exists():
                 continue
 
-            # Répartition sur les ~45 derniers jours, avec une densité plus
-            # forte sur les derniers jours pour un graphique 7 jours parlant.
+            # Répartition sur les NOMBRE_JOURS_HISTORIQUE derniers jours (~6
+            # mois), avec une densité plus forte sur les 7 derniers jours
+            # pour que le graphique 7 jours du dashboard reste parlant, tout
+            # en couvrant plusieurs mois distincts pour l'écran Historique.
             jours_ecoules = random.choices(
-                population=range(46), weights=[3] * 7 + [1] * 39, k=1
+                population=range(NOMBRE_JOURS_HISTORIQUE + 1),
+                weights=[3] * 7 + [1] * (NOMBRE_JOURS_HISTORIQUE - 6),
+                k=1,
             )[0]
             date_analyse = maintenant - timedelta(
                 days=jours_ecoules, hours=random.randint(0, 23), minutes=random.randint(0, 59)
             )
+            date_recolte = date_analyse.date() - timedelta(days=random.randint(3, 25))
+
+            region = random.choice(REGIONS)
+            latitude_base, longitude_base = CENTROIDES_REGIONS[region]
+            latitude = Decimal(str(round(latitude_base + random.uniform(-0.15, 0.15), 6)))
+            longitude = Decimal(str(round(longitude_base + random.uniform(-0.15, 0.15), 6)))
 
             echantillon = Echantillon.objects.create(
                 numero=numero,
@@ -174,6 +211,11 @@ class Command(BaseCommand):
                 utilisateur=utilisateur,
                 origine=random.choice(ORIGINES),
                 variete=random.choice(VARIETES),
+                producteur=random.choice(PRODUCTEURS),
+                region=region,
+                date_recolte=date_recolte,
+                latitude=latitude,
+                longitude=longitude,
                 notes="Échantillon de démonstration généré par seed_demo.",
             )
 

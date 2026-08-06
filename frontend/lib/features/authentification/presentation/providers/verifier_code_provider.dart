@@ -46,6 +46,7 @@ class VerifierCodeNotifier extends StateNotifier<VerifierCodeState> {
 
     final resultat = await _useCase(VerifierCodeResetParams(email: email, code: code));
 
+    if (!mounted) return;
     resultat.fold(
       (failure) => state = state.copierAvec(
         enChargement: false,

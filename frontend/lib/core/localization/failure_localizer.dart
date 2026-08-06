@@ -18,6 +18,7 @@ extension FailureLocalizer on Failure {
     if (failure is CodeResetInvalideFailure) return l10n.erreurCodeInvalide;
     if (failure is TropDeDemandesFailure) return l10n.erreurTropDeDemandes;
     if (failure is ErreurValidationFailure) return l10n.erreurValidationGenerique;
+    if (failure is ErreurStockageLocalFailure) return l10n.erreurStockageLocal;
     return l10n.erreurServeur;
   }
 }

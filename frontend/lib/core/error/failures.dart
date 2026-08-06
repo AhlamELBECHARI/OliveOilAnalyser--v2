@@ -55,3 +55,11 @@ class TropDeDemandesFailure extends Failure {
 class ErreurValidationFailure extends Failure {
   const ErreurValidationFailure();
 }
+
+/// Échec d'écriture dans la base locale (Drift/SQLite) — distinct d'une
+/// erreur réseau : contrairement à celle-ci, elle n'est jamais résorbée par
+/// une resynchronisation automatique (voir core/sync/synchronisation_service.dart),
+/// puisque l'enregistrement n'a même pas pu être mis en file d'attente.
+class ErreurStockageLocalFailure extends Failure {
+  const ErreurStockageLocalFailure();
+}

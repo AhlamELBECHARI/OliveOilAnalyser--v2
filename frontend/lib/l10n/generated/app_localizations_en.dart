@@ -377,4 +377,231 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get analyseEnAttenteTexte =>
       'Connecting to the spectroscopic analyzer isn\'t available yet. This module will be enabled once Bluetooth integration ships.';
+
+  @override
+  String get erreurStockageLocal =>
+      'Couldn\'t save locally on this device. Please try again.';
+
+  @override
+  String get nouvelleAnalyseTitre => 'New Analysis';
+
+  @override
+  String get nouvelleAnalyseSousTitre => 'Sample acquisition and analysis';
+
+  @override
+  String get etatRecherche => 'Searching...';
+
+  @override
+  String get etatErreurConnexion => 'Error';
+
+  @override
+  String get etapeEchantillonLabel => 'Sample';
+
+  @override
+  String get etapeAnalyseLabel => 'Analysis';
+
+  @override
+  String get etapeResultatsLabel => 'Results';
+
+  @override
+  String get carteInformationsEchantillonTitre => 'Sample Information';
+
+  @override
+  String get champIdEchantillon => 'Sample ID';
+
+  @override
+  String get champProducteur => 'Producer';
+
+  @override
+  String get champVariete => 'Variety';
+
+  @override
+  String get champRegion => 'Region';
+
+  @override
+  String get champDateRecolte => 'Harvest date';
+
+  @override
+  String get champGps => 'GPS';
+
+  @override
+  String get positionActuelleBouton => 'Current position';
+
+  @override
+  String get validerInformationsBouton => 'Validate information';
+
+  @override
+  String get modifierBouton => 'Edit';
+
+  @override
+  String get metadonneesCompletesTitre => 'Metadata complete';
+
+  @override
+  String get metadonneesCompletesTexte =>
+      'All required information has been provided.';
+
+  @override
+  String get erreurLocalisationService =>
+      'GPS is disabled. Enable location in the device settings.';
+
+  @override
+  String get erreurLocalisationPermission =>
+      'Location permission denied. Allow it in the app settings.';
+
+  @override
+  String get erreurLocalisationGenerique =>
+      'Couldn\'t get the current position.';
+
+  @override
+  String get gpsNonRenseigne => 'Not set';
+
+  @override
+  String get selectionnerDate => 'Select';
+
+  @override
+  String get carteConnexionInstrumentTitre => 'Connection & Instrument';
+
+  @override
+  String get voirDetailsInstrument => 'View instrument details';
+
+  @override
+  String get aucunInstrumentConnecte => 'No instrument connected';
+
+  @override
+  String get rechercheInstrumentTexte => 'Searching for the analyzer...';
+
+  @override
+  String get reessayerConnexionBouton => 'Retry';
+
+  @override
+  String get numeroSerieLabel => 'SN';
+
+  @override
+  String get firmwareLabel => 'Firmware';
+
+  @override
+  String get carteParametresAcquisitionTitre => 'Acquisition Settings';
+
+  @override
+  String get parametresAcquisitionIndisponible =>
+      'Available once the manufacturer\'s protocol is documented.';
+
+  @override
+  String get carteApercuTempsReelTitre => 'Real-Time Preview';
+
+  @override
+  String get signalQualiteLabel => 'Signal quality';
+
+  @override
+  String get absorbanceLabel => 'Absorbance';
+
+  @override
+  String get longueurOndeLabel => 'Wavelength (nm)';
+
+  @override
+  String get snrLabel => 'SNR';
+
+  @override
+  String get intensiteLabel => 'Intensity';
+
+  @override
+  String get bruitLabel => 'Noise';
+
+  @override
+  String get qualiteGlobaleLabel => 'Overall quality';
+
+  @override
+  String get demarrerAnalyseBouton => 'Start analysis';
+
+  @override
+  String get annulerBouton => 'Cancel';
+
+  @override
+  String get analyseTermineeTitre => 'Analysis complete';
+
+  @override
+  String get analyseTermineeTexte =>
+      'The spectrum was acquired and saved locally. It will sync automatically and appear in the history once a result is computed.';
+
+  @override
+  String get nouvelleAnalyseBouton => 'New analysis';
+
+  @override
+  String enAttenteSynchronisation(int nombre) {
+    return '$nombre pending synchronization';
+  }
+
+  @override
+  String get historiquesTitre => 'History';
+
+  @override
+  String get historiquesSousTitre => 'Analysis records';
+
+  @override
+  String get rechercherPlaceholder =>
+      'Search by ID, producer, variety, region...';
+
+  @override
+  String get filtreTout => 'All';
+
+  @override
+  String get filtreQualite => 'Quality';
+
+  @override
+  String get filtreVariete => 'Variety';
+
+  @override
+  String get filtreRegion => 'Region';
+
+  @override
+  String get filtrePlus => 'More filters';
+
+  @override
+  String get apercuTitre => 'Overview';
+
+  @override
+  String get totalAnalysesLabel => 'Total analyses';
+
+  @override
+  String get ceMoisLabel => 'This month';
+
+  @override
+  String get chargerPlusAnalyses => 'Load more analyses';
+
+  @override
+  String get statistiquesRapidesTitre => 'Quick statistics';
+
+  @override
+  String get tendanceAciditeMoyenneLabel => 'Average acidity';
+
+  @override
+  String get meilleureQualiteLabel => 'Best quality';
+
+  @override
+  String get plusForteAciditeLabel => 'Highest acidity';
+
+  @override
+  String get analysesParJourLabel => 'Analyses / day';
+
+  @override
+  String get exporterBouton => 'Export';
+
+  @override
+  String get exportLanceMessage =>
+      'Export started. You\'ll be notified once the report is ready.';
+
+  @override
+  String get filtresTitre => 'Filters';
+
+  @override
+  String get appliquerBouton => 'Apply';
+
+  @override
+  String get reinitialiserBouton => 'Reset';
+
+  @override
+  String get dateDebutLabel => 'Start date';
+
+  @override
+  String get dateFinLabel => 'End date';
 }

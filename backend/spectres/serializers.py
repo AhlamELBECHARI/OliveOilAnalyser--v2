@@ -4,6 +4,10 @@ from .models import Spectre
 
 
 class SpectreSerializer(serializers.ModelSerializer):
+    # Voir EchantillonSerializer.id : UUID généré côté mobile, accepté tel
+    # quel pour que la synchronisation hors ligne soit idempotente.
+    id = serializers.UUIDField(required=False)
+
     class Meta:
         model = Spectre
         fields = [
@@ -18,7 +22,7 @@ class SpectreSerializer(serializers.ModelSerializer):
             "date_creation",
             "date_modification",
         ]
-        read_only_fields = ["id", "date_creation", "date_modification"]
+        read_only_fields = ["date_creation", "date_modification"]
 
     def validate(self, attrs):
         valeurs_x = attrs.get("valeurs_x", getattr(self.instance, "valeurs_x", None))

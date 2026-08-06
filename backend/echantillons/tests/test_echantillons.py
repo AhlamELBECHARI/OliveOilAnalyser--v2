@@ -1,3 +1,4 @@
+import uuid
 from decimal import Decimal
 
 import pytest
@@ -76,6 +77,93 @@ def test_utilisateur_ne_peut_pas_acceder_a_echantillon_dautrui(client_utilisateu
 def test_non_authentifie_refuse(api_client):
     response = api_client.get("/api/echantillons/")
     assert response.status_code == 401
+
+
+def test_creer_echantillon_avec_metadonnees_recolte(client_utilisateur):
+    response = client_utilisateur.post(
+        "/api/echantillons/",
+        {
+            "numero": "ECH-METADONNEES",
+            "date_analyse": timezone.now().isoformat(),
+            "producteur": "Domaine Alami",
+            "region": "Marrakech-Safi",
+            "date_recolte": "2026-07-12",
+            "latitude": "31.6295",
+            "longitude": "-7.9811",
+        },
+        format="json",
+    )
+    assert response.status_code == 201
+    echantillon = Echantillon.objects.get(numero="ECH-METADONNEES")
+    assert echantillon.producteur == "Domaine Alami"
+    assert echantillon.region == "Marrakech-Safi"
+    assert str(echantillon.date_recolte) == "2026-07-12"
+    assert echantillon.latitude == Decimal("31.629500")
+
+
+def test_latitude_hors_limites_rejetee(client_utilisateur):
+    response = client_utilisateur.post(
+        "/api/echantillons/",
+        {
+            "numero": "ECH-LAT-INVALIDE",
+            "date_analyse": timezone.now().isoformat(),
+            "latitude": "120.0",
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+
+
+def test_longitude_hors_limites_rejetee(client_utilisateur):
+    response = client_utilisateur.post(
+        "/api/echantillons/",
+        {
+            "numero": "ECH-LONG-INVALIDE",
+            "date_analyse": timezone.now().isoformat(),
+            "longitude": "200.0",
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+
+
+def test_creer_echantillon_avec_uuid_fourni_par_le_mobile(client_utilisateur):
+    """La synchronisation hors ligne (Drift, côté frontend) génère l'UUID
+    côté mobile avant même d'avoir du réseau : le serveur doit l'accepter
+    tel quel plutôt que d'en générer un autre, sinon l'ID local et l'ID
+    serveur divergent."""
+    identifiant = uuid.uuid4()
+    response = client_utilisateur.post(
+        "/api/echantillons/",
+        {
+            "id": str(identifiant),
+            "numero": "ECH-UUID-MOBILE",
+            "date_analyse": timezone.now().isoformat(),
+        },
+        format="json",
+    )
+    assert response.status_code == 201
+    assert response.data["id"] == str(identifiant)
+    assert Echantillon.objects.filter(pk=identifiant).exists()
+
+
+def test_rejouer_le_meme_uuid_apres_synchronisation_reussie_est_rejete(client_utilisateur):
+    """Cas de retry réseau : le mobile renvoie la même requête (même UUID)
+    parce qu'il n'a pas reçu la réponse de la première tentative, qui avait
+    pourtant réussi. Le doublon de clé primaire doit remonter en 409 (voir
+    core.exceptions), pas planter en 500 — le service de synchronisation
+    interprète ce 409 comme "déjà synchronisé", pas comme un échec."""
+    identifiant = uuid.uuid4()
+    donnees = {
+        "id": str(identifiant),
+        "numero": "ECH-RETRY",
+        "date_analyse": timezone.now().isoformat(),
+    }
+    premiere = client_utilisateur.post("/api/echantillons/", donnees, format="json")
+    assert premiere.status_code == 201
+
+    deuxieme = client_utilisateur.post("/api/echantillons/", donnees, format="json")
+    assert deuxieme.status_code == 409
 
 
 def test_suppression_bloquee_si_resultat_associe(client_utilisateur, utilisateur):

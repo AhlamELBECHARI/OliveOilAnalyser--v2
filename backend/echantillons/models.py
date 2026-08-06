@@ -15,6 +15,15 @@ class Echantillon(models.Model):
     )
     origine = models.CharField(max_length=255, blank=True, default="")
     variete = models.CharField(max_length=150, blank=True, default="")
+    producteur = models.CharField(max_length=255, blank=True, default="")
+    region = models.CharField(max_length=255, blank=True, default="")
+    date_recolte = models.DateField(null=True, blank=True)
+    # Coordonnées GPS du lieu de récolte, renseignées via le bouton "Position
+    # actuelle" côté mobile (géolocalisation de l'appareil) — jamais calculées
+    # côté serveur. DecimalField (et non Float) pour éviter toute dérive
+    # d'arrondi entre la saisie mobile et l'affichage.
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     notes = models.TextField(blank=True, default="")
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)

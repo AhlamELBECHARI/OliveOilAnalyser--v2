@@ -46,6 +46,15 @@ dependencies:
   fl_chart: ^0.69.0
   intl: ^0.20.2
   shared_preferences: ^2.3.3
+  flutter_bluetooth_serial: ^0.4.0
+  permission_handler: ^11.3.1
+  geolocator: ^13.0.2
+  connectivity_plus: ^6.1.0
+  drift: ^2.22.1
+  sqlite3_flutter_libs: ^0.5.27
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +68,8 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   mocktail: ^1.0.4
   flutter_launcher_icons: ^0.14.3
+  drift_dev: ^2.22.1
+  build_runner: ^2.4.13
 
 flutter_launcher_icons:
   android: true

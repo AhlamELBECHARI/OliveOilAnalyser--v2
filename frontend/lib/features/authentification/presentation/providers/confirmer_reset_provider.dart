@@ -56,6 +56,7 @@ class ConfirmerResetNotifier extends StateNotifier<ConfirmerResetState> {
       ),
     );
 
+    if (!mounted) return;
     resultat.fold(
       (failure) => state = state.copierAvec(
         enChargement: false,

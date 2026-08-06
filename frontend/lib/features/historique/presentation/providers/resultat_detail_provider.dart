@@ -42,6 +42,9 @@ class ResultatDetailNotifier extends StateNotifier<ResultatDetailState> {
   Future<void> charger() async {
     state = state.copierAvec(enChargement: true, effacerErreur: true);
     final resultat = await _obtenirResultatUseCase(resultatId);
+    // Voir AlertesNotifier.charger : évite "Bad state: ... after dispose"
+    // si l'écran a été fermé (provider autoDispose libéré) pendant l'appel.
+    if (!mounted) return;
     resultat.fold(
       (failure) => state = state.copierAvec(enChargement: false, echec: failure),
       (donnees) => state = state.copierAvec(enChargement: false, resultat: donnees),

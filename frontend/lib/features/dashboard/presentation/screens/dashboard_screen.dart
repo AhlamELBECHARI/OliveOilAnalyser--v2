@@ -12,6 +12,7 @@ import '../../../alertes/presentation/screens/alertes_screen.dart';
 import '../../../historique/presentation/screens/historique_screen.dart';
 import '../../../historique/presentation/screens/resultat_detail_screen.dart';
 import '../../../modeles/presentation/screens/modeles_screen.dart';
+import '../../../nouvelle_analyse/presentation/screens/nouvelle_analyse_screen.dart';
 import '../../../parametres/presentation/screens/parametres_screen.dart';
 import '../../domain/entities/etat_analyseur_entity.dart';
 import '../../domain/entities/statistiques_dashboard_entity.dart';
@@ -23,7 +24,6 @@ import '../widgets/carte_etat_laboratoire.dart';
 import '../widgets/carte_qualite_huiles.dart';
 import '../widgets/carte_statistique.dart';
 import '../widgets/dashboard_header.dart';
-import 'analyse_screen.dart';
 import 'repartition_qualite_screen.dart';
 
 /// Écran d'accueil / tableau de bord (design/2-dashboard.png). S'alimente
@@ -40,7 +40,7 @@ class DashboardScreen extends ConsumerWidget {
       case 0:
         return;
       case 1:
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AnalyseScreen()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NouvelleAnalyseScreen()));
         return;
       case 2:
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HistoriqueScreen()));
@@ -182,7 +182,7 @@ class _DashboardContenu extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const AlertesScreen()),
             ),
             onTapScan: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AnalyseScreen()),
+              MaterialPageRoute(builder: (_) => const NouvelleAnalyseScreen()),
             ),
           ),
           const SizedBox(height: 20),

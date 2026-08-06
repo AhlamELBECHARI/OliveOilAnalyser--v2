@@ -41,6 +41,9 @@ class ModelesNotifier extends StateNotifier<ModelesState> {
   Future<void> charger() async {
     state = state.copierAvec(enChargement: true, effacerErreur: true);
     final resultat = await _listerModelesUseCase(const NoParams());
+    // Voir AlertesNotifier.charger : évite "Bad state: ... after dispose"
+    // si l'écran a été fermé (provider autoDispose libéré) pendant l'appel.
+    if (!mounted) return;
     resultat.fold(
       (failure) => state = state.copierAvec(enChargement: false, echec: failure),
       (modeles) => state = state.copierAvec(enChargement: false, modeles: modeles),

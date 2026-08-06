@@ -787,6 +787,438 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'La connexion à l\'analyseur spectroscopique n\'est pas encore disponible. Ce module sera activé avec l\'intégration Bluetooth.'**
   String get analyseEnAttenteTexte;
+
+  /// No description provided for @erreurStockageLocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer localement sur cet appareil. Réessayez.'**
+  String get erreurStockageLocal;
+
+  /// No description provided for @nouvelleAnalyseTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle Analyse'**
+  String get nouvelleAnalyseTitre;
+
+  /// No description provided for @nouvelleAnalyseSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acquisition et analyse d\'échantillon'**
+  String get nouvelleAnalyseSousTitre;
+
+  /// No description provided for @etatRecherche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche...'**
+  String get etatRecherche;
+
+  /// No description provided for @etatErreurConnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur'**
+  String get etatErreurConnexion;
+
+  /// No description provided for @etapeEchantillonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échantillon'**
+  String get etapeEchantillonLabel;
+
+  /// No description provided for @etapeAnalyseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse'**
+  String get etapeAnalyseLabel;
+
+  /// No description provided for @etapeResultatsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultats'**
+  String get etapeResultatsLabel;
+
+  /// No description provided for @carteInformationsEchantillonTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations Échantillon'**
+  String get carteInformationsEchantillonTitre;
+
+  /// No description provided for @champIdEchantillon.
+  ///
+  /// In fr, this message translates to:
+  /// **'ID Échantillon'**
+  String get champIdEchantillon;
+
+  /// No description provided for @champProducteur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Producteur'**
+  String get champProducteur;
+
+  /// No description provided for @champVariete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Variété'**
+  String get champVariete;
+
+  /// No description provided for @champRegion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Région'**
+  String get champRegion;
+
+  /// No description provided for @champDateRecolte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de récolte'**
+  String get champDateRecolte;
+
+  /// No description provided for @champGps.
+  ///
+  /// In fr, this message translates to:
+  /// **'GPS'**
+  String get champGps;
+
+  /// No description provided for @positionActuelleBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Position actuelle'**
+  String get positionActuelleBouton;
+
+  /// No description provided for @validerInformationsBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider les informations'**
+  String get validerInformationsBouton;
+
+  /// No description provided for @modifierBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get modifierBouton;
+
+  /// No description provided for @metadonneesCompletesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Métadonnées complètes'**
+  String get metadonneesCompletesTitre;
+
+  /// No description provided for @metadonneesCompletesTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les informations requises sont renseignées.'**
+  String get metadonneesCompletesTexte;
+
+  /// No description provided for @erreurLocalisationService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le GPS est désactivé. Activez la localisation dans les réglages de l\'appareil.'**
+  String get erreurLocalisationService;
+
+  /// No description provided for @erreurLocalisationPermission.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permission de localisation refusée. Autorisez-la dans les réglages de l\'application.'**
+  String get erreurLocalisationPermission;
+
+  /// No description provided for @erreurLocalisationGenerique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'obtenir la position actuelle.'**
+  String get erreurLocalisationGenerique;
+
+  /// No description provided for @gpsNonRenseigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseignée'**
+  String get gpsNonRenseigne;
+
+  /// No description provided for @selectionnerDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionner'**
+  String get selectionnerDate;
+
+  /// No description provided for @carteConnexionInstrumentTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion & Instrument'**
+  String get carteConnexionInstrumentTitre;
+
+  /// No description provided for @voirDetailsInstrument.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les détails de l\'instrument'**
+  String get voirDetailsInstrument;
+
+  /// No description provided for @aucunInstrumentConnecte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun instrument connecté'**
+  String get aucunInstrumentConnecte;
+
+  /// No description provided for @rechercheInstrumentTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche de l\'analyseur en cours...'**
+  String get rechercheInstrumentTexte;
+
+  /// No description provided for @reessayerConnexionBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get reessayerConnexionBouton;
+
+  /// No description provided for @numeroSerieLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'SN'**
+  String get numeroSerieLabel;
+
+  /// No description provided for @firmwareLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Firmware'**
+  String get firmwareLabel;
+
+  /// No description provided for @carteParametresAcquisitionTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres d\'Acquisition'**
+  String get carteParametresAcquisitionTitre;
+
+  /// No description provided for @parametresAcquisitionIndisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible une fois le protocole du fabricant documenté.'**
+  String get parametresAcquisitionIndisponible;
+
+  /// No description provided for @carteApercuTempsReelTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu en Temps Réel'**
+  String get carteApercuTempsReelTitre;
+
+  /// No description provided for @signalQualiteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signal de qualité'**
+  String get signalQualiteLabel;
+
+  /// No description provided for @absorbanceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Absorbance'**
+  String get absorbanceLabel;
+
+  /// No description provided for @longueurOndeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Longueur d\'onde (nm)'**
+  String get longueurOndeLabel;
+
+  /// No description provided for @snrLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'SNR'**
+  String get snrLabel;
+
+  /// No description provided for @intensiteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intensité'**
+  String get intensiteLabel;
+
+  /// No description provided for @bruitLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bruit'**
+  String get bruitLabel;
+
+  /// No description provided for @qualiteGlobaleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité globale'**
+  String get qualiteGlobaleLabel;
+
+  /// No description provided for @demarrerAnalyseBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer l\'analyse'**
+  String get demarrerAnalyseBouton;
+
+  /// No description provided for @annulerBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get annulerBouton;
+
+  /// No description provided for @analyseTermineeTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse terminée'**
+  String get analyseTermineeTitre;
+
+  /// No description provided for @analyseTermineeTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le spectre a été acquis et enregistré localement. Il sera synchronisé automatiquement et pris en compte dans l\'historique dès qu\'un résultat sera calculé.'**
+  String get analyseTermineeTexte;
+
+  /// No description provided for @nouvelleAnalyseBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle analyse'**
+  String get nouvelleAnalyseBouton;
+
+  /// No description provided for @enAttenteSynchronisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nombre} en attente de synchronisation'**
+  String enAttenteSynchronisation(int nombre);
+
+  /// No description provided for @historiquesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historiques'**
+  String get historiquesTitre;
+
+  /// No description provided for @historiquesSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultation des analyses'**
+  String get historiquesSousTitre;
+
+  /// No description provided for @rechercherPlaceholder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher par ID, producteur, variété, région...'**
+  String get rechercherPlaceholder;
+
+  /// No description provided for @filtreTout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout'**
+  String get filtreTout;
+
+  /// No description provided for @filtreQualite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité'**
+  String get filtreQualite;
+
+  /// No description provided for @filtreVariete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Variété'**
+  String get filtreVariete;
+
+  /// No description provided for @filtreRegion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Région'**
+  String get filtreRegion;
+
+  /// No description provided for @filtrePlus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus de filtres'**
+  String get filtrePlus;
+
+  /// No description provided for @apercuTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu'**
+  String get apercuTitre;
+
+  /// No description provided for @totalAnalysesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total analyses'**
+  String get totalAnalysesLabel;
+
+  /// No description provided for @ceMoisLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce mois'**
+  String get ceMoisLabel;
+
+  /// No description provided for @chargerPlusAnalyses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charger plus d\'analyses'**
+  String get chargerPlusAnalyses;
+
+  /// No description provided for @statistiquesRapidesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques rapides'**
+  String get statistiquesRapidesTitre;
+
+  /// No description provided for @tendanceAciditeMoyenneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acidité moyenne'**
+  String get tendanceAciditeMoyenneLabel;
+
+  /// No description provided for @meilleureQualiteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleure qualité'**
+  String get meilleureQualiteLabel;
+
+  /// No description provided for @plusForteAciditeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus forte acidité'**
+  String get plusForteAciditeLabel;
+
+  /// No description provided for @analysesParJourLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses / jour'**
+  String get analysesParJourLabel;
+
+  /// No description provided for @exporterBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter'**
+  String get exporterBouton;
+
+  /// No description provided for @exportLanceMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Export lancé. Vous serez notifié une fois le rapport prêt.'**
+  String get exportLanceMessage;
+
+  /// No description provided for @filtresTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres'**
+  String get filtresTitre;
+
+  /// No description provided for @appliquerBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer'**
+  String get appliquerBouton;
+
+  /// No description provided for @reinitialiserBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser'**
+  String get reinitialiserBouton;
+
+  /// No description provided for @dateDebutLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de début'**
+  String get dateDebutLabel;
+
+  /// No description provided for @dateFinLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de fin'**
+  String get dateFinLabel;
 }
 
 class _AppLocalizationsDelegate

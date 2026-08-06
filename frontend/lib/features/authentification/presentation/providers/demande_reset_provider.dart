@@ -46,6 +46,7 @@ class DemandeResetNotifier extends StateNotifier<DemandeResetState> {
 
     final resultat = await _useCase(DemanderResetMotDePasseParams(email: email));
 
+    if (!mounted) return;
     resultat.fold(
       (failure) => state = state.copierAvec(
         enChargement: false,

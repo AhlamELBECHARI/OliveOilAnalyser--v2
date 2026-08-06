@@ -7,8 +7,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:olive_iq_app/core/demo/demo_mode_provider.dart';
 import 'package:olive_iq_app/core/theme/app_theme.dart';
 import 'package:olive_iq_app/features/dashboard/domain/entities/statistiques_dashboard_entity.dart';
+import 'package:olive_iq_app/features/analyseur/domain/repositories/analyseur_repository.dart';
 import 'package:olive_iq_app/features/dashboard/domain/repositories/dashboard_repository.dart';
-import 'package:olive_iq_app/features/dashboard/domain/repositories/etat_analyseur_repository.dart';
 import 'package:olive_iq_app/features/dashboard/domain/usecases/compter_alertes_non_resolues_usecase.dart';
 import 'package:olive_iq_app/features/dashboard/domain/usecases/obtenir_etat_analyseur_usecase.dart';
 import 'package:olive_iq_app/features/dashboard/domain/usecases/obtenir_statistiques_usecase.dart';
@@ -18,7 +18,7 @@ import 'package:olive_iq_app/l10n/generated/app_localizations.dart';
 
 class MockDashboardRepository extends Mock implements DashboardRepository {}
 
-class MockEtatAnalyseurRepository extends Mock implements EtatAnalyseurRepository {}
+class MockAnalyseurRepository extends Mock implements AnalyseurRepository {}
 
 /// Notifier de test : neutralise l'appel réseau automatique du constructeur
 /// réel (charger() y est appelé dès la construction) pour injecter un état
@@ -28,7 +28,7 @@ class _NotifierTest extends DashboardNotifier {
       : super(
           ObtenirStatistiquesUseCase(MockDashboardRepository()),
           CompterAlertesNonResoluesUseCase(MockDashboardRepository()),
-          ObtenirEtatAnalyseurUseCase(MockEtatAnalyseurRepository()),
+          ObtenirEtatAnalyseurUseCase(MockAnalyseurRepository()),
         ) {
     state = etat;
   }

@@ -1,4 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Bluetooth Classic (SPP) vers l'analyseur spectroscopique — voir
+         features/analyseur/data/repositories/analyseur_bluetooth_impl.dart.
+         Permissions legacy (<= Android 11) : nécessitent aussi la
+         localisation pour la découverte Bluetooth. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <!-- Permissions granulaires Android 12+ (API 31+). neverForLocation :
+         la connexion SPP se fait par adresse d'un appareil déjà appairé,
+         jamais pour déduire la position de l'utilisateur. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Localisation : requise par le SPP legacy (<= Android 11) pour la
+         découverte Bluetooth, et par le bouton "Position actuelle" de
+         l'écran Nouvelle Analyse (géolocalisation GPS réelle). -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:label="OliveIQ"
         android:name="${applicationName}"

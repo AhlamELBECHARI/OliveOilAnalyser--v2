@@ -13,33 +13,16 @@ changement de seuil dans /admin/ se répercute immédiatement ici.
 
 from datetime import timedelta
 
-from django.db.models import Avg, Case, CharField, Count, Value, When
+from django.db.models import Avg, Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 
 from comptes.services import obtenir_configuration
+from core.qualite import LIBELLES_CATEGORIE, annotation_categorie, categorie_depuis_acidite
 from echantillons.models import Echantillon
 from resultats.models import Resultat
 
-CATEGORIE_EVOO = "evoo"
-CATEGORIE_VOO = "voo"
-CATEGORIE_LAMPANTE = "lampante"
-
-LIBELLES_CATEGORIE = {
-    CATEGORIE_EVOO: "Extra Vierge (EVOO)",
-    CATEGORIE_VOO: "Vierge (VOO)",
-    CATEGORIE_LAMPANTE: "Lampante",
-}
-
 NOMBRE_ANALYSES_RECENTES = 5
-
-
-def _categorie_depuis_acidite(acidite, *, seuil_evoo, seuil_voo):
-    if acidite <= seuil_evoo:
-        return CATEGORIE_EVOO
-    if acidite <= seuil_voo:
-        return CATEGORIE_VOO
-    return CATEGORIE_LAMPANTE
 
 
 def _est_administrateur(utilisateur):
@@ -118,14 +101,7 @@ def _repartition_qualite(queryset, *, seuil_evoo, seuil_voo):
         ]
 
     comptages = (
-        queryset.annotate(
-            categorie=Case(
-                When(acidite__lte=seuil_evoo, then=Value(CATEGORIE_EVOO)),
-                When(acidite__lte=seuil_voo, then=Value(CATEGORIE_VOO)),
-                default=Value(CATEGORIE_LAMPANTE),
-                output_field=CharField(),
-            )
-        )
+        queryset.annotate(categorie=annotation_categorie(seuil_evoo=seuil_evoo, seuil_voo=seuil_voo))
         .values("categorie")
         .annotate(effectif=Count("id"))
     )
@@ -153,7 +129,7 @@ def _analyses_recentes(queryset, *, seuil_evoo, seuil_voo):
             "origine": resultat.echantillon.origine,
             "variete": resultat.echantillon.variete,
             "heure": timezone.localtime(resultat.date_calcul).strftime("%H:%M"),
-            "categorie": _categorie_depuis_acidite(
+            "categorie": categorie_depuis_acidite(
                 resultat.acidite, seuil_evoo=seuil_evoo, seuil_voo=seuil_voo
             ),
         }
