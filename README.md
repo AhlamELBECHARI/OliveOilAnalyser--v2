@@ -8,7 +8,9 @@
 ## Structure du dépôt
 
 - `backend/` — API Django REST Framework (voir ci-dessous)
-- `frontend/` — application Flutter (authentification, dashboard, historique, modèles, alertes, paramètres — voir ci-dessous)
+- `frontend/` — application Flutter mobile-first (authentification, dashboard,
+  module Bluetooth/acquisition, historique, modèles, alertes, profil — voir
+  ci-dessous)
 - `docs/` — diagrammes de conception et maquettes
 
 ## Documentation visuelle
@@ -22,8 +24,11 @@
 
 - Django + Django REST Framework (DRF)
 - PostgreSQL (via `psycopg` v3)
-- `djangorestframework-simplejwt` (JWT access + refresh, avec `token_blacklist` activé)
+- `djangorestframework-simplejwt` (JWT access + refresh, avec `token_blacklist` activé —
+  aussi utilisé pour lister/révoquer les sessions actives d'un compte)
 - Mots de passe hashés avec bcrypt (`BCryptSHA256PasswordHasher`)
+- `Pillow` (photos de profil, servies depuis `MEDIA_ROOT` en développement)
+- `django-cors-headers` (CORS ouvert uniquement quand `DEBUG` est actif, pour le build web Flutter)
 - Migrations Django natives
 - Docker + docker-compose (Django + PostgreSQL)
 - `pytest-django` pour les tests
@@ -52,14 +57,20 @@ partagé entre apps :
 
 | App | Modèles | Endpoints |
 |---|---|---|
-| `comptes` | `Utilisateur`, `Configuration` | `/api/auth/*`, `/api/utilisateurs/`, `/api/configuration/` |
+| `comptes` | `Utilisateur`, `Configuration` | `/api/auth/*`, `/api/utilisateurs/`, `/api/utilisateurs/moi/`, `/api/configuration/` |
 | `echantillons` | `Echantillon` | `/api/echantillons/` |
 | `spectres` | `Spectre` | `/api/spectres/` |
 | `modeles` | `Modele` | `/api/modeles/` |
 | `resultats` | `Resultat` | `/api/resultats/` |
-| `rapports` | `Rapport` | modèle + admin Django uniquement (pas d'endpoint ce jalon) |
+| `analyses` | *(aucun — agrège en lecture seule)* | `/api/analyses/historique/`, `/api/analyses/statistiques-rapides/`, `/api/analyses/export/` |
+| `rapports` | `Rapport` | pas de CRUD direct ; créé par `POST /api/analyses/export/` |
 | `alertes` | `Alerte` | `/api/alertes/` |
 | `dashboard` | *(aucun — agrège en lecture seule)* | `/api/dashboard/statistiques/` |
+
+`core/qualite.py` centralise la dérivation de la catégorie qualité
+(EVOO/VOO/Lampante) à partir de l'acidité et des seuils de `Configuration` :
+`dashboard` et `analyses` s'appuient tous les deux dessus, pour ne jamais
+classer un même résultat différemment selon l'écran.
 
 ## Lancement avec Docker
 
@@ -110,14 +121,26 @@ directement depuis l'interface).
   automatiquement dès que cette date est dépassée, à la prochaine tentative
   de connexion.
 - `POST /api/auth/refresh/` — rafraîchit un access token.
-- `POST /api/auth/reset-password/` puis `POST /api/auth/reset-password/confirmer/`
-  — réinitialisation en deux temps. Seul un hash SHA-256 du token est stocké
-  côté serveur (jamais le token en clair) ; en dev, l'email est affiché dans
-  les logs du conteneur `web` (backend console). À la confirmation, tous les
+- `POST /api/auth/reset-password/` puis `POST /api/auth/reset-password/verify/`
+  puis `POST /api/auth/reset-password/confirm/` — réinitialisation en trois
+  temps (code à 6 chiffres). Seul un hash SHA-256 du code est stocké côté
+  serveur (jamais le code en clair) ; en dev, l'email est affiché dans les
+  logs du conteneur `web` (backend console). À la confirmation, tous les
   refresh tokens existants de l'utilisateur sont blacklistés
   (`rest_framework_simplejwt.token_blacklist`).
 - `GET /api/utilisateurs/` et `GET`/`PUT /api/configuration/` — réservés aux
   administrateurs (`core.permissions.IsAdministrateur`).
+- `GET`/`PATCH /api/utilisateurs/moi/` — un utilisateur consulte et modifie
+  son propre profil (nom, téléphone, fonction, laboratoire, institution,
+  photo). `role`, `is_staff` et `is_superuser` ne sont jamais acceptés en
+  entrée : structurellement impossible de s'auto-élever de rôle par cet
+  endpoint.
+- `POST /api/auth/changer-mot-de-passe/` — vérifie l'ancien mot de passe puis
+  blackliste tous les refresh tokens en circulation pour ce compte (même
+  portée de sécurité qu'une réinitialisation).
+- `GET /api/auth/sessions/` et `DELETE /api/auth/sessions/<id>/` — sessions
+  actives = refresh tokens émis (`OutstandingToken`) ni blacklistés ni
+  expirés ; permet de révoquer une session précise à distance.
 - `/api/echantillons/`, `/api/spectres/`, `/api/resultats/` — CRUD ouvert à
   tout utilisateur authentifié, mais chacun ne voit et ne modifie que ses
   propres données (filtrage par propriétaire dans `services.py`) ; un
@@ -144,25 +167,72 @@ spectres, résultats).
 Voir `.env.example`. Notamment :
 
 - `MAX_TENTATIVES_ECHOUEES`, `DUREE_VERROUILLAGE_MINUTES` — verrouillage de compte.
-- `DUREE_VALIDITE_TOKEN_RESET_MINUTES` — durée de validité d'un token de reset.
+- `DUREE_VALIDITE_CODE_RESET_MINUTES` — durée de validité du code de réinitialisation.
 - `DJANGO_EMAIL_BACKEND` — `console` en dev (le mail est affiché dans les logs) ; à remplacer par un vrai backend SMTP en production.
 
 ## Frontend (Flutter)
 
 Application mobile en architecture clean (`data`/`domain`/`presentation` par
-feature), state management par `provider`, appels réseau via `dio`.
+feature), state management par `flutter_riverpod`, injection de dépendances
+par `get_it`, appels réseau via `dio`.
+
+### Navigation
+
+La coquille de navigation (`core/navigation/app_router.dart`,
+`coquille_navigation.dart`) repose sur `go_router` et une
+`StatefulShellRoute.indexedStack` : chaque onglet a son propre `Navigator`
+imbriqué (donc sa propre pile, préservée quand on change d'onglet), et la
+barre de navigation du bas est déclarée une seule fois — jamais empilée par
+un écran individuel. Seuls le login et le parcours mot de passe oublié sont
+des routes racines, hors coquille (pas de barre du bas).
+
+### Features
 
 - **`authentification`** — connexion, réinitialisation de mot de passe en
   trois écrans (email → code → nouveau mot de passe).
-- **`dashboard`** — écran d'accueil : statistiques, état de l'analyseur,
+- **`dashboard`** — écran d'accueil : statistiques, état réel de l'analyseur,
   échantillons/analyses récents (consomme `/api/dashboard/statistiques/`).
-- **`historique`** — liste et détail des résultats d'analyse passés.
+- **`analyseur`** — abstraction du module Bluetooth pilotant le
+  spectromètre (`AnalyseurRepository`), avec deux implémentations
+  interchangeables via configuration (`get_it`) : `AnalyseurSimuleImpl`
+  (spectre NIR simulé, développement/démo sans matériel) et
+  `AnalyseurBluetoothImpl` (Bluetooth Classic/SPP, connexion automatique à
+  l'appareil déjà appairé). Le protocole du spectromètre n'étant pas encore
+  documenté par le fabricant, ses hypothèses (trames, commandes) sont
+  isolées dans un unique fichier commenté,
+  `data/protocole/protocole_spectrometre.dart`.
+- **`nouvelle_analyse`** — écran d'acquisition : saisie puis consultation de
+  l'échantillon, carte de connexion à l'instrument en temps réel, aperçu du
+  spectre en direct avec indicateurs de qualité du signal (SNR, intensité,
+  bruit) calculés à partir du signal réellement reçu.
+- **`historique`** — recherche, filtres et statistiques rapides côté serveur
+  (`/api/analyses/historique/`, `/api/analyses/statistiques-rapides/`),
+  liste paginée groupée par mois, export de rapport.
 - **`modeles`** — consultation des modèles NIR disponibles.
 - **`alertes`** — liste des alertes remontées par le backend.
-- **`parametres`** — choix de la langue (FR/EN), via `l10n/` (fichiers
-  `.arb` + classes générées dans `l10n/generated/`).
-- **Mode démo** — données factices affichées localement sans appel réseau
-  (`core/demo/`), pour démonstration hors backend.
+- **`profil`** — écran "Mon Profil" : identité (photo, rôle), informations
+  personnelles, changement de mot de passe, sessions actives (avec
+  révocation), à propos/aide/mentions légales.
+- **`configuration`** — préférences d'analyse (seuils de conformité/qualité)
+  et notifications, lues/modifiées via `/api/configuration/` (modification
+  réservée aux administrateurs).
+- **`parametres`** — langue (FR/EN) et thème (clair/sombre/système), via
+  `l10n/` (fichiers `.arb` + classes générées dans `l10n/generated/`) ;
+  préférences persistées localement et appliquées immédiatement.
+- **Mode démo** — un compte de démonstration avec de vraies données côté
+  API (`core/demo/`) ; jamais de dataset factice affiché localement.
+
+### Synchronisation hors ligne
+
+`core/local_storage/` (base SQLite locale via `drift`) et
+`core/sync/synchronisation_service.dart` : toute analyse (échantillon,
+spectre) est toujours écrite en local d'abord, avec un UUID généré côté
+mobile (le backend accepte cet ID tel quel, la synchronisation est donc
+idempotente). Le service pousse ensuite les enregistrements en attente vers
+l'API dès qu'une connexion est disponible, retente automatiquement ceux qui
+ont échoué, et peut être désactivé (les données restent alors en local sans
+jamais être envoyées) — voir la carte "Synchronisation cloud" de l'écran
+Profil.
 
 ## Notes de conception
 
@@ -176,10 +246,12 @@ feature), state management par `provider`, appels réseau via `dio`.
   mobile). `Echantillon`, `Spectre`, `Resultat` et `Rapport` utilisent un UUID
   (peuvent être créés hors ligne sur mobile puis synchronisés, sans risque de
   collision d'ID).
-- **`rapports`** : modèle et admin Django prêts, mais sans endpoint REST —
-  hors périmètre des endpoints minimum de ce jalon. À exposer dans un
-  prochain jalon si besoin.
-- **`dashboard`** : app sans modèle propre, agrège en lecture seule les
-  données d'`echantillons`/`resultats` (`dashboard/services.py`) pour
-  alimenter l'écran d'accueil du mobile (statistiques, état du laboratoire,
-  activité récente).
+- **`rapports`** : pas de CRUD REST direct (toujours pas de `RapportViewSet`) ;
+  un `Rapport` est créé par `POST /api/analyses/export/`. La génération
+  effective du fichier (`chemin_fichier`, `taille`) n'est pas encore
+  branchée : c'est un pipeline séparé, à développer sans changement d'API
+  une fois nécessaire.
+- **`dashboard`** et **`analyses`** : apps sans modèle propre, agrègent en
+  lecture seule les données d'`echantillons`/`resultats`
+  (`dashboard/services.py`, `analyses/services.py`) — tout le
+  filtrage/tri/pagination se fait en base (ORM), jamais en mémoire.
