@@ -1,8 +1,17 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart' show ThemeMode;
+
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/repositories/parametres_repository.dart';
 import '../datasources/parametres_local_datasource.dart';
+
+const _codesParModeTheme = {
+  ThemeMode.light: 'clair',
+  ThemeMode.dark: 'sombre',
+  ThemeMode.system: 'systeme',
+};
+final _modesThemeParCode = {for (final entree in _codesParModeTheme.entries) entree.value: entree.key};
 
 class ParametresRepositoryImpl implements ParametresRepository {
   final ParametresLocalDataSource localDataSource;
@@ -33,5 +42,16 @@ class ParametresRepositoryImpl implements ParametresRepository {
   @override
   Future<void> definirLocale(Locale locale) {
     return localDataSource.enregistrerCodeLangue(locale.languageCode);
+  }
+
+  @override
+  Future<ThemeMode> obtenirModeTheme() async {
+    final code = await localDataSource.lireModeTheme();
+    return _modesThemeParCode[code] ?? ThemeMode.system;
+  }
+
+  @override
+  Future<void> definirModeTheme(ThemeMode mode) {
+    return localDataSource.enregistrerModeTheme(_codesParModeTheme[mode]!);
   }
 }

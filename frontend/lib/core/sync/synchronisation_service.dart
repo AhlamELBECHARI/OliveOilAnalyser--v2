@@ -3,8 +3,12 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../local_storage/local_database.dart';
+
+const _cleSyncActivee = 'olive_iq_sync_activee';
+const _cleDerniereSynchronisation = 'olive_iq_derniere_synchronisation';
 
 /// Service de synchronisation hors ligne : pousse vers l'API tout
 /// échantillon/spectre écrit localement (voir LocalDatabase) mais pas
@@ -18,23 +22,48 @@ class SynchronisationService {
   final LocalDatabase _base;
   final Dio _dio;
   final Connectivity _connectivite;
+  final SharedPreferences _preferences;
 
   StreamSubscription<List<ConnectivityResult>>? _abonnementConnectivite;
   bool _synchronisationEnCours = false;
   final _elementsEnAttenteController = StreamController<int>.broadcast();
+  final _derniereSynchronisationController = StreamController<DateTime?>.broadcast();
 
   SynchronisationService({
     required LocalDatabase base,
     required Dio dio,
+    required SharedPreferences preferences,
     Connectivity? connectivite,
   })  : _base = base,
         _dio = dio,
+        _preferences = preferences,
         _connectivite = connectivite ?? Connectivity();
 
   /// Nombre d'échantillons/spectres écrits localement mais pas encore
   /// confirmés par l'API — alimente l'indicateur visible "en attente de
   /// synchronisation" (Partie C du cahier des charges).
   Stream<int> get flusElementsEnAttente => _elementsEnAttenteController.stream;
+
+  /// Date de la dernière synchronisation réussie (tout était à jour à la
+  /// fin d'une passe), persistée localement — voir Partie B, section
+  /// "Données & Synchronisation".
+  Stream<DateTime?> get flusDerniereSynchronisation => _derniereSynchronisationController.stream;
+
+  DateTime? get derniereSynchronisation {
+    final valeur = _preferences.getString(_cleDerniereSynchronisation);
+    return valeur == null ? null : DateTime.tryParse(valeur);
+  }
+
+  /// Interrupteur "Synchronisation cloud" (Partie B) : quand désactivé, les
+  /// données restent écrites en local (voir NouvelleAnalyseRepositoryImpl,
+  /// qui écrit toujours en local en premier) sans jamais être envoyées au
+  /// serveur — [synchroniser] devient un no-op tant qu'il reste désactivé.
+  bool get estActivee => _preferences.getBool(_cleSyncActivee) ?? true;
+
+  Future<void> definirActivee(bool activee) async {
+    await _preferences.setBool(_cleSyncActivee, activee);
+    if (activee) unawaited(synchroniser());
+  }
 
   /// À appeler une fois au démarrage de l'app (voir injection_container) :
   /// tente une synchronisation immédiate puis se ré-abonne aux changements
@@ -58,9 +87,10 @@ class SynchronisationService {
   /// est ignoré silencieusement (le prochain déclencheur la relancera).
   /// Jamais appelée depuis la Presentation directement — toujours en
   /// arrière-plan, sans jamais bloquer un écran ni faire échouer une
-  /// action utilisateur pour une simple absence de réseau.
+  /// action utilisateur pour une simple absence de réseau. No-op tant que
+  /// [estActivee] est faux.
   Future<void> synchroniser() async {
-    if (_synchronisationEnCours) return;
+    if (_synchronisationEnCours || !estActivee) return;
     _synchronisationEnCours = true;
     try {
       await _synchroniserEchantillons();
@@ -75,8 +105,21 @@ class SynchronisationService {
   }
 
   Future<void> _publierElementsEnAttente() async {
-    if (_elementsEnAttenteController.isClosed) return;
-    _elementsEnAttenteController.add(await _base.compterElementsEnAttente());
+    final enAttente = await _base.compterElementsEnAttente();
+    if (!_elementsEnAttenteController.isClosed) {
+      _elementsEnAttenteController.add(enAttente);
+    }
+    // Plus rien en attente à la fin de cette passe : tout est réellement à
+    // jour côté serveur, c'est le seul moment honnête pour horodater "la
+    // dernière synchronisation" (jamais à chaque simple tentative, qui
+    // pourrait n'avoir rencontré que des échecs réseau).
+    if (enAttente == 0) {
+      final maintenant = DateTime.now();
+      await _preferences.setString(_cleDerniereSynchronisation, maintenant.toIso8601String());
+      if (!_derniereSynchronisationController.isClosed) {
+        _derniereSynchronisationController.add(maintenant);
+      }
+    }
   }
 
   Future<void> _synchroniserEchantillons() async {
@@ -145,5 +188,6 @@ class SynchronisationService {
   Future<void> disposer() async {
     arreterEcoute();
     await _elementsEnAttenteController.close();
+    await _derniereSynchronisationController.close();
   }
 }

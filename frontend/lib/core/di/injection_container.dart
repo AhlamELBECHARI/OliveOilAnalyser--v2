@@ -30,6 +30,11 @@ import '../../features/authentification/domain/usecases/get_session_locale_useca
 import '../../features/authentification/domain/usecases/login_usecase.dart';
 import '../../features/authentification/domain/usecases/logout_usecase.dart';
 import '../../features/authentification/domain/usecases/verifier_code_reset_usecase.dart';
+import '../../features/configuration/data/datasources/configuration_remote_datasource.dart';
+import '../../features/configuration/data/repositories/configuration_repository_impl.dart';
+import '../../features/configuration/domain/repositories/configuration_repository.dart';
+import '../../features/configuration/domain/usecases/modifier_configuration_usecase.dart';
+import '../../features/configuration/domain/usecases/obtenir_configuration_usecase.dart';
 import '../../features/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import '../../features/dashboard/domain/repositories/dashboard_repository.dart';
@@ -55,7 +60,18 @@ import '../../features/parametres/data/datasources/parametres_local_datasource.d
 import '../../features/parametres/data/repositories/parametres_repository_impl.dart';
 import '../../features/parametres/domain/repositories/parametres_repository.dart';
 import '../../features/parametres/domain/usecases/definir_locale_usecase.dart';
+import '../../features/parametres/domain/usecases/definir_mode_theme_usecase.dart';
 import '../../features/parametres/domain/usecases/obtenir_locale_usecase.dart';
+import '../../features/parametres/domain/usecases/obtenir_mode_theme_usecase.dart';
+import '../../features/profil/data/datasources/profil_remote_datasource.dart';
+import '../../features/profil/data/repositories/profil_repository_impl.dart';
+import '../../features/profil/domain/repositories/profil_repository.dart';
+import '../../features/profil/domain/usecases/changer_mot_de_passe_usecase.dart';
+import '../../features/profil/domain/usecases/lister_sessions_usecase.dart';
+import '../../features/profil/domain/usecases/modifier_profil_usecase.dart';
+import '../../features/profil/domain/usecases/obtenir_profil_usecase.dart';
+import '../../features/profil/domain/usecases/revoquer_session_usecase.dart';
+import '../../features/profil/domain/usecases/televerser_photo_profil_usecase.dart';
 
 /// Conteneur d'injection de dépendances (get_it). C'est la seule "racine de
 /// composition" de l'application : la Presentation ne connaît que les
@@ -81,7 +97,7 @@ Future<void> initDependencies() async {
   // qui a été écrit localement en attendant le réseau. Démarré une seule
   // fois ici (écoute de la connectivité), jamais réinstancié par écran.
   sl.registerLazySingleton<SynchronisationService>(
-    () => SynchronisationService(base: sl(), dio: sl()),
+    () => SynchronisationService(base: sl(), dio: sl(), preferences: sl()),
   );
   sl<SynchronisationService>().demarrerEcoute();
 
@@ -146,6 +162,32 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton(() => ObtenirLocaleUseCase(sl()));
   sl.registerLazySingleton(() => DefinirLocaleUseCase(sl()));
+  sl.registerLazySingleton(() => ObtenirModeThemeUseCase(sl()));
+  sl.registerLazySingleton(() => DefinirModeThemeUseCase(sl()));
+
+  // --- Feature: configuration (seuils, notifications) ---
+  sl.registerLazySingleton<ConfigurationRemoteDataSource>(
+    () => ConfigurationRemoteDataSourceImpl(dio: sl()),
+  );
+  sl.registerLazySingleton<ConfigurationRepository>(
+    () => ConfigurationRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => ObtenirConfigurationUseCase(sl()));
+  sl.registerLazySingleton(() => ModifierConfigurationUseCase(sl()));
+
+  // --- Feature: profil ---
+  sl.registerLazySingleton<ProfilRemoteDataSource>(
+    () => ProfilRemoteDataSourceImpl(dio: sl()),
+  );
+  sl.registerLazySingleton<ProfilRepository>(
+    () => ProfilRepositoryImpl(remoteDataSource: sl(), tokenStorage: sl()),
+  );
+  sl.registerLazySingleton(() => ObtenirProfilUseCase(sl()));
+  sl.registerLazySingleton(() => ModifierProfilUseCase(sl()));
+  sl.registerLazySingleton(() => TeleverserPhotoProfilUseCase(sl()));
+  sl.registerLazySingleton(() => ChangerMotDePasseUseCase(sl()));
+  sl.registerLazySingleton(() => ListerSessionsUseCase(sl()));
+  sl.registerLazySingleton(() => RevoquerSessionUseCase(sl()));
 
   // --- Feature: alertes ---
   sl.registerLazySingleton<AlertesRemoteDataSource>(

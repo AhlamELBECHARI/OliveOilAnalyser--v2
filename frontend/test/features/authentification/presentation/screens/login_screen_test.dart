@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:olive_iq_app/core/demo/demo_credentials.dart';
 import 'package:olive_iq_app/core/demo/demo_mode_provider.dart';
@@ -35,13 +36,23 @@ void main() {
   }
 
   Widget creerWidgetTeste({Locale locale = const Locale('fr')}) {
+    final router = GoRouter(
+      initialLocation: '/login',
+      routes: [
+        GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+        GoRoute(
+          path: '/accueil',
+          builder: (context, state) => const Scaffold(body: Text('Accueil')),
+        ),
+      ],
+    );
     return ProviderScope(
       overrides: [
         loginProvider.overrideWith(
           (ref) => LoginNotifier(LoginUseCase(mockRepository)),
         ),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         theme: AppTheme.theme,
         locale: locale,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -51,11 +62,7 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        initialRoute: '/login',
-        routes: {
-          '/login': (context) => const LoginScreen(),
-          '/accueil': (context) => const Scaffold(body: Text('Accueil')),
-        },
+        routerConfig: router,
       ),
     );
   }

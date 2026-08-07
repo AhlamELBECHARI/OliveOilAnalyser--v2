@@ -40,6 +40,7 @@ class CodesErreur:
     COMPTE_VERROUILLE = "compte_verrouille"
     COMPTE_DESACTIVE = "compte_desactive"
     CODE_RESET_INVALIDE = "code_reset_invalide"
+    MOT_DE_PASSE_ACTUEL_INVALIDE = "mot_de_passe_actuel_invalide"
     TROP_DE_DEMANDES = "trop_de_demandes"
     VALIDATION = "validation"
     RESSOURCE_PROTEGEE = "ressource_protegee"
@@ -86,6 +87,12 @@ class CodeResetInvalideError(ErreurMetier):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Code invalide ou expiré."
     code_erreur = CodesErreur.CODE_RESET_INVALIDE
+
+
+class MotDePasseActuelInvalideError(ErreurMetier):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Le mot de passe actuel est incorrect."
+    code_erreur = CodesErreur.MOT_DE_PASSE_ACTUEL_INVALIDE
 
 
 class TropDeDemandesError(ErreurMetier):

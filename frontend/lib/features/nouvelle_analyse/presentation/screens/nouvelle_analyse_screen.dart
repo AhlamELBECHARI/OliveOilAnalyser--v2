@@ -104,7 +104,7 @@ class NouvelleAnalyseScreen extends ConsumerWidget {
                   ],
                   if (state.acquisitionTerminee) ...[
                     const SizedBox(height: 16),
-                    _CarteAnalyseTerminee(onNouvelleAnalyse: () => Navigator.of(context).pop()),
+                    _CarteAnalyseTerminee(onNouvelleAnalyse: notifier.reinitialiser),
                   ],
                   const SizedBox(height: 20),
                   _BoutonsAction(state: state, notifier: notifier),
@@ -152,13 +152,10 @@ class _BoutonsAction extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: OutlinedButton(
-            onPressed: () {
-              if (state.acquisitionEnCours) {
-                notifier.annulerAnalyse();
-              } else {
-                Navigator.of(context).pop();
-              }
-            },
+            // "Annuler" ne navigue jamais : il réinitialise seulement le
+            // formulaire d'analyse en cours (voir Partie A du cahier des
+            // charges) — la sortie de l'écran se fait par la barre du bas.
+            onPressed: notifier.reinitialiser,
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.erreur,
               side: const BorderSide(color: AppColors.erreur),

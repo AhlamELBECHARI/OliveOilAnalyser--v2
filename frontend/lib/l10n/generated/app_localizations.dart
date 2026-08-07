@@ -1219,6 +1219,420 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Date de fin'**
   String get dateFinLabel;
+
+  /// No description provided for @monProfilTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon Profil'**
+  String get monProfilTitre;
+
+  /// No description provided for @monProfilSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations du compte & préférences'**
+  String get monProfilSousTitre;
+
+  /// No description provided for @roleAdministrateurLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administrateur'**
+  String get roleAdministrateurLabel;
+
+  /// No description provided for @roleUtilisateurLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur'**
+  String get roleUtilisateurLabel;
+
+  /// No description provided for @champTelephone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone'**
+  String get champTelephone;
+
+  /// No description provided for @champNom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get champNom;
+
+  /// No description provided for @champFonction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonction'**
+  String get champFonction;
+
+  /// No description provided for @champLaboratoire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Laboratoire'**
+  String get champLaboratoire;
+
+  /// No description provided for @champInstitution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Institution'**
+  String get champInstitution;
+
+  /// No description provided for @membreDepuisLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Membre depuis'**
+  String get membreDepuisLabel;
+
+  /// No description provided for @changerPhotoProfil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer la photo de profil'**
+  String get changerPhotoProfil;
+
+  /// No description provided for @informationsPersonnellesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations personnelles'**
+  String get informationsPersonnellesTitre;
+
+  /// No description provided for @informationsPersonnellesSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer vos informations de profil'**
+  String get informationsPersonnellesSousTitre;
+
+  /// No description provided for @securiteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité'**
+  String get securiteTitre;
+
+  /// No description provided for @securiteSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe, authentification'**
+  String get securiteSousTitre;
+
+  /// No description provided for @sessionsActivesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sessions actives'**
+  String get sessionsActivesTitre;
+
+  /// No description provided for @sessionsActivesSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer vos appareils connectés'**
+  String get sessionsActivesSousTitre;
+
+  /// No description provided for @sessionsActivesCompteur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nombre} actives'**
+  String sessionsActivesCompteur(int nombre);
+
+  /// No description provided for @preferencesSectionTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préférences'**
+  String get preferencesSectionTitre;
+
+  /// No description provided for @preferencesAnalyseTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préférences d\'analyse'**
+  String get preferencesAnalyseTitre;
+
+  /// No description provided for @preferencesAnalyseSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Unités, seuils, paramètres par défaut'**
+  String get preferencesAnalyseSousTitre;
+
+  /// No description provided for @notificationsPreferenceTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get notificationsPreferenceTitre;
+
+  /// No description provided for @notificationsPreferenceSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer les alertes et rapports'**
+  String get notificationsPreferenceSousTitre;
+
+  /// No description provided for @themeTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Thème'**
+  String get themeTitre;
+
+  /// No description provided for @themeClair.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clair'**
+  String get themeClair;
+
+  /// No description provided for @themeSombreLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sombre'**
+  String get themeSombreLabel;
+
+  /// No description provided for @themeSysteme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Système'**
+  String get themeSysteme;
+
+  /// No description provided for @donneesSyncSectionTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données & Synchronisation'**
+  String get donneesSyncSectionTitre;
+
+  /// No description provided for @synchronisationCloudTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisation cloud'**
+  String get synchronisationCloudTitre;
+
+  /// No description provided for @derniereSyncLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière sync : {heure}'**
+  String derniereSyncLabel(String heure);
+
+  /// No description provided for @syncDesactiveeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisation désactivée'**
+  String get syncDesactiveeLabel;
+
+  /// No description provided for @syncJamaisLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jamais synchronisé'**
+  String get syncJamaisLabel;
+
+  /// No description provided for @gestionDonneesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des données'**
+  String get gestionDonneesTitre;
+
+  /// No description provided for @gestionDonneesSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter, supprimer ou archiver des données'**
+  String get gestionDonneesSousTitre;
+
+  /// No description provided for @espaceStockageTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace de stockage'**
+  String get espaceStockageTitre;
+
+  /// No description provided for @aProposSectionTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos'**
+  String get aProposSectionTitre;
+
+  /// No description provided for @aProposOliveIQTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos d\'OliveIQ'**
+  String get aProposOliveIQTitre;
+
+  /// No description provided for @versionBuildLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version {version} • Build {build}'**
+  String versionBuildLabel(String version, String build);
+
+  /// No description provided for @centreAideTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Centre d\'aide'**
+  String get centreAideTitre;
+
+  /// No description provided for @centreAideSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documentation et support'**
+  String get centreAideSousTitre;
+
+  /// No description provided for @centreAideContenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour toute question sur l\'utilisation d\'OliveIQ (acquisition d\'une analyse, lecture des résultats, connexion de l\'analyseur), contactez le support de votre laboratoire ou écrivez à support@olive-iq.local.\n\nUne documentation complète sera ajoutée ici prochainement.'**
+  String get centreAideContenu;
+
+  /// No description provided for @mentionsLegalesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mentions légales & Confidentialité'**
+  String get mentionsLegalesTitre;
+
+  /// No description provided for @mentionsLegalesContenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'OliveIQ traite les données d\'analyse (échantillons, spectres, résultats) exclusivement dans le cadre du suivi qualité de l\'huile d\'olive, pour le compte de votre organisation.\n\nLes données personnelles du compte (nom, email, téléphone, photo de profil) ne sont utilisées que pour l\'identification et le fonctionnement de l\'application, jamais partagées avec des tiers.\n\nCette section sera complétée avec le texte légal définitif de votre organisation.'**
+  String get mentionsLegalesContenu;
+
+  /// No description provided for @seDeconnecterConfirmationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter ?'**
+  String get seDeconnecterConfirmationTitre;
+
+  /// No description provided for @seDeconnecterConfirmationTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous devrez vous reconnecter pour accéder à votre compte.'**
+  String get seDeconnecterConfirmationTexte;
+
+  /// No description provided for @confirmerBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get confirmerBouton;
+
+  /// No description provided for @enregistrerBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get enregistrerBouton;
+
+  /// No description provided for @profilMisAJourMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil mis à jour.'**
+  String get profilMisAJourMessage;
+
+  /// No description provided for @photoProfilMiseAJourMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de profil mise à jour.'**
+  String get photoProfilMiseAJourMessage;
+
+  /// No description provided for @ancienMotDePasseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe actuel'**
+  String get ancienMotDePasseLabel;
+
+  /// No description provided for @changerMotDePasseBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer le mot de passe'**
+  String get changerMotDePasseBouton;
+
+  /// No description provided for @motDePasseModifieMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe modifié avec succès.'**
+  String get motDePasseModifieMessage;
+
+  /// No description provided for @sessionCreeeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectée le {date}'**
+  String sessionCreeeLabel(String date);
+
+  /// No description provided for @sessionExpireLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expire le {date}'**
+  String sessionExpireLabel(String date);
+
+  /// No description provided for @sessionCouranteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet appareil'**
+  String get sessionCouranteLabel;
+
+  /// No description provided for @revoquerSessionBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoquer'**
+  String get revoquerSessionBouton;
+
+  /// No description provided for @revoquerToutesSaufCouranteBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoquer toutes les autres sessions'**
+  String get revoquerToutesSaufCouranteBouton;
+
+  /// No description provided for @aucuneSessionMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune session active.'**
+  String get aucuneSessionMessage;
+
+  /// No description provided for @seuilAciditeConformiteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuil de conformité — Acidité'**
+  String get seuilAciditeConformiteLabel;
+
+  /// No description provided for @seuilPeroxydeConformiteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuil de conformité — Indice de peroxyde'**
+  String get seuilPeroxydeConformiteLabel;
+
+  /// No description provided for @seuilEvooLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuil Extra Vierge (EVOO)'**
+  String get seuilEvooLabel;
+
+  /// No description provided for @seuilVooLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuil Vierge (VOO)'**
+  String get seuilVooLabel;
+
+  /// No description provided for @lectureSeuleAdministrateurMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifiable uniquement par un administrateur.'**
+  String get lectureSeuleAdministrateurMessage;
+
+  /// No description provided for @seuilsMisAJourMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuils mis à jour.'**
+  String get seuilsMisAJourMessage;
+
+  /// No description provided for @exporterMesDonneesBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter mes données'**
+  String get exporterMesDonneesBouton;
+
+  /// No description provided for @viderCacheBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vider le cache local'**
+  String get viderCacheBouton;
+
+  /// No description provided for @viderCacheConfirmationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vider le cache ?'**
+  String get viderCacheConfirmationTitre;
+
+  /// No description provided for @viderCacheConfirmationTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les fichiers temporaires seront supprimés. Les analyses en attente de synchronisation ne sont jamais affectées.'**
+  String get viderCacheConfirmationTexte;
+
+  /// No description provided for @cacheVideMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cache vidé.'**
+  String get cacheVideMessage;
 }
 
 class _AppLocalizationsDelegate

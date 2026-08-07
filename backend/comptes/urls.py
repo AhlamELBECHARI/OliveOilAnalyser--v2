@@ -22,7 +22,19 @@ urlpatterns = [
         views.ConfirmerResetMotDePasseView.as_view(),
         name="auth-reset-password-confirm",
     ),
+    path(
+        "auth/changer-mot-de-passe/",
+        views.ChangerMotDePasseView.as_view(),
+        name="auth-changer-mot-de-passe",
+    ),
+    path("auth/sessions/", views.SessionsView.as_view(), name="auth-sessions"),
+    path(
+        "auth/sessions/<int:session_id>/",
+        views.SessionDetailView.as_view(),
+        name="auth-session-detail",
+    ),
     path("utilisateurs/", views.UtilisateurListView.as_view(), name="utilisateurs-liste"),
+    path("utilisateurs/moi/", views.MonProfilView.as_view(), name="utilisateurs-moi"),
     path(
         "utilisateurs/administrateurs/",
         views.CreerAdministrateurView.as_view(),

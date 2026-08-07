@@ -35,6 +35,12 @@ SECRET_KEY = env("DJANGO_SECRET_KEY", "insecure-dev-key-change-me")
 DEBUG = env_bool("DJANGO_DEBUG", True)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 
+# CORS : uniquement pour le développement (le mobile natif — Android/iOS/
+# desktop — n'est jamais soumis à CORS, seul le build web Flutter l'est).
+# Tout autoriser tant que DEBUG est actif ; en production, remplacer par une
+# CORS_ALLOWED_ORIGINS explicite.
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+
 # --- Applications --------------------------------------------------------
 
 INSTALLED_APPS = [
@@ -48,6 +54,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
+    "corsheaders",
     "comptes",
     "echantillons",
     "spectres",
@@ -61,6 +68,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -142,9 +150,16 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# --- Fichiers statiques ----------------------------------------------------
+# --- Fichiers statiques et médias ------------------------------------------
 
 STATIC_URL = "static/"
+
+# Photos de profil (comptes.Utilisateur.photo_profil) et autres fichiers
+# téléversés par les utilisateurs. Servis par Django uniquement en DEBUG
+# (voir config/urls.py) : en production, un serveur web/CDN dédié doit
+# prendre le relais de MEDIA_URL.
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

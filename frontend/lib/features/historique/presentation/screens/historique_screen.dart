@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/localization/build_context_l10n_extension.dart';
@@ -13,7 +14,6 @@ import '../widgets/carte_analyse_historique.dart';
 import '../widgets/carte_apercu_historique.dart';
 import '../widgets/carte_statistiques_rapides.dart';
 import '../widgets/feuille_filtres.dart';
-import 'resultat_detail_screen.dart';
 
 /// Écran Historique (design/4-historiques.png) : 100% alimenté par
 /// GET /api/analyses/historique/ et /api/analyses/statistiques-rapides/,
@@ -148,9 +148,7 @@ class HistoriqueScreen extends ConsumerWidget {
               for (final analyse in groupe.analyses) ...[
                 CarteAnalyseHistorique(
                   analyse: analyse,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => ResultatDetailScreen(resultatId: analyse.id)),
-                  ),
+                  onTap: () => context.push('/historique/resultat/${analyse.id}'),
                 ),
                 const SizedBox(height: 12),
               ],

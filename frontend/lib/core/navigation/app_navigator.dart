@@ -1,22 +1,23 @@
-import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-/// Point d'accès à la navigation depuis des couches sans BuildContext
-/// (ex. le callback onSessionExpiree déclenché par core/network en cas de
+import 'app_router.dart';
+
+/// Point d'accès à la navigation depuis des couches sans BuildContext (ex.
+/// le callback onSessionExpiree déclenché par core/network en cas de
 /// refresh token invalide, bien après que l'écran d'origine ait changé).
+/// Le router go_router est construit une seule fois, au démarrage de l'app
+/// (voir initialiserRouter, appelé depuis main() une fois la session locale
+/// vérifiée), puis réutilisé pour toute navigation programmatique.
 class AppNavigator {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  late final GoRouter router;
 
-  void retourAuLogin() {
-    navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      '/login',
-      (route) => false,
-    );
+  void initialiserRouter(String emplacementInitial) {
+    router = creerRouter(emplacementInitial: emplacementInitial);
   }
 
-  void versAccueil() {
-    navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      '/accueil',
-      (route) => false,
-    );
-  }
+  /// Quitte entièrement la coquille de navigation (déconnexion, session
+  /// expirée) : `/login` est une route racine, hors du shell.
+  void retourAuLogin() => router.go('/login');
+
+  void versAccueil() => router.go('/accueil');
 }

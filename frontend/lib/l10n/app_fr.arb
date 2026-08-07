@@ -254,5 +254,103 @@
   "appliquerBouton": "Appliquer",
   "reinitialiserBouton": "Réinitialiser",
   "dateDebutLabel": "Date de début",
-  "dateFinLabel": "Date de fin"
+  "dateFinLabel": "Date de fin",
+
+  "monProfilTitre": "Mon Profil",
+  "monProfilSousTitre": "Informations du compte & préférences",
+  "roleAdministrateurLabel": "Administrateur",
+  "roleUtilisateurLabel": "Utilisateur",
+  "champTelephone": "Téléphone",
+  "champNom": "Nom",
+  "champFonction": "Fonction",
+  "champLaboratoire": "Laboratoire",
+  "champInstitution": "Institution",
+  "membreDepuisLabel": "Membre depuis",
+  "changerPhotoProfil": "Changer la photo de profil",
+
+  "informationsPersonnellesTitre": "Informations personnelles",
+  "informationsPersonnellesSousTitre": "Gérer vos informations de profil",
+  "securiteTitre": "Sécurité",
+  "securiteSousTitre": "Mot de passe, authentification",
+  "sessionsActivesTitre": "Sessions actives",
+  "sessionsActivesSousTitre": "Gérer vos appareils connectés",
+  "sessionsActivesCompteur": "{nombre} actives",
+  "@sessionsActivesCompteur": {
+    "placeholders": {"nombre": {"type": "int"}}
+  },
+
+  "preferencesSectionTitre": "Préférences",
+  "preferencesAnalyseTitre": "Préférences d'analyse",
+  "preferencesAnalyseSousTitre": "Unités, seuils, paramètres par défaut",
+  "notificationsPreferenceTitre": "Notifications",
+  "notificationsPreferenceSousTitre": "Gérer les alertes et rapports",
+  "themeTitre": "Thème",
+  "themeClair": "Clair",
+  "themeSombreLabel": "Sombre",
+  "themeSysteme": "Système",
+
+  "donneesSyncSectionTitre": "Données & Synchronisation",
+  "synchronisationCloudTitre": "Synchronisation cloud",
+  "derniereSyncLabel": "Dernière sync : {heure}",
+  "@derniereSyncLabel": {
+    "placeholders": {"heure": {"type": "String"}}
+  },
+  "syncDesactiveeLabel": "Synchronisation désactivée",
+  "syncJamaisLabel": "Jamais synchronisé",
+  "gestionDonneesTitre": "Gestion des données",
+  "gestionDonneesSousTitre": "Exporter, supprimer ou archiver des données",
+  "espaceStockageTitre": "Espace de stockage",
+
+  "aProposSectionTitre": "À propos",
+  "aProposOliveIQTitre": "À propos d'OliveIQ",
+  "versionBuildLabel": "Version {version} • Build {build}",
+  "@versionBuildLabel": {
+    "placeholders": {
+      "version": {"type": "String"},
+      "build": {"type": "String"}
+    }
+  },
+  "centreAideTitre": "Centre d'aide",
+  "centreAideSousTitre": "Documentation et support",
+  "centreAideContenu": "Pour toute question sur l'utilisation d'OliveIQ (acquisition d'une analyse, lecture des résultats, connexion de l'analyseur), contactez le support de votre laboratoire ou écrivez à support@olive-iq.local.\n\nUne documentation complète sera ajoutée ici prochainement.",
+  "mentionsLegalesTitre": "Mentions légales & Confidentialité",
+  "mentionsLegalesContenu": "OliveIQ traite les données d'analyse (échantillons, spectres, résultats) exclusivement dans le cadre du suivi qualité de l'huile d'olive, pour le compte de votre organisation.\n\nLes données personnelles du compte (nom, email, téléphone, photo de profil) ne sont utilisées que pour l'identification et le fonctionnement de l'application, jamais partagées avec des tiers.\n\nCette section sera complétée avec le texte légal définitif de votre organisation.",
+
+  "seDeconnecterConfirmationTitre": "Se déconnecter ?",
+  "seDeconnecterConfirmationTexte": "Vous devrez vous reconnecter pour accéder à votre compte.",
+  "confirmerBouton": "Confirmer",
+
+  "enregistrerBouton": "Enregistrer",
+  "profilMisAJourMessage": "Profil mis à jour.",
+  "photoProfilMiseAJourMessage": "Photo de profil mise à jour.",
+
+  "ancienMotDePasseLabel": "Mot de passe actuel",
+  "changerMotDePasseBouton": "Changer le mot de passe",
+  "motDePasseModifieMessage": "Mot de passe modifié avec succès.",
+
+  "sessionCreeeLabel": "Connectée le {date}",
+  "@sessionCreeeLabel": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "sessionExpireLabel": "Expire le {date}",
+  "@sessionExpireLabel": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "sessionCouranteLabel": "Cet appareil",
+  "revoquerSessionBouton": "Révoquer",
+  "revoquerToutesSaufCouranteBouton": "Révoquer toutes les autres sessions",
+  "aucuneSessionMessage": "Aucune session active.",
+
+  "seuilAciditeConformiteLabel": "Seuil de conformité — Acidité",
+  "seuilPeroxydeConformiteLabel": "Seuil de conformité — Indice de peroxyde",
+  "seuilEvooLabel": "Seuil Extra Vierge (EVOO)",
+  "seuilVooLabel": "Seuil Vierge (VOO)",
+  "lectureSeuleAdministrateurMessage": "Modifiable uniquement par un administrateur.",
+  "seuilsMisAJourMessage": "Seuils mis à jour.",
+
+  "exporterMesDonneesBouton": "Exporter mes données",
+  "viderCacheBouton": "Vider le cache local",
+  "viderCacheConfirmationTitre": "Vider le cache ?",
+  "viderCacheConfirmationTexte": "Les fichiers temporaires seront supprimés. Les analyses en attente de synchronisation ne sont jamais affectées.",
+  "cacheVideMessage": "Cache vidé."
 }

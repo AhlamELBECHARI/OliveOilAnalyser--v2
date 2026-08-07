@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/demo/demo_mode_provider.dart';
@@ -8,60 +9,34 @@ import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/generated/app_localizations.dart';
-import '../../../alertes/presentation/screens/alertes_screen.dart';
-import '../../../historique/presentation/screens/historique_screen.dart';
-import '../../../historique/presentation/screens/resultat_detail_screen.dart';
-import '../../../modeles/presentation/screens/modeles_screen.dart';
-import '../../../nouvelle_analyse/presentation/screens/nouvelle_analyse_screen.dart';
-import '../../../parametres/presentation/screens/parametres_screen.dart';
 import '../../domain/entities/etat_analyseur_entity.dart';
 import '../../domain/entities/statistiques_dashboard_entity.dart';
 import '../providers/dashboard_provider.dart';
-import '../widgets/barre_navigation_bas.dart';
 import '../widgets/carte_activite_recente.dart';
 import '../widgets/carte_analyses_recentes.dart';
 import '../widgets/carte_etat_laboratoire.dart';
 import '../widgets/carte_qualite_huiles.dart';
 import '../widgets/carte_statistique.dart';
 import '../widgets/dashboard_header.dart';
-import 'repartition_qualite_screen.dart';
 
-/// Écran d'accueil / tableau de bord (design/2-dashboard.png). S'alimente
-/// exclusivement de GET /api/dashboard/statistiques/ via [dashboardProvider],
-/// avec tirer-pour-actualiser — y compris en Mode démo, qui n'affiche qu'une
-/// bannière cosmétique (voir core/demo/demo_mode_provider.dart) : les
-/// données restent toujours celles renvoyées par l'API pour le compte
-/// connecté.
+/// Écran d'accueil / tableau de bord (design/2-dashboard.png). Un onglet de
+/// la coquille de navigation (voir core/navigation/app_router.dart) : ne
+/// déclare plus sa propre BottomNavigationBar, celle-ci vit une seule fois
+/// dans CoquilleNavigation.
+///
+/// S'alimente exclusivement de GET /api/dashboard/statistiques/ via
+/// [dashboardProvider], avec tirer-pour-actualiser — y compris en Mode
+/// démo, qui n'affiche qu'une bannière cosmétique (voir
+/// core/demo/demo_mode_provider.dart) : les données restent toujours
+/// celles renvoyées par l'API pour le compte connecté.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
-  void _gererOngletNavigation(BuildContext context, WidgetRef ref, int index) {
-    switch (index) {
-      case 0:
-        return;
-      case 1:
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NouvelleAnalyseScreen()));
-        return;
-      case 2:
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HistoriqueScreen()));
-        return;
-      case 3:
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ModelesScreen()));
-        return;
-      case 4:
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ParametresScreen()));
-        return;
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: AppColors.fond,
-      body: const SafeArea(child: _ContenuReel()),
-      bottomNavigationBar: BarreNavigationBas(
-        onTap: (index) => _gererOngletNavigation(context, ref, index),
-      ),
+      body: SafeArea(child: _ContenuReel()),
     );
   }
 }
@@ -178,12 +153,8 @@ class _DashboardContenu extends StatelessWidget {
           DashboardHeader(
             nomUtilisateur: statistiques.nomUtilisateur,
             alertesNonLues: alertesNonLues,
-            onTapNotifications: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AlertesScreen()),
-            ),
-            onTapScan: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NouvelleAnalyseScreen()),
-            ),
+            onTapNotifications: () => context.push('/accueil/alertes'),
+            onTapScan: () => context.go('/analyse'),
           ),
           const SizedBox(height: 20),
           if (etatAnalyseur != null) CarteEtatLaboratoire(etat: etatAnalyseur!),
@@ -264,23 +235,16 @@ class _DashboardContenu extends StatelessWidget {
           const SizedBox(height: 16),
           CarteQualiteHuiles(
             repartition: statistiques.repartitionQualite,
-            onVoirDetail: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => RepartitionQualiteScreen(repartition: statistiques.repartitionQualite),
-              ),
+            onVoirDetail: () => context.push(
+              '/accueil/repartition-qualite',
+              extra: statistiques.repartitionQualite,
             ),
           ),
           const SizedBox(height: 16),
           CarteActiviteRecente(
             analyses: statistiques.analysesRecentes,
-            onVoirHistorique: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const HistoriqueScreen()),
-            ),
-            onTapAnalyse: (analyse) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ResultatDetailScreen(resultatId: analyse.resultatId),
-              ),
-            ),
+            onVoirHistorique: () => context.go('/historique'),
+            onTapAnalyse: (analyse) => context.push('/accueil/resultat/${analyse.resultatId}'),
           ),
         ],
       ),

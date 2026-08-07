@@ -12,6 +12,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import transaction
+from django.http import Http404
 from django.utils import timezone
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -21,6 +22,7 @@ from core.exceptions import (
     CompteDesactiveError,
     CompteVerrouilleError,
     IdentifiantsInvalidesError,
+    MotDePasseActuelInvalideError,
     TropDeDemandesError,
 )
 
@@ -298,3 +300,60 @@ def mettre_a_jour_configuration(*, utilisateur, **champs):
     configuration.modifie_par = utilisateur
     configuration.save()
     return configuration
+
+
+# --- Profil utilisateur (écran "Mon Profil" du mobile) ---------------------
+
+def modifier_profil(*, utilisateur, **champs):
+    """`role`, `is_staff`, `is_superuser` ne sont volontairement PAS dans
+    `champs_autorises` : même absents de MonProfilSerializer, un appelant
+    qui passerait ces clés directement (bug futur, appel interne...) ne
+    pourrait jamais s'auto-élever de rôle par cette fonction."""
+    champs_autorises = {"nom", "telephone", "fonction", "laboratoire", "institution", "photo_profil"}
+    for champ, valeur in champs.items():
+        if champ in champs_autorises:
+            setattr(utilisateur, champ, valeur)
+    utilisateur.save()
+    return utilisateur
+
+
+# --- Changement de mot de passe (utilisateur déjà authentifié) -------------
+
+def changer_mot_de_passe(*, utilisateur, ancien_mot_de_passe, nouveau_mot_de_passe):
+    if not utilisateur.check_password(ancien_mot_de_passe):
+        raise MotDePasseActuelInvalideError()
+    utilisateur.set_password(nouveau_mot_de_passe)
+    utilisateur.save(update_fields=["password"])
+    # Un changement de mot de passe volontaire a la même portée de sécurité
+    # qu'une réinitialisation : toutes les sessions existantes (y compris
+    # celle-ci, dont l'access token reste valide jusqu'à expiration mais ne
+    # pourra plus être rafraîchi) sont invalidées.
+    _blacklister_tokens_utilisateur(utilisateur)
+
+
+# --- Sessions actives (refresh tokens émis, voir simplejwt token_blacklist) -
+
+def lister_sessions(*, utilisateur, jti_courant=None):
+    """Une session active = un OutstandingToken (refresh token émis) pour
+    cet utilisateur, ni blacklisté ni expiré. `jti_courant` vient du client
+    (le jti de son propre refresh token, jamais deviné côté serveur) : il
+    sert uniquement à annoter quelle ligne est "la session courante"."""
+    maintenant = timezone.now()
+    tokens = list(
+        OutstandingToken.objects.filter(user=utilisateur, expires_at__gt=maintenant)
+        .exclude(blacklistedtoken__isnull=False)
+        .order_by("-created_at")
+    )
+    for token in tokens:
+        token.est_courante = jti_courant is not None and token.jti == jti_courant
+    return tokens
+
+
+def revoquer_session(*, utilisateur, session_id):
+    """Lève Http404 (jamais un message révélant l'existence d'une session
+    d'un autre utilisateur) si `session_id` n'appartient pas à `utilisateur`."""
+    try:
+        token = OutstandingToken.objects.get(id=session_id, user=utilisateur)
+    except OutstandingToken.DoesNotExist:
+        raise Http404
+    BlacklistedToken.objects.get_or_create(token=token)

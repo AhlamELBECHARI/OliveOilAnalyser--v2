@@ -8,9 +8,8 @@ import 'core/navigation/app_navigator.dart';
 import 'core/theme/app_theme.dart';
 import 'core/usecase/usecase.dart';
 import 'features/authentification/domain/usecases/get_session_locale_usecase.dart';
-import 'features/authentification/presentation/screens/login_screen.dart';
-import 'features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'features/parametres/presentation/providers/locale_provider.dart';
+import 'features/parametres/presentation/providers/theme_mode_provider.dart';
 import 'l10n/generated/app_localizations.dart';
 
 Future<void> main() async {
@@ -22,25 +21,26 @@ Future<void> main() async {
   final resultatSession = await sl<GetSessionLocaleUseCase>()(const NoParams());
   final possedeSession = resultatSession.fold((_) => false, (valeur) => valeur);
 
-  runApp(ProviderScope(
-    child: OliveIQApp(routeInitiale: possedeSession ? '/accueil' : '/login'),
-  ));
+  sl<AppNavigator>().initialiserRouter(possedeSession ? '/accueil' : '/login');
+
+  runApp(const ProviderScope(child: OliveIQApp()));
 }
 
 class OliveIQApp extends ConsumerWidget {
-  final String routeInitiale;
-
-  const OliveIQApp({super.key, required this.routeInitiale});
+  const OliveIQApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
+    final modeTheme = ref.watch(themeModeProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Olive IQ',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      navigatorKey: sl<AppNavigator>().navigatorKey,
+      darkTheme: AppTheme.themeSombre,
+      themeMode: modeTheme,
+      routerConfig: sl<AppNavigator>().router,
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
@@ -49,11 +49,6 @@ class OliveIQApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      initialRoute: routeInitiale,
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/accueil': (context) => const DashboardScreen(),
-      },
     );
   }
 }

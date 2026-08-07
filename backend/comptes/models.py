@@ -23,6 +23,15 @@ class Utilisateur(AbstractBaseUser):
         max_length=20, choices=Role.choices, default=Role.UTILISATEUR, db_index=True
     )
 
+    # Informations de profil (écran "Mon Profil" du mobile) — modifiables
+    # par l'utilisateur lui-même via GET/PATCH /api/utilisateurs/moi/,
+    # jamais role/is_staff/is_superuser (voir comptes.serializers.MonProfilSerializer).
+    telephone = models.CharField(max_length=30, blank=True, default="")
+    fonction = models.CharField(max_length=150, blank=True, default="")
+    laboratoire = models.CharField(max_length=150, blank=True, default="")
+    institution = models.CharField(max_length=255, blank=True, default="")
+    photo_profil = models.ImageField(upload_to="profils/", null=True, blank=True)
+
     est_actif = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

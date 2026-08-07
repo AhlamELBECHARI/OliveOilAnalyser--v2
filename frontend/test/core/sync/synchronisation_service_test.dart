@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:olive_iq_app/core/local_storage/local_database.dart';
 import 'package:olive_iq_app/core/sync/synchronisation_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockDio extends Mock implements Dio {}
 
@@ -28,10 +29,17 @@ void main() {
     registerFallbackValue(RequestOptions(path: '/echantillons/'));
   });
 
-  setUp(() {
+  setUp(() async {
     base = LocalDatabase(NativeDatabase.memory());
     dio = MockDio();
-    service = SynchronisationService(base: base, dio: dio, connectivite: null);
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    service = SynchronisationService(
+      base: base,
+      dio: dio,
+      preferences: preferences,
+      connectivite: null,
+    );
   });
 
   tearDown(() async {
@@ -163,5 +171,27 @@ void main() {
     await abonnement.cancel();
 
     expect(valeurs.last, 1);
+  });
+
+  test('synchroniser() est un no-op quand estActivee est faux', () async {
+    await insererEchantillon('ech-9');
+    await service.definirActivee(false);
+
+    await service.synchroniser();
+
+    verifyNever(() => dio.post('/echantillons/', data: any(named: 'data')));
+    expect((await base.obtenirEchantillon('ech-9'))!.statutSync, 'enAttente');
+  });
+
+  test('derniereSynchronisation est horodatée une fois tout synchronisé, pas avant', () async {
+    expect(service.derniereSynchronisation, isNull);
+
+    await insererEchantillon('ech-10');
+    when(() => dio.post('/echantillons/', data: any(named: 'data')))
+        .thenAnswer((_) async => _reponseSucces('/echantillons/'));
+
+    await service.synchroniser();
+
+    expect(service.derniereSynchronisation, isNotNull);
   });
 }

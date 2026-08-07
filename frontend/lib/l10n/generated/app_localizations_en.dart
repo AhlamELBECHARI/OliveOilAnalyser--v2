@@ -604,4 +604,229 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dateFinLabel => 'End date';
+
+  @override
+  String get monProfilTitre => 'My Profile';
+
+  @override
+  String get monProfilSousTitre => 'Account information & preferences';
+
+  @override
+  String get roleAdministrateurLabel => 'Administrator';
+
+  @override
+  String get roleUtilisateurLabel => 'User';
+
+  @override
+  String get champTelephone => 'Phone';
+
+  @override
+  String get champNom => 'Name';
+
+  @override
+  String get champFonction => 'Role/Title';
+
+  @override
+  String get champLaboratoire => 'Laboratory';
+
+  @override
+  String get champInstitution => 'Institution';
+
+  @override
+  String get membreDepuisLabel => 'Member since';
+
+  @override
+  String get changerPhotoProfil => 'Change profile photo';
+
+  @override
+  String get informationsPersonnellesTitre => 'Personal information';
+
+  @override
+  String get informationsPersonnellesSousTitre =>
+      'Manage your profile information';
+
+  @override
+  String get securiteTitre => 'Security';
+
+  @override
+  String get securiteSousTitre => 'Password, authentication';
+
+  @override
+  String get sessionsActivesTitre => 'Active sessions';
+
+  @override
+  String get sessionsActivesSousTitre => 'Manage your connected devices';
+
+  @override
+  String sessionsActivesCompteur(int nombre) {
+    return '$nombre active';
+  }
+
+  @override
+  String get preferencesSectionTitre => 'Preferences';
+
+  @override
+  String get preferencesAnalyseTitre => 'Analysis preferences';
+
+  @override
+  String get preferencesAnalyseSousTitre =>
+      'Units, thresholds, default settings';
+
+  @override
+  String get notificationsPreferenceTitre => 'Notifications';
+
+  @override
+  String get notificationsPreferenceSousTitre => 'Manage alerts and reports';
+
+  @override
+  String get themeTitre => 'Theme';
+
+  @override
+  String get themeClair => 'Light';
+
+  @override
+  String get themeSombreLabel => 'Dark';
+
+  @override
+  String get themeSysteme => 'System';
+
+  @override
+  String get donneesSyncSectionTitre => 'Data & Sync';
+
+  @override
+  String get synchronisationCloudTitre => 'Cloud sync';
+
+  @override
+  String derniereSyncLabel(String heure) {
+    return 'Last sync: $heure';
+  }
+
+  @override
+  String get syncDesactiveeLabel => 'Sync disabled';
+
+  @override
+  String get syncJamaisLabel => 'Never synced';
+
+  @override
+  String get gestionDonneesTitre => 'Data management';
+
+  @override
+  String get gestionDonneesSousTitre => 'Export, delete or archive data';
+
+  @override
+  String get espaceStockageTitre => 'Storage usage';
+
+  @override
+  String get aProposSectionTitre => 'About';
+
+  @override
+  String get aProposOliveIQTitre => 'About OliveIQ';
+
+  @override
+  String versionBuildLabel(String version, String build) {
+    return 'Version $version • Build $build';
+  }
+
+  @override
+  String get centreAideTitre => 'Help center';
+
+  @override
+  String get centreAideSousTitre => 'Documentation and support';
+
+  @override
+  String get centreAideContenu =>
+      'For any question about using OliveIQ (running an analysis, reading results, connecting the analyzer), contact your lab\'s support or write to support@olive-iq.local.\n\nFull documentation will be added here soon.';
+
+  @override
+  String get mentionsLegalesTitre => 'Legal & Privacy';
+
+  @override
+  String get mentionsLegalesContenu =>
+      'OliveIQ processes analysis data (samples, spectra, results) exclusively for your organization\'s olive oil quality tracking.\n\nPersonal account data (name, email, phone, profile photo) is only used to identify you and operate the app, and is never shared with third parties.\n\nThis section will be completed with your organization\'s final legal text.';
+
+  @override
+  String get seDeconnecterConfirmationTitre => 'Log out?';
+
+  @override
+  String get seDeconnecterConfirmationTexte =>
+      'You\'ll need to log back in to access your account.';
+
+  @override
+  String get confirmerBouton => 'Confirm';
+
+  @override
+  String get enregistrerBouton => 'Save';
+
+  @override
+  String get profilMisAJourMessage => 'Profile updated.';
+
+  @override
+  String get photoProfilMiseAJourMessage => 'Profile photo updated.';
+
+  @override
+  String get ancienMotDePasseLabel => 'Current password';
+
+  @override
+  String get changerMotDePasseBouton => 'Change password';
+
+  @override
+  String get motDePasseModifieMessage => 'Password changed successfully.';
+
+  @override
+  String sessionCreeeLabel(String date) {
+    return 'Connected on $date';
+  }
+
+  @override
+  String sessionExpireLabel(String date) {
+    return 'Expires on $date';
+  }
+
+  @override
+  String get sessionCouranteLabel => 'This device';
+
+  @override
+  String get revoquerSessionBouton => 'Revoke';
+
+  @override
+  String get revoquerToutesSaufCouranteBouton => 'Revoke all other sessions';
+
+  @override
+  String get aucuneSessionMessage => 'No active sessions.';
+
+  @override
+  String get seuilAciditeConformiteLabel => 'Compliance threshold — Acidity';
+
+  @override
+  String get seuilPeroxydeConformiteLabel =>
+      'Compliance threshold — Peroxide index';
+
+  @override
+  String get seuilEvooLabel => 'Extra Virgin threshold (EVOO)';
+
+  @override
+  String get seuilVooLabel => 'Virgin threshold (VOO)';
+
+  @override
+  String get lectureSeuleAdministrateurMessage =>
+      'Only an administrator can change this.';
+
+  @override
+  String get seuilsMisAJourMessage => 'Thresholds updated.';
+
+  @override
+  String get exporterMesDonneesBouton => 'Export my data';
+
+  @override
+  String get viderCacheBouton => 'Clear local cache';
+
+  @override
+  String get viderCacheConfirmationTitre => 'Clear cache?';
+
+  @override
+  String get viderCacheConfirmationTexte =>
+      'Temporary files will be deleted. Analyses waiting to sync are never affected.';
+
+  @override
+  String get cacheVideMessage => 'Cache cleared.';
 }

@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,13 +10,16 @@ from core.serializers import ErreurSerializer, MessageSerializer
 
 from . import services
 from .serializers import (
+    ChangerMotDePasseSerializer,
     ConfigurationSerializer,
     ConfirmerResetMotDePasseSerializer,
     CreerAdministrateurSerializer,
     DemandeResetMotDePasseSerializer,
     LoginResponseSerializer,
     LoginSerializer,
+    MonProfilSerializer,
     RegisterSerializer,
+    SessionSerializer,
     UtilisateurSerializer,
     VerifierCodeResetSerializer,
 )
@@ -160,3 +163,77 @@ class ConfigurationView(APIView):
             utilisateur=request.user, **serializer.validated_data
         )
         return Response(ConfigurationSerializer(configuration).data)
+
+
+class MonProfilView(APIView):
+    """GET/PATCH /api/utilisateurs/moi/ — un utilisateur consulte et modifie
+    uniquement son propre profil ; role/is_staff/is_superuser ne sont jamais
+    acceptés en entrée (voir MonProfilSerializer et services.modifier_profil)."""
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses=MonProfilSerializer)
+    def get(self, request):
+        return Response(MonProfilSerializer(request.user, context={"request": request}).data)
+
+    @extend_schema(
+        request=MonProfilSerializer,
+        responses={200: MonProfilSerializer, 400: ErreurSerializer},
+    )
+    def patch(self, request):
+        serializer = MonProfilSerializer(
+            request.user, data=request.data, partial=True, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        utilisateur = services.modifier_profil(
+            utilisateur=request.user, **serializer.validated_data
+        )
+        return Response(
+            MonProfilSerializer(utilisateur, context={"request": request}).data
+        )
+
+
+class ChangerMotDePasseView(APIView):
+    """POST /api/auth/changer-mot-de-passe/ — vérifie l'ancien mot de passe,
+    définit le nouveau, et blackliste tous les refresh tokens en circulation
+    (voir services.changer_mot_de_passe)."""
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=ChangerMotDePasseSerializer,
+        responses={200: MessageSerializer, 400: ErreurSerializer},
+    )
+    def post(self, request):
+        serializer = ChangerMotDePasseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        services.changer_mot_de_passe(utilisateur=request.user, **serializer.validated_data)
+        return Response({"detail": "Mot de passe modifié avec succès."})
+
+
+class SessionsView(APIView):
+    """GET /api/auth/sessions/?jti_courant=<jti> — liste les sessions actives
+    (refresh tokens émis, ni blacklistés ni expirés) de l'utilisateur. Le
+    paramètre optionnel jti_courant (jti du refresh token du client) permet
+    d'annoter la session courante sans que le serveur n'ait à la deviner."""
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses=SessionSerializer(many=True))
+    def get(self, request):
+        sessions = services.lister_sessions(
+            utilisateur=request.user,
+            jti_courant=request.query_params.get("jti_courant"),
+        )
+        return Response(SessionSerializer(sessions, many=True).data)
+
+
+class SessionDetailView(APIView):
+    """DELETE /api/auth/sessions/<id>/ — révoque (blackliste) une session."""
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={204: None, 404: ErreurSerializer})
+    def delete(self, request, session_id):
+        services.revoquer_session(utilisateur=request.user, session_id=session_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)

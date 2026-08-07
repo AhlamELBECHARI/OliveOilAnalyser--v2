@@ -58,6 +58,55 @@ class UtilisateurSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class MonProfilSerializer(serializers.ModelSerializer):
+    """GET/PATCH /api/utilisateurs/moi/ — un utilisateur consulte et modifie
+    son propre profil. `role`, `is_staff` et `is_superuser` sont
+    volontairement absents des champs modifiables : même envoyés par le
+    client, ils sont ignorés (voir comptes.services.modifier_profil, qui ne
+    reprend que les champs listés dans read_only_fields en dehors)."""
+
+    date_derniere_connexion = serializers.DateTimeField(source="last_login", read_only=True)
+
+    class Meta:
+        model = Utilisateur
+        fields = [
+            "id",
+            "nom",
+            "email",
+            "role",
+            "telephone",
+            "fonction",
+            "laboratoire",
+            "institution",
+            "photo_profil",
+            "date_derniere_connexion",
+            "date_creation",
+        ]
+        read_only_fields = ["id", "email", "role", "date_derniere_connexion", "date_creation"]
+
+
+class ChangerMotDePasseSerializer(serializers.Serializer):
+    ancien_mot_de_passe = serializers.CharField(write_only=True, trim_whitespace=False)
+    nouveau_mot_de_passe = serializers.CharField(write_only=True, min_length=8)
+
+    def validate_nouveau_mot_de_passe(self, value):
+        password_validation.validate_password(value)
+        return value
+
+
+class SessionSerializer(serializers.Serializer):
+    """Une session active = un refresh token émis (OutstandingToken) ni
+    blacklisté ni expiré (voir comptes.services.lister_sessions).
+    `est_courante` est calculé côté service à partir du jti que le client
+    fournit lui-même (celui de son propre refresh token), jamais deviné
+    côté serveur."""
+
+    id = serializers.IntegerField()
+    date_creation = serializers.DateTimeField(source="created_at")
+    date_expiration = serializers.DateTimeField(source="expires_at")
+    est_courante = serializers.BooleanField()
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, trim_whitespace=False)

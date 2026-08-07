@@ -609,4 +609,232 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dateFinLabel => 'Date de fin';
+
+  @override
+  String get monProfilTitre => 'Mon Profil';
+
+  @override
+  String get monProfilSousTitre => 'Informations du compte & préférences';
+
+  @override
+  String get roleAdministrateurLabel => 'Administrateur';
+
+  @override
+  String get roleUtilisateurLabel => 'Utilisateur';
+
+  @override
+  String get champTelephone => 'Téléphone';
+
+  @override
+  String get champNom => 'Nom';
+
+  @override
+  String get champFonction => 'Fonction';
+
+  @override
+  String get champLaboratoire => 'Laboratoire';
+
+  @override
+  String get champInstitution => 'Institution';
+
+  @override
+  String get membreDepuisLabel => 'Membre depuis';
+
+  @override
+  String get changerPhotoProfil => 'Changer la photo de profil';
+
+  @override
+  String get informationsPersonnellesTitre => 'Informations personnelles';
+
+  @override
+  String get informationsPersonnellesSousTitre =>
+      'Gérer vos informations de profil';
+
+  @override
+  String get securiteTitre => 'Sécurité';
+
+  @override
+  String get securiteSousTitre => 'Mot de passe, authentification';
+
+  @override
+  String get sessionsActivesTitre => 'Sessions actives';
+
+  @override
+  String get sessionsActivesSousTitre => 'Gérer vos appareils connectés';
+
+  @override
+  String sessionsActivesCompteur(int nombre) {
+    return '$nombre actives';
+  }
+
+  @override
+  String get preferencesSectionTitre => 'Préférences';
+
+  @override
+  String get preferencesAnalyseTitre => 'Préférences d\'analyse';
+
+  @override
+  String get preferencesAnalyseSousTitre =>
+      'Unités, seuils, paramètres par défaut';
+
+  @override
+  String get notificationsPreferenceTitre => 'Notifications';
+
+  @override
+  String get notificationsPreferenceSousTitre =>
+      'Gérer les alertes et rapports';
+
+  @override
+  String get themeTitre => 'Thème';
+
+  @override
+  String get themeClair => 'Clair';
+
+  @override
+  String get themeSombreLabel => 'Sombre';
+
+  @override
+  String get themeSysteme => 'Système';
+
+  @override
+  String get donneesSyncSectionTitre => 'Données & Synchronisation';
+
+  @override
+  String get synchronisationCloudTitre => 'Synchronisation cloud';
+
+  @override
+  String derniereSyncLabel(String heure) {
+    return 'Dernière sync : $heure';
+  }
+
+  @override
+  String get syncDesactiveeLabel => 'Synchronisation désactivée';
+
+  @override
+  String get syncJamaisLabel => 'Jamais synchronisé';
+
+  @override
+  String get gestionDonneesTitre => 'Gestion des données';
+
+  @override
+  String get gestionDonneesSousTitre =>
+      'Exporter, supprimer ou archiver des données';
+
+  @override
+  String get espaceStockageTitre => 'Espace de stockage';
+
+  @override
+  String get aProposSectionTitre => 'À propos';
+
+  @override
+  String get aProposOliveIQTitre => 'À propos d\'OliveIQ';
+
+  @override
+  String versionBuildLabel(String version, String build) {
+    return 'Version $version • Build $build';
+  }
+
+  @override
+  String get centreAideTitre => 'Centre d\'aide';
+
+  @override
+  String get centreAideSousTitre => 'Documentation et support';
+
+  @override
+  String get centreAideContenu =>
+      'Pour toute question sur l\'utilisation d\'OliveIQ (acquisition d\'une analyse, lecture des résultats, connexion de l\'analyseur), contactez le support de votre laboratoire ou écrivez à support@olive-iq.local.\n\nUne documentation complète sera ajoutée ici prochainement.';
+
+  @override
+  String get mentionsLegalesTitre => 'Mentions légales & Confidentialité';
+
+  @override
+  String get mentionsLegalesContenu =>
+      'OliveIQ traite les données d\'analyse (échantillons, spectres, résultats) exclusivement dans le cadre du suivi qualité de l\'huile d\'olive, pour le compte de votre organisation.\n\nLes données personnelles du compte (nom, email, téléphone, photo de profil) ne sont utilisées que pour l\'identification et le fonctionnement de l\'application, jamais partagées avec des tiers.\n\nCette section sera complétée avec le texte légal définitif de votre organisation.';
+
+  @override
+  String get seDeconnecterConfirmationTitre => 'Se déconnecter ?';
+
+  @override
+  String get seDeconnecterConfirmationTexte =>
+      'Vous devrez vous reconnecter pour accéder à votre compte.';
+
+  @override
+  String get confirmerBouton => 'Confirmer';
+
+  @override
+  String get enregistrerBouton => 'Enregistrer';
+
+  @override
+  String get profilMisAJourMessage => 'Profil mis à jour.';
+
+  @override
+  String get photoProfilMiseAJourMessage => 'Photo de profil mise à jour.';
+
+  @override
+  String get ancienMotDePasseLabel => 'Mot de passe actuel';
+
+  @override
+  String get changerMotDePasseBouton => 'Changer le mot de passe';
+
+  @override
+  String get motDePasseModifieMessage => 'Mot de passe modifié avec succès.';
+
+  @override
+  String sessionCreeeLabel(String date) {
+    return 'Connectée le $date';
+  }
+
+  @override
+  String sessionExpireLabel(String date) {
+    return 'Expire le $date';
+  }
+
+  @override
+  String get sessionCouranteLabel => 'Cet appareil';
+
+  @override
+  String get revoquerSessionBouton => 'Révoquer';
+
+  @override
+  String get revoquerToutesSaufCouranteBouton =>
+      'Révoquer toutes les autres sessions';
+
+  @override
+  String get aucuneSessionMessage => 'Aucune session active.';
+
+  @override
+  String get seuilAciditeConformiteLabel => 'Seuil de conformité — Acidité';
+
+  @override
+  String get seuilPeroxydeConformiteLabel =>
+      'Seuil de conformité — Indice de peroxyde';
+
+  @override
+  String get seuilEvooLabel => 'Seuil Extra Vierge (EVOO)';
+
+  @override
+  String get seuilVooLabel => 'Seuil Vierge (VOO)';
+
+  @override
+  String get lectureSeuleAdministrateurMessage =>
+      'Modifiable uniquement par un administrateur.';
+
+  @override
+  String get seuilsMisAJourMessage => 'Seuils mis à jour.';
+
+  @override
+  String get exporterMesDonneesBouton => 'Exporter mes données';
+
+  @override
+  String get viderCacheBouton => 'Vider le cache local';
+
+  @override
+  String get viderCacheConfirmationTitre => 'Vider le cache ?';
+
+  @override
+  String get viderCacheConfirmationTexte =>
+      'Les fichiers temporaires seront supprimés. Les analyses en attente de synchronisation ne sont jamais affectées.';
+
+  @override
+  String get cacheVideMessage => 'Cache vidé.';
 }

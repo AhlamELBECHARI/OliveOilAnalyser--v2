@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/demo/demo_credentials.dart';
 import '../../../../core/demo/demo_mode_provider.dart';
@@ -9,7 +10,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../providers/login_provider.dart';
 import '../widgets/champ_texte_olive_iq.dart';
-import 'reset_password/email_reset_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -83,7 +83,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (_tentativeModeDemo) {
           ref.read(demoModeProvider.notifier).state = true;
         }
-        Navigator.of(context).pushNamedAndRemoveUntil('/accueil', (route) => false);
+        context.go('/accueil');
       }
     });
 
@@ -160,9 +160,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const EmailResetScreen()),
-                      ),
+                      onPressed: () => context.push('/mot-de-passe-oublie'),
                       child: Text(
                         l10n.motDePasseOublie,
                         style: AppTextStyles.lienAction,

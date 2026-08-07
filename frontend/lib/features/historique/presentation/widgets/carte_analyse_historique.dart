@@ -66,6 +66,18 @@ class CarteAnalyseHistorique extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: fondCategorie(analyse.categorie),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    libelleCourtCategorieHistorique(analyse.categorie, context),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: couleur),
+                  ),
+                ),
+                const SizedBox(height: 6),
                 Text(
                   '${l10n.acidite} ${formatAcidite.format(analyse.acidite)}',
                   style: const TextStyle(fontSize: 12, color: AppColors.grisMoyen),

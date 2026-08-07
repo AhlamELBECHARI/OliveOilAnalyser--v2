@@ -300,11 +300,21 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
     }
   }
 
-  Future<void> annulerAnalyse() async {
-    if (!state.acquisitionEnCours) return;
-    await _envoyerCommande(CommandeAnalyseur.annulerAcquisition);
+  /// Le bouton "Annuler" de l'écran (et "Nouvelle analyse" une fois une
+  /// acquisition terminée) ne quitte jamais l'écran — Analyse est un onglet
+  /// permanent, pas un écran qu'on ferme (voir Partie A du cahier des
+  /// charges) : il réinitialise seulement le formulaire en cours, avec un
+  /// nouvel identifiant d'échantillon. L'état de connexion réel à
+  /// l'instrument est préservé, lui, puisqu'il ne dépend pas du formulaire.
+  Future<void> reinitialiser() async {
+    if (state.acquisitionEnCours) {
+      await _envoyerCommande(CommandeAnalyseur.annulerAcquisition);
+    }
     if (!mounted) return;
-    state = state.copierAvec(acquisitionEnCours: false);
+    state = NouvelleAnalyseState(
+      etatConnexion: state.etatConnexion,
+      infoAppareil: state.infoAppareil,
+    );
   }
 
   @override

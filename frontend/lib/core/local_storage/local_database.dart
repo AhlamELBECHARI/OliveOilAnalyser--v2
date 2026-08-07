@@ -23,12 +23,21 @@ class LocalDatabase extends _$LocalDatabase {
   @override
   int get schemaVersion => 1;
 
+  static const nomFichier = 'olive_iq_local.sqlite';
+
   static QueryExecutor _ouvrirConnexion() {
     return LazyDatabase(() async {
-      final dossier = await getApplicationDocumentsDirectory();
-      final fichier = File(p.join(dossier.path, 'olive_iq_local.sqlite'));
+      final fichier = await cheminFichier();
       return NativeDatabase.createInBackground(fichier);
     });
+  }
+
+  /// Chemin du fichier SQLite sur le disque — voir
+  /// core/storage/espace_stockage_service.dart, qui en lit la taille réelle
+  /// pour l'indicateur "Espace de stockage" (Partie B).
+  static Future<File> cheminFichier() async {
+    final dossier = await getApplicationDocumentsDirectory();
+    return File(p.join(dossier.path, nomFichier));
   }
 
   // --- Échantillons ---

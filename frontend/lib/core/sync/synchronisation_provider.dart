@@ -9,3 +9,28 @@ import 'synchronisation_service.dart';
 final elementsEnAttenteSyncProvider = StreamProvider.autoDispose<int>((ref) {
   return sl<SynchronisationService>().flusElementsEnAttente;
 });
+
+/// Date de la dernière synchronisation réussie (Partie B, "Données &
+/// Synchronisation") — valeur initiale lue immédiatement, puis mise à jour
+/// à chaud via le flux du service.
+final derniereSynchronisationProvider = StreamProvider.autoDispose<DateTime?>((ref) async* {
+  final service = sl<SynchronisationService>();
+  yield service.derniereSynchronisation;
+  yield* service.flusDerniereSynchronisation;
+});
+
+/// Interrupteur "Synchronisation cloud" : lit/écrit directement
+/// [SynchronisationService.estActivee] (persisté localement), qui gate lui
+/// -même toute tentative de synchronisation tant qu'il est désactivé.
+class SyncActiveeNotifier extends StateNotifier<bool> {
+  SyncActiveeNotifier() : super(sl<SynchronisationService>().estActivee);
+
+  Future<void> definir(bool activee) async {
+    state = activee;
+    await sl<SynchronisationService>().definirActivee(activee);
+  }
+}
+
+final syncActiveeProvider = StateNotifierProvider.autoDispose<SyncActiveeNotifier, bool>(
+  (ref) => SyncActiveeNotifier(),
+);
