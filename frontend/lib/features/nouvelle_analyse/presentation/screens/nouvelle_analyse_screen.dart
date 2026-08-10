@@ -11,6 +11,7 @@ import '../widgets/carte_connexion_instrument.dart';
 import '../widgets/carte_informations_echantillon.dart';
 import '../widgets/carte_parametres_acquisition_reservee.dart';
 import '../widgets/en_tete_nouvelle_analyse.dart';
+import '../widgets/etape_connexion_analyseur.dart';
 import '../widgets/stepper_analyse.dart';
 
 /// Écran "Nouvelle Analyse" (design/3-analyse.png), 100% adossé au backend
@@ -71,7 +72,15 @@ class NouvelleAnalyseScreen extends ConsumerWidget {
               ),
             ),
             Expanded(
-              child: ListView(
+              child: state.etapeCourante == EtapeAnalyse.connexion
+                  ? EtapeConnexionAnalyseur(
+                      etatConnexion: state.etatConnexion,
+                      infoAppareil: state.infoAppareil,
+                      onReessayer: notifier.reessayerConnexion,
+                      onContinuer: notifier.validerEtapeConnexion,
+                      onContinuerSansAppareil: notifier.validerEtapeConnexion,
+                    )
+                  : ListView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                 children: [
                   CarteInformationsEchantillon(

@@ -7,10 +7,15 @@ import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/carte_stylisee.dart';
+import '../../../profil/presentation/providers/profil_provider.dart';
 import '../../domain/entities/modele_entity.dart';
 import '../providers/modeles_provider.dart';
+import '../widgets/feuille_ajouter_modele.dart';
 
 /// Liste des modèles d'analyse disponibles, alimentée par GET /api/modeles/.
+/// Import d'un nouveau modèle et activation/dépréciation réservés aux
+/// administrateurs (même permission que côté backend) — voir profilProvider,
+/// déjà chargé par l'écran Profil.
 class ModelesScreen extends ConsumerWidget {
   const ModelesScreen({super.key});
 
@@ -18,6 +23,7 @@ class ModelesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final state = ref.watch(modelesProvider);
+    final estAdmin = ref.watch(profilProvider).profil?.estAdministrateur ?? false;
 
     return Scaffold(
       backgroundColor: AppColors.fond,
@@ -26,11 +32,19 @@ class ModelesScreen extends ConsumerWidget {
         elevation: 0,
         title: Text(l10n.navModeles, style: AppTextStyles.bienvenue.copyWith(fontSize: 20)),
       ),
-      body: _corps(context, ref, state),
+      floatingActionButton: estAdmin
+          ? FloatingActionButton.extended(
+              backgroundColor: AppColors.vertOlive,
+              onPressed: () => afficherFeuilleAjouterModele(context),
+              icon: const Icon(Icons.add, color: AppColors.blanc),
+              label: Text(l10n.ajouterModeleBouton, style: AppTextStyles.boutonPrincipal),
+            )
+          : null,
+      body: _corps(context, ref, state, estAdmin),
     );
   }
 
-  Widget _corps(BuildContext context, WidgetRef ref, ModelesState state) {
+  Widget _corps(BuildContext context, WidgetRef ref, ModelesState state, bool estAdmin) {
     final l10n = context.l10n;
 
     if (state.modeles == null && state.enChargement) {
@@ -86,19 +100,35 @@ class ModelesScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               itemCount: modeles.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (context, index) => _CarteModele(modele: modeles[index]),
+              itemBuilder: (context, index) =>
+                  _CarteModele(modele: modeles[index], estAdmin: estAdmin),
             ),
     );
   }
 }
 
-class _CarteModele extends StatelessWidget {
+class _CarteModele extends ConsumerWidget {
   final ModeleEntity modele;
+  final bool estAdmin;
 
-  const _CarteModele({required this.modele});
+  const _CarteModele({required this.modele, required this.estAdmin});
+
+  Future<void> _changerStatut(BuildContext context, WidgetRef ref, String action) async {
+    final notifier = ref.read(modelesProvider.notifier);
+    switch (action) {
+      case 'activer':
+        await notifier.modifierStatut(modele.id, estActif: true);
+      case 'desactiver':
+        await notifier.modifierStatut(modele.id, estActif: false);
+      case 'deprecier':
+        await notifier.modifierStatut(modele.id, estDeprecie: true);
+      case 'retirer_depreciation':
+        await notifier.modifierStatut(modele.id, estDeprecie: false);
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final formatDecimal = NumberFormat('#,##0.000', l10n.localeName);
     final couleur = modele.estDeprecie
@@ -132,6 +162,27 @@ class _CarteModele extends StatelessWidget {
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: couleur),
                 ),
               ),
+              if (estAdmin) ...[
+                const SizedBox(width: 4),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, size: 18, color: AppColors.grisMoyen),
+                  onSelected: (action) => _changerStatut(context, ref, action),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(
+                      value: modele.estActif ? 'desactiver' : 'activer',
+                      child: Text(modele.estActif ? l10n.desactiverModeleAction : l10n.activerModeleAction),
+                    ),
+                    PopupMenuItem(
+                      value: modele.estDeprecie ? 'retirer_depreciation' : 'deprecier',
+                      child: Text(
+                        modele.estDeprecie
+                            ? l10n.retirerDepreciationModeleAction
+                            : l10n.deprecierModeleAction,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 4),

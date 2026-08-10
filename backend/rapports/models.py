@@ -8,9 +8,10 @@ from echantillons.models import Echantillon
 
 class Rapport(models.Model):
     """
-    Modèle créé pour ce jalon sans endpoints REST associés (hors périmètre
-    des endpoints minimum demandés) : accessible pour l'instant uniquement
-    via l'admin Django.
+    Créé par analyses.services.declencher_export lors d'un export. Seul
+    endpoint REST dédié : GET /api/rapports/<id>/telecharger/ (voir
+    rapports.views) pour récupérer le fichier généré ; le reste (recherche,
+    filtrage) reste réservé à l'admin Django.
     """
 
     class Format(models.TextChoices):

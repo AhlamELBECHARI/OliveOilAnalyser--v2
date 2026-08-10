@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/files/telechargeur_fichier.dart';
 import '../../../../core/localization/build_context_l10n_extension.dart';
 import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/storage/espace_stockage_provider.dart';
@@ -9,7 +10,9 @@ import '../../../../core/storage/espace_stockage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/carte_stylisee.dart';
+import '../../../historique/domain/entities/demande_export_entity.dart';
 import '../../../historique/domain/usecases/declencher_export_usecase.dart';
+import '../../../historique/domain/usecases/telecharger_rapport_usecase.dart';
 
 const _espaceStockageService = EspaceStockageService();
 
@@ -29,17 +32,41 @@ class _GestionDonneesScreenState extends ConsumerState<GestionDonneesScreen> {
   bool _exportEnCours = false;
   bool _viderCacheEnCours = false;
 
+  /// Exporte l'ensemble des résultats de l'utilisateur (pas de filtre, pas
+  /// de sélection — voir l'écran Historique pour un export plus ciblé), puis
+  /// télécharge et enregistre localement le fichier généré.
   Future<void> _exporter(String format) async {
     setState(() => _exportEnCours = true);
-    final resultat = await sl<DeclencherExportUseCase>()(format);
+    final resultatExport = await sl<DeclencherExportUseCase>()(
+      DemandeExportEntity(contenu: ContenuExport.resultats, format: format),
+    );
     if (!mounted) return;
-    setState(() => _exportEnCours = false);
     final l10n = context.l10n;
-    resultat.fold(
-      (failure) => ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(failure.messageLocalise(context)))),
-      (_) => ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.exportLanceMessage))),
+
+    await resultatExport.fold(
+      (failure) async {
+        setState(() => _exportEnCours = false);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(failure.messageLocalise(context))));
+      },
+      (rapport) async {
+        final resultatFichier = await sl<TelechargerRapportUseCase>()(rapport.id);
+        if (!mounted) return;
+        setState(() => _exportEnCours = false);
+        await resultatFichier.fold(
+          (failure) async => ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(failure.messageLocalise(context)))),
+          (octets) async {
+            final nomFichier = rapport.nomFichier ?? 'export.${format.toLowerCase()}';
+            final enregistre =
+                await TelechargeurFichier.enregistrer(nomFichier: nomFichier, octets: octets);
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(enregistre ? l10n.exportTelechargeMessage : l10n.exportAnnuleMessage),
+            ));
+          },
+        );
+      },
     );
   }
 

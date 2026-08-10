@@ -14,8 +14,16 @@ import 'carte_apercu_historique.dart';
 class CarteAnalyseHistorique extends StatelessWidget {
   final AnalyseHistoriqueEntity analyse;
   final VoidCallback onTap;
+  final bool modeSelection;
+  final bool selectionne;
 
-  const CarteAnalyseHistorique({super.key, required this.analyse, required this.onTap});
+  const CarteAnalyseHistorique({
+    super.key,
+    required this.analyse,
+    required this.onTap,
+    this.modeSelection = false,
+    this.selectionne = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +38,22 @@ class CarteAnalyseHistorique extends StatelessWidget {
       child: CarteStylisee(
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(color: fondCategorie(analyse.categorie), shape: BoxShape.circle),
-              child: Icon(Icons.water_drop_outlined, color: couleur, size: 18),
-            ),
-            const SizedBox(width: 12),
+            if (modeSelection) ...[
+              Checkbox(
+                value: selectionne,
+                activeColor: AppColors.vertOlive,
+                onChanged: (_) => onTap(),
+              ),
+              const SizedBox(width: 4),
+            ] else ...[
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(color: fondCategorie(analyse.categorie), shape: BoxShape.circle),
+                child: Icon(Icons.water_drop_outlined, color: couleur, size: 18),
+              ),
+              const SizedBox(width: 12),
+            ],
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

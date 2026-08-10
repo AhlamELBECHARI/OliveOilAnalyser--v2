@@ -50,6 +50,9 @@ class CodesErreur:
     PERMISSION_REFUSEE = "permission_refusee"
     NON_AUTHENTIFIE = "non_authentifie"
     ERREUR_SERVEUR = "erreur_serveur"
+    LIMITE_EXPORT_DEPASSEE = "limite_export_depassee"
+    AUCUNE_ANALYSE_A_EXPORTER = "aucune_analyse_a_exporter"
+    FICHIER_MODELE_INVALIDE = "fichier_modele_invalide"
 
 
 class ErreurMetier(drf_exceptions.APIException):
@@ -99,6 +102,24 @@ class TropDeDemandesError(ErreurMetier):
     status_code = status.HTTP_429_TOO_MANY_REQUESTS
     default_detail = "Trop de demandes de code. Réessayez plus tard."
     code_erreur = CodesErreur.TROP_DE_DEMANDES
+
+
+class LimiteExportDepasseeError(ErreurMetier):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Cette exportation dépasse la limite d'analyses autorisées."
+    code_erreur = CodesErreur.LIMITE_EXPORT_DEPASSEE
+
+
+class AucuneAnalyseAExporterError(ErreurMetier):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Aucune analyse ne correspond à cette demande d'export."
+    code_erreur = CodesErreur.AUCUNE_ANALYSE_A_EXPORTER
+
+
+class FichierModeleInvalideError(ErreurMetier):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Le fichier de modèle est invalide."
+    code_erreur = CodesErreur.FICHIER_MODELE_INVALIDE
 
 
 def _code_par_defaut(exc):

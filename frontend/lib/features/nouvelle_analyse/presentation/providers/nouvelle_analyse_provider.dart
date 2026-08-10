@@ -24,7 +24,7 @@ import '../../domain/entities/nouvel_echantillon_entity.dart';
 import '../../domain/usecases/enregistrer_echantillon_usecase.dart';
 import '../../domain/usecases/enregistrer_spectre_usecase.dart';
 
-enum EtapeAnalyse { echantillon, analyse, resultats }
+enum EtapeAnalyse { connexion, echantillon, analyse, resultats }
 
 enum ModeCarteEchantillon { formulaire, consultation }
 
@@ -60,6 +60,7 @@ class NouvelleAnalyseState extends Equatable {
   final Failure? echecEnregistrement;
   final bool positionEnCoursDeChargement;
   final String? echecPosition;
+  final bool etapeConnexionFranchie;
 
   NouvelleAnalyseState({
     this.modeCarteEchantillon = ModeCarteEchantillon.formulaire,
@@ -75,15 +76,21 @@ class NouvelleAnalyseState extends Equatable {
     this.echecEnregistrement,
     this.positionEnCoursDeChargement = false,
     this.echecPosition,
+    this.etapeConnexionFranchie = false,
   }) : brouillon = brouillon ?? _nouveauBrouillon();
 
-  /// L'écran est un unique scroll (pas un assistant paginé) : l'étape
-  /// affichée par le stepper en haut est dérivée de l'avancement réel,
-  /// jamais un compteur manipulé indépendamment de l'état des cartes.
+  /// L'écran est un unique scroll par étape (pas un assistant paginé au sens
+  /// strict) : l'étape affichée par le stepper en haut est dérivée de
+  /// l'avancement réel, jamais un compteur manipulé indépendamment de l'état
+  /// des cartes. [etapeConnexionFranchie] reste vraie une fois passée (voir
+  /// NouvelleAnalyseNotifier._initialiser et .continuerSansAppareil) : une
+  /// coupure Bluetooth en cours de saisie ne doit jamais ramener l'écran à
+  /// l'étape Connexion et faire perdre le travail en cours.
   EtapeAnalyse get etapeCourante {
     if (acquisitionTerminee) return EtapeAnalyse.resultats;
     if (echantillonValide != null) return EtapeAnalyse.analyse;
-    return EtapeAnalyse.echantillon;
+    if (etapeConnexionFranchie) return EtapeAnalyse.echantillon;
+    return EtapeAnalyse.connexion;
   }
 
   bool get peutDemarrerAnalyse =>
@@ -103,6 +110,7 @@ class NouvelleAnalyseState extends Equatable {
     Failure? echecEnregistrement,
     bool? positionEnCoursDeChargement,
     String? echecPosition,
+    bool? etapeConnexionFranchie,
     bool effacerEchecEnregistrement = false,
     bool effacerEchecPosition = false,
     bool effacerSpectre = false,
@@ -122,6 +130,7 @@ class NouvelleAnalyseState extends Equatable {
           effacerEchecEnregistrement ? null : (echecEnregistrement ?? this.echecEnregistrement),
       positionEnCoursDeChargement: positionEnCoursDeChargement ?? this.positionEnCoursDeChargement,
       echecPosition: effacerEchecPosition ? null : (echecPosition ?? this.echecPosition),
+      etapeConnexionFranchie: etapeConnexionFranchie ?? this.etapeConnexionFranchie,
     );
   }
 
@@ -140,6 +149,7 @@ class NouvelleAnalyseState extends Equatable {
         echecEnregistrement,
         positionEnCoursDeChargement,
         echecPosition,
+        etapeConnexionFranchie,
       ];
 }
 
@@ -196,6 +206,16 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
 
   void reessayerConnexion() {
     unawaited(_connecterAutomatiquement(const NoParams()));
+  }
+
+  /// Fait passer l'écran de l'étape Connexion à l'étape Échantillon —
+  /// utilisé aussi bien par le bouton "Continuer" (une fois l'appareil
+  /// connecté) que par le lien "Continuer sans appareil" (saisie hors ligne
+  /// des métadonnées, pour analyser plus tard). Ne dispense jamais d'une
+  /// vraie connexion pour démarrer l'acquisition elle-même (voir
+  /// peutDemarrerAnalyse, toujours conditionné à etatConnexion.estConnecte).
+  void validerEtapeConnexion() {
+    state = state.copierAvec(etapeConnexionFranchie: true);
   }
 
   // --- Carte "Informations Échantillon" ---
@@ -314,6 +334,7 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
     state = NouvelleAnalyseState(
       etatConnexion: state.etatConnexion,
       infoAppareil: state.infoAppareil,
+      etapeConnexionFranchie: state.etapeConnexionFranchie,
     );
   }
 

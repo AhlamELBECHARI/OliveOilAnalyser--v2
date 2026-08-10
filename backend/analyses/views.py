@@ -52,10 +52,11 @@ class StatistiquesRapidesView(APIView):
 
 
 class ExportAnalysesView(APIView):
-    """POST /api/analyses/export/ — déclenche la génération d'un rapport en
-    créant l'enregistrement Rapport correspondant. La génération effective
-    du fichier n'est pas dans le périmètre de ce jalon (voir
-    analyses.services.declencher_export)."""
+    """POST /api/analyses/export/ — génère réellement le fichier d'export
+    (résultats et/ou spectres, CSV/XLSX/PDF) et l'associe à l'enregistrement
+    Rapport créé pour tracer qui a exporté quoi et quand (voir
+    analyses.services.declencher_export). La réponse inclut
+    `url_telechargement`, à appeler ensuite pour récupérer le fichier."""
 
     permission_classes = [IsAuthenticated]
 
@@ -63,7 +64,10 @@ class ExportAnalysesView(APIView):
     def post(self, request):
         demande = ExportDemandeSerializer(data=request.data)
         demande.is_valid(raise_exception=True)
+        donnees = dict(demande.validated_data)
+        format_rapport = donnees.pop("format")
         rapport = services.declencher_export(
-            utilisateur=request.user, format_rapport=demande.validated_data["format"]
+            utilisateur=request.user, format_rapport=format_rapport, **donnees
         )
-        return Response(RapportSerializer(rapport).data, status=status.HTTP_201_CREATED)
+        serializer = RapportSerializer(rapport, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

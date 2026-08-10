@@ -1,3 +1,4 @@
+import '../entities/appareil_appaire_entity.dart';
 import '../entities/commande_analyseur.dart';
 import '../entities/etat_connexion_analyseur_entity.dart';
 import '../entities/info_appareil_analyseur_entity.dart';
@@ -49,4 +50,23 @@ abstract class AnalyseurRepository {
   /// Libère les ressources (connexion Bluetooth, StreamControllers). À
   /// appeler quand l'écran qui pilote l'analyseur est fermé.
   Future<void> liberer();
+
+  /// Appareils Bluetooth déjà appairés au système (écran "Configuration de
+  /// l'appareil") — jamais de scan/découverte ici, seulement les appareils
+  /// déjà appairés dans les réglages du téléphone.
+  Future<List<AppareilAppaireEntity>> listerAppareilsAppaires();
+
+  /// Mémorise l'appareil à utiliser pour [connecterAutomatiquement] (persisté
+  /// localement, pour que la connexion automatique cible ce même appareil
+  /// aux lancements suivants). `null` revient à la détection par nom par
+  /// défaut du protocole.
+  Future<void> definirAppareilParDefaut(String? adresse);
+
+  /// Adresse actuellement mémorisée comme appareil par défaut, s'il y en a une.
+  Future<String?> obtenirAppareilParDefaut();
+
+  /// Tente une connexion ponctuelle à [adresse] puis la referme aussitôt,
+  /// sans toucher à l'état de connexion principal — sert uniquement au
+  /// bouton "Tester la connexion" de l'écran de configuration.
+  Future<bool> testerConnexion(String adresse);
 }

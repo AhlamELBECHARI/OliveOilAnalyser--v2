@@ -9,14 +9,19 @@ import '../network/dio_client.dart';
 import '../storage/token_storage_service.dart';
 import '../sync/synchronisation_service.dart';
 import '../../features/alertes/data/datasources/alertes_remote_datasource.dart';
+import '../../features/analyseur/data/local/appareil_prefere_datasource.dart';
 import '../../features/analyseur/data/repositories/analyseur_bluetooth_impl.dart';
 import '../../features/analyseur/data/repositories/analyseur_simule_impl.dart';
 import '../../features/analyseur/domain/repositories/analyseur_repository.dart';
 import '../../features/analyseur/domain/usecases/connecter_automatiquement_usecase.dart';
+import '../../features/analyseur/domain/usecases/definir_appareil_par_defaut_usecase.dart';
 import '../../features/analyseur/domain/usecases/envoyer_commande_usecase.dart';
+import '../../features/analyseur/domain/usecases/lister_appareils_appaires_usecase.dart';
+import '../../features/analyseur/domain/usecases/obtenir_appareil_par_defaut_usecase.dart';
 import '../../features/analyseur/domain/usecases/obtenir_info_appareil_usecase.dart';
 import '../../features/analyseur/domain/usecases/observer_etat_connexion_usecase.dart';
 import '../../features/analyseur/domain/usecases/observer_spectre_usecase.dart';
+import '../../features/analyseur/domain/usecases/tester_connexion_usecase.dart';
 import '../../features/alertes/data/repositories/alertes_repository_impl.dart';
 import '../../features/alertes/domain/repositories/alertes_repository.dart';
 import '../../features/alertes/domain/usecases/lister_alertes_usecase.dart';
@@ -48,10 +53,14 @@ import '../../features/historique/domain/usecases/declencher_export_usecase.dart
 import '../../features/historique/domain/usecases/lister_analyses_usecase.dart';
 import '../../features/historique/domain/usecases/obtenir_resultat_usecase.dart';
 import '../../features/historique/domain/usecases/obtenir_statistiques_rapides_usecase.dart';
+import '../../features/historique/domain/usecases/telecharger_rapport_usecase.dart';
 import '../../features/modeles/data/datasources/modeles_remote_datasource.dart';
 import '../../features/modeles/data/repositories/modeles_repository_impl.dart';
 import '../../features/modeles/domain/repositories/modeles_repository.dart';
+import '../../features/modeles/domain/usecases/creer_modele_usecase.dart';
 import '../../features/modeles/domain/usecases/lister_modeles_usecase.dart';
+import '../../features/modeles/domain/usecases/modifier_statut_modele_usecase.dart';
+import '../../features/modeles/domain/usecases/televerser_fichier_modele_usecase.dart';
 import '../../features/nouvelle_analyse/data/repositories/nouvelle_analyse_repository_impl.dart';
 import '../../features/nouvelle_analyse/domain/repositories/nouvelle_analyse_repository.dart';
 import '../../features/nouvelle_analyse/domain/usecases/enregistrer_echantillon_usecase.dart';
@@ -123,14 +132,23 @@ Future<void> initDependencies() async {
   // Seul point de choix entre le simulateur et la vraie implémentation SPP
   // (voir AppConfig.utiliserAnalyseurSimule) : jamais de `if` dispersé
   // ailleurs, l'UI ne dépend que d'AnalyseurRepository.
+  sl.registerLazySingleton<AppareilPrefereDataSource>(
+    () => AppareilPrefereDataSourceImpl(preferences: sl()),
+  );
   sl.registerLazySingleton<AnalyseurRepository>(
-    () => AppConfig.utiliserAnalyseurSimule ? AnalyseurSimuleImpl() : AnalyseurBluetoothImpl(),
+    () => AppConfig.utiliserAnalyseurSimule
+        ? AnalyseurSimuleImpl()
+        : AnalyseurBluetoothImpl(appareilPrefere: sl()),
   );
   sl.registerLazySingleton(() => ConnecterAutomatiquementUseCase(sl()));
   sl.registerLazySingleton(() => EnvoyerCommandeUseCase(sl()));
   sl.registerLazySingleton(() => ObtenirInfoAppareilUseCase(sl()));
   sl.registerLazySingleton(() => ObserverEtatConnexionUseCase(sl()));
   sl.registerLazySingleton(() => ObserverSpectreUseCase(sl()));
+  sl.registerLazySingleton(() => ListerAppareilsAppairesUseCase(sl()));
+  sl.registerLazySingleton(() => DefinirAppareilParDefautUseCase(sl()));
+  sl.registerLazySingleton(() => ObtenirAppareilParDefautUseCase(sl()));
+  sl.registerLazySingleton(() => TesterConnexionUseCase(sl()));
 
   // --- Feature: nouvelle_analyse ---
   // Écrit toujours d'abord en local (LocalDatabase) avant toute tentative
@@ -209,6 +227,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => ObtenirStatistiquesRapidesUseCase(sl()));
   sl.registerLazySingleton(() => ObtenirResultatUseCase(sl()));
   sl.registerLazySingleton(() => DeclencherExportUseCase(sl()));
+  sl.registerLazySingleton(() => TelechargerRapportUseCase(sl()));
 
   // --- Feature: modeles ---
   sl.registerLazySingleton<ModelesRemoteDataSource>(
@@ -218,4 +237,7 @@ Future<void> initDependencies() async {
     () => ModelesRepositoryImpl(remoteDataSource: sl()),
   );
   sl.registerLazySingleton(() => ListerModelesUseCase(sl()));
+  sl.registerLazySingleton(() => CreerModeleUseCase(sl()));
+  sl.registerLazySingleton(() => TeleverserFichierModeleUseCase(sl()));
+  sl.registerLazySingleton(() => ModifierStatutModeleUseCase(sl()));
 }

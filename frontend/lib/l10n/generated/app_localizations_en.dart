@@ -351,6 +351,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modeleDeprecie => 'Deprecated';
 
   @override
+  String get ajouterModeleBouton => 'Add a model';
+
+  @override
+  String get ajouterModeleTitre => 'Import a model';
+
+  @override
+  String get champNomModele => 'Name';
+
+  @override
+  String get champVersionModele => 'Version';
+
+  @override
+  String get champObligatoire => 'This field is required.';
+
+  @override
+  String get valeurNumeriqueInvalide => 'Invalid numeric value.';
+
+  @override
+  String get valeurDoitEtrePositive => 'The value must be zero or positive.';
+
+  @override
+  String get champHyperparametres => 'Hyperparameters (JSON)';
+
+  @override
+  String get champHyperparametresAide => 'JSON object, e.g. n_components 5';
+
+  @override
+  String get jsonInvalide => 'Invalid JSON.';
+
+  @override
+  String get champDateEntrainement => 'Training date';
+
+  @override
+  String get choisirFichierModeleBouton => 'Select the model file';
+
+  @override
+  String formatsFichierModeleAutorises(String formats) {
+    return 'Accepted formats: $formats';
+  }
+
+  @override
+  String get modeleAjouteMessage => 'Model added.';
+
+  @override
+  String get activerModeleAction => 'Activate';
+
+  @override
+  String get desactiverModeleAction => 'Deactivate';
+
+  @override
+  String get deprecierModeleAction => 'Mark as deprecated';
+
+  @override
+  String get retirerDepreciationModeleAction => 'Remove deprecation';
+
+  @override
   String get detailResultatTitre => 'Analysis detail';
 
   @override
@@ -395,6 +451,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get etatErreurConnexion => 'Error';
 
   @override
+  String get etapeConnexionLabel => 'Connection';
+
+  @override
   String get etapeEchantillonLabel => 'Sample';
 
   @override
@@ -402,6 +461,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get etapeResultatsLabel => 'Results';
+
+  @override
+  String get etapeConnexionRechercheTitre => 'Searching for device...';
+
+  @override
+  String get etapeConnexionRechercheTexte =>
+      'Connecting to the paired NIR analyzer.';
+
+  @override
+  String get etapeConnexionEchecTitre => 'Connection failed';
+
+  @override
+  String get etapeConnexionEchecTexteGenerique =>
+      'Bluetooth disabled, device off or out of range, or permissions denied.';
+
+  @override
+  String get continuerBouton => 'Continue';
+
+  @override
+  String get configurerAppareilLien => 'Configure device';
+
+  @override
+  String get continuerSansAppareilLien => 'Continue without a device';
+
+  @override
+  String get configurationAppareilTitre => 'Device configuration';
+
+  @override
+  String get configurationAppareilTexteAide =>
+      'Choose the device to use for automatic connection among those already paired in the phone\'s Bluetooth settings.';
+
+  @override
+  String get aucunAppareilAppaireTexte =>
+      'No paired device. Pair the spectrometer first in the phone\'s Bluetooth settings.';
+
+  @override
+  String get oublierAppareilParDefautBouton => 'Forget default device';
+
+  @override
+  String get testerConnexionBouton => 'Test';
+
+  @override
+  String get testConnexionReussi => 'Connection successful';
+
+  @override
+  String get testConnexionEchoue => 'Connection failed';
 
   @override
   String get carteInformationsEchantillonTitre => 'Sample Information';
@@ -589,6 +694,55 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get exportLanceMessage =>
       'Export started. You\'ll be notified once the report is ready.';
+
+  @override
+  String get exportTitre => 'Export';
+
+  @override
+  String get exportContenuLabel => 'What to export';
+
+  @override
+  String get exportContenuResultats => 'Results';
+
+  @override
+  String get exportContenuSpectres => 'Raw spectra';
+
+  @override
+  String get exportContenuLesDeux => 'Both';
+
+  @override
+  String get exportQuellesAnalysesLabel => 'Which analyses';
+
+  @override
+  String exportToutesFiltresLabel(int total) {
+    return 'All analyses matching the active filters ($total)';
+  }
+
+  @override
+  String get exportSelectionManuelleLabel => 'Manual selection';
+
+  @override
+  String get exportFormatLabel => 'Format';
+
+  @override
+  String get choisirAnalysesBouton => 'Choose analyses';
+
+  @override
+  String get exportTelechargeMessage => 'Export downloaded.';
+
+  @override
+  String get exportAnnuleMessage => 'Export cancelled.';
+
+  @override
+  String selectionCompteurTitre(int nombre) {
+    return '$nombre selected';
+  }
+
+  @override
+  String get toutSelectionnerBouton => 'Select all';
+
+  @override
+  String get validerExportBouton => 'Confirm export';
 
   @override
   String get filtresTitre => 'Filters';

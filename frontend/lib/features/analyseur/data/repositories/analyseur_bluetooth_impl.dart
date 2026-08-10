@@ -4,11 +4,13 @@ import 'dart:typed_data';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../domain/entities/appareil_appaire_entity.dart';
 import '../../domain/entities/commande_analyseur.dart';
 import '../../domain/entities/etat_connexion_analyseur_entity.dart';
 import '../../domain/entities/info_appareil_analyseur_entity.dart';
 import '../../domain/entities/spectre_entity.dart';
 import '../../domain/repositories/analyseur_repository.dart';
+import '../local/appareil_prefere_datasource.dart';
 import '../protocole/protocole_spectrometre.dart' as protocole;
 
 /// Implémentation Bluetooth Classic (SPP) de [AnalyseurRepository], via
@@ -32,6 +34,11 @@ import '../protocole/protocole_spectrometre.dart' as protocole;
 class AnalyseurBluetoothImpl implements AnalyseurRepository {
   static const _delaiEntreTentatives = Duration(seconds: 5);
   static const _delaiTimeoutInfoAppareil = Duration(seconds: 3);
+  static const _delaiTimeoutTest = Duration(seconds: 8);
+
+  final AppareilPrefereDataSource appareilPrefere;
+
+  AnalyseurBluetoothImpl({required this.appareilPrefere});
 
   final _etatController = StreamController<EtatConnexionAnalyseurEntity>.broadcast();
   final _spectreController = StreamController<SpectreBrutEntity>.broadcast();
@@ -94,17 +101,33 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
 
     try {
       final appareilsAppaires = await FlutterBluetoothSerial.instance.getBondedDevices();
+      // L'appareil mémorisé dans l'écran de configuration prime sur la
+      // détection par nom — nécessaire dès que plusieurs analyseurs
+      // partagent le même nom de modèle, ou si le fabricant permet de le
+      // renommer à l'appairage.
+      final adressePreferee = await appareilPrefere.obtenirAdresseParDefaut();
       BluetoothDevice? appareil;
-      for (final candidat in appareilsAppaires) {
-        if (candidat.name == protocole.nomAppareilAttendu) {
-          appareil = candidat;
-          break;
+      if (adressePreferee != null) {
+        for (final candidat in appareilsAppaires) {
+          if (candidat.address == adressePreferee) {
+            appareil = candidat;
+            break;
+          }
+        }
+      }
+      if (appareil == null) {
+        for (final candidat in appareilsAppaires) {
+          if (candidat.name == protocole.nomAppareilAttendu) {
+            appareil = candidat;
+            break;
+          }
         }
       }
       if (appareil == null) {
         throw StateError(
           "Appareil « ${protocole.nomAppareilAttendu} » non appairé. "
-          "Appairez-le d'abord dans les réglages Bluetooth du téléphone.",
+          "Appairez-le d'abord dans les réglages Bluetooth du téléphone, ou "
+          "choisissez-le dans « Configurer l'appareil ».",
         );
       }
 
@@ -222,5 +245,38 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
     await _connexion?.finish();
     await _etatController.close();
     await _spectreController.close();
+  }
+
+  @override
+  Future<List<AppareilAppaireEntity>> listerAppareilsAppaires() async {
+    final permissionsAccordees = await _verifierPermissions();
+    if (!permissionsAccordees) return const [];
+    final appareils = await FlutterBluetoothSerial.instance.getBondedDevices();
+    return appareils
+        .map((a) => AppareilAppaireEntity(adresse: a.address, nom: a.name ?? a.address))
+        .toList();
+  }
+
+  @override
+  Future<void> definirAppareilParDefaut(String? adresse) {
+    return appareilPrefere.definirAdresseParDefaut(adresse);
+  }
+
+  @override
+  Future<String?> obtenirAppareilParDefaut() {
+    return appareilPrefere.obtenirAdresseParDefaut();
+  }
+
+  @override
+  Future<bool> testerConnexion(String adresse) async {
+    BluetoothConnection? connexionTest;
+    try {
+      connexionTest = await BluetoothConnection.toAddress(adresse).timeout(_delaiTimeoutTest);
+      return connexionTest.isConnected;
+    } catch (_) {
+      return false;
+    } finally {
+      await connexionTest?.finish();
+    }
   }
 }

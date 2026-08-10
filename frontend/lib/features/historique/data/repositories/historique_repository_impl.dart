@@ -3,6 +3,8 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/analyse_historique_entity.dart';
+import '../../domain/entities/demande_export_entity.dart';
+import '../../domain/entities/rapport_export_entity.dart';
 import '../../domain/entities/resultat_historique_entity.dart';
 import '../../domain/entities/statistiques_rapides_entity.dart';
 import '../../domain/repositories/historique_repository.dart';
@@ -20,9 +22,11 @@ class HistoriqueRepositoryImpl implements HistoriqueRepository {
   }) async {
     try {
       final resultat = await remoteDataSource.listerAnalyses(page: page, filtres: filtres);
-      return Right(
-        PageAnalysesHistorique(analyses: resultat.analyses, aPageSuivante: resultat.aPageSuivante),
-      );
+      return Right(PageAnalysesHistorique(
+        analyses: resultat.analyses,
+        aPageSuivante: resultat.aPageSuivante,
+        total: resultat.total,
+      ));
     } on ErreurValidationException {
       return const Left(ErreurValidationFailure());
     } on ErreurServeurException {
@@ -60,10 +64,24 @@ class HistoriqueRepositoryImpl implements HistoriqueRepository {
   }
 
   @override
-  Future<Either<Failure, void>> declencherExport(String format) async {
+  Future<Either<Failure, RapportExportEntity>> declencherExport(DemandeExportEntity demande) async {
     try {
-      await remoteDataSource.declencherExport(format);
-      return const Right(null);
+      final rapport = await remoteDataSource.declencherExport(demande);
+      return Right(rapport);
+    } on ErreurValidationException {
+      return const Left(ErreurValidationFailure());
+    } on ErreurServeurException {
+      return const Left(ErreurServeurFailure());
+    } catch (_) {
+      return const Left(ErreurReseauFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<int>>> telechargerRapport(String rapportId) async {
+    try {
+      final octets = await remoteDataSource.telechargerRapport(rapportId);
+      return Right(octets);
     } on ErreurValidationException {
       return const Left(ErreurValidationFailure());
     } on ErreurServeurException {

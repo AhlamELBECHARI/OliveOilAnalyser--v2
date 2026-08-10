@@ -1,18 +1,23 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/error/failures.dart';
+import '../../../../core/files/telechargeur_fichier.dart';
 import '../../../../core/localization/build_context_l10n_extension.dart';
 import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/analyse_historique_entity.dart';
+import '../../domain/entities/demande_export_entity.dart';
 import '../providers/historique_provider.dart';
 import '../widgets/barre_recherche_filtres.dart';
 import '../widgets/carte_analyse_historique.dart';
 import '../widgets/carte_apercu_historique.dart';
 import '../widgets/carte_statistiques_rapides.dart';
+import '../widgets/feuille_export.dart';
 import '../widgets/feuille_filtres.dart';
 
 /// Écran Historique (design/4-historiques.png) : 100% alimenté par
@@ -21,16 +26,52 @@ import '../widgets/feuille_filtres.dart';
 class HistoriqueScreen extends ConsumerWidget {
   const HistoriqueScreen({super.key});
 
-  Future<void> _exporter(BuildContext context, WidgetRef ref, String format) async {
+  Future<void> _terminerExport(
+    BuildContext context,
+    WidgetRef ref,
+    Either<Failure, FichierExporte> resultat,
+  ) async {
     final l10n = context.l10n;
-    final resultat = await ref.read(historiqueProvider.notifier).exporter(format);
     if (!context.mounted) return;
-    resultat.fold(
-      (failure) => ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(failure.messageLocalise(context)))),
-      (_) => ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.exportLanceMessage))),
+    await resultat.fold(
+      (failure) async {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(failure.messageLocalise(context))));
+      },
+      (fichier) async {
+        final enregistre = await TelechargeurFichier.enregistrer(
+          nomFichier: fichier.nomFichier,
+          octets: fichier.octets,
+        );
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(enregistre ? l10n.exportTelechargeMessage : l10n.exportAnnuleMessage),
+        ));
+      },
     );
+  }
+
+  Future<void> _ouvrirFeuilleExport(BuildContext context, WidgetRef ref, int total) {
+    return afficherFeuilleExport(
+      context,
+      totalAnalysesFiltrees: total,
+      onExporterParFiltres: (demande) async {
+        final notifier = ref.read(historiqueProvider.notifier);
+        final filtres = ref.read(historiqueProvider).filtres;
+        final resultat = await notifier.declencherEtTelecharger(
+          DemandeExportEntity(contenu: demande.contenu, format: demande.format, filtres: filtres),
+        );
+        await _terminerExport(context, ref, resultat);
+      },
+      onDemarrerSelectionManuelle: ({required contenu, required format}) {
+        ref.read(historiqueProvider.notifier).activerModeSelection(contenu: contenu, format: format);
+      },
+    );
+  }
+
+  Future<void> _validerSelection(BuildContext context, WidgetRef ref) async {
+    final resultat = await ref.read(historiqueProvider.notifier).exporterSelection();
+    await _terminerExport(context, ref, resultat);
   }
 
   @override
@@ -41,29 +82,62 @@ class HistoriqueScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.fond,
-      appBar: AppBar(
-        backgroundColor: AppColors.fond,
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.historiquesTitre, style: AppTextStyles.bienvenue.copyWith(fontSize: 20)),
-            Text(l10n.historiquesSousTitre, style: AppTextStyles.sousTexteBienvenue.copyWith(fontSize: 12)),
-          ],
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.ios_share, color: AppColors.grisFonce),
-            tooltip: l10n.exporterBouton,
-            onSelected: (format) => _exporter(context, ref, format),
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'PDF', child: Text('PDF')),
-              PopupMenuItem(value: 'CSV', child: Text('CSV')),
-              PopupMenuItem(value: 'XLSX', child: Text('XLSX')),
-            ],
-          ),
-        ],
-      ),
+      appBar: state.modeSelection
+          ? AppBar(
+              backgroundColor: AppColors.fond,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.close, color: AppColors.grisFonce),
+                onPressed: notifier.desactiverModeSelection,
+              ),
+              title: Text(
+                l10n.selectionCompteurTitre(state.idsSelectionnes.length),
+                style: AppTextStyles.bienvenue.copyWith(fontSize: 16),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: notifier.toutSelectionner,
+                  child: Text(l10n.toutSelectionnerBouton),
+                ),
+              ],
+            )
+          : AppBar(
+              backgroundColor: AppColors.fond,
+              elevation: 0,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.historiquesTitre, style: AppTextStyles.bienvenue.copyWith(fontSize: 20)),
+                  Text(l10n.historiquesSousTitre, style: AppTextStyles.sousTexteBienvenue.copyWith(fontSize: 12)),
+                ],
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.ios_share, color: AppColors.grisFonce),
+                  tooltip: l10n.exporterBouton,
+                  onPressed: state.exportEnCours
+                      ? null
+                      : () => _ouvrirFeuilleExport(context, ref, state.totalAnalyses),
+                ),
+              ],
+            ),
+      floatingActionButton: state.modeSelection
+          ? FloatingActionButton.extended(
+              backgroundColor:
+                  state.idsSelectionnes.isEmpty ? AppColors.grisMoyen : AppColors.vertOlive,
+              onPressed: (state.idsSelectionnes.isEmpty || state.exportEnCours)
+                  ? null
+                  : () => _validerSelection(context, ref),
+              icon: state.exportEnCours
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.blanc),
+                    )
+                  : const Icon(Icons.file_download_outlined, color: AppColors.blanc),
+              label: Text(l10n.validerExportBouton, style: AppTextStyles.boutonPrincipal),
+            )
+          : null,
       body: _corps(context, ref, state, notifier),
     );
   }
@@ -148,12 +222,16 @@ class HistoriqueScreen extends ConsumerWidget {
               for (final analyse in groupe.analyses) ...[
                 CarteAnalyseHistorique(
                   analyse: analyse,
-                  onTap: () => context.push('/historique/resultat/${analyse.id}'),
+                  modeSelection: state.modeSelection,
+                  selectionne: state.idsSelectionnes.contains(analyse.id),
+                  onTap: state.modeSelection
+                      ? () => notifier.basculerSelection(analyse.id)
+                      : () => context.push('/historique/resultat/${analyse.id}'),
                 ),
                 const SizedBox(height: 12),
               ],
             ],
-            if (state.aPageSuivante)
+            if (state.aPageSuivante && !state.modeSelection)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: SizedBox(

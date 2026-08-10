@@ -148,7 +148,13 @@ directement depuis l'interface).
 - `/api/modeles/` — lecture ouverte à tout authentifié ; création /
   modification / suppression réservées aux administrateurs (décision de
   conception : un modèle NIR entraîné est une donnée de configuration
-  scientifique sensible, au même titre que `Configuration`).
+  scientifique sensible, au même titre que `Configuration`). La création
+  accepte l'upload du fichier de modèle entraîné (`fichier`, multipart) —
+  voir « Import de modèle » ci-dessous pour les garanties de sécurité.
+- `POST /api/analyses/export/` — génère un export (résultats et/ou spectres,
+  CSV/XLSX/PDF) et renvoie l'enregistrement `Rapport` associé, avec
+  `url_telechargement` ; `GET /api/rapports/<id>/telecharger/` sert ensuite
+  le fichier, réservé à l'auteur de l'export ou à un administrateur.
 
 ## Tests
 
@@ -201,14 +207,26 @@ des routes racines, hors coquille (pas de barre du bas).
   documenté par le fabricant, ses hypothèses (trames, commandes) sont
   isolées dans un unique fichier commenté,
   `data/protocole/protocole_spectrometre.dart`.
-- **`nouvelle_analyse`** — écran d'acquisition : saisie puis consultation de
-  l'échantillon, carte de connexion à l'instrument en temps réel, aperçu du
-  spectre en direct avec indicateurs de qualité du signal (SNR, intensité,
-  bruit) calculés à partir du signal réellement reçu.
+- **`nouvelle_analyse`** — parcours en 4 étapes : Connexion (nouvelle étape
+  d'entrée — état réel de la liaison Bluetooth, infos de l'appareil une fois
+  connecté, sous-écran "Configuration de l'appareil" pour choisir l'appareil
+  appairé à mémoriser par défaut et tester la connexion, lien "Continuer
+  sans appareil" pour saisir un échantillon hors ligne), puis Échantillon,
+  Analyse (carte de connexion à l'instrument en temps réel, aperçu du
+  spectre en direct avec indicateurs de qualité du signal calculés à partir
+  du signal réellement reçu) et Résultats. La connexion automatique reste le
+  comportement par défaut ; cette étape la rend seulement visible et donne
+  un recours en cas d'échec.
 - **`historique`** — recherche, filtres et statistiques rapides côté serveur
   (`/api/analyses/historique/`, `/api/analyses/statistiques-rapides/`),
-  liste paginée groupée par mois, export de rapport.
-- **`modeles`** — consultation des modèles NIR disponibles.
+  liste paginée groupée par mois. Export fonctionnel : feuille de choix
+  (résultats/spectres/les deux, filtres actifs ou sélection manuelle dans la
+  liste, format CSV/XLSX/PDF), génération réelle du fichier côté backend
+  puis téléchargement et enregistrement local (`file_picker`).
+- **`modeles`** — consultation des modèles NIR disponibles ; import d'un
+  modèle déjà entraîné et activation/dépréciation, réservés aux
+  administrateurs (bouton visible seulement pour ce rôle, permission
+  revérifiée côté backend).
 - **`alertes`** — liste des alertes remontées par le backend.
 - **`profil`** — écran "Mon Profil" : identité (photo, rôle), informations
   personnelles, changement de mot de passe, sessions actives (avec
@@ -246,12 +264,32 @@ Profil.
   mobile). `Echantillon`, `Spectre`, `Resultat` et `Rapport` utilisent un UUID
   (peuvent être créés hors ligne sur mobile puis synchronisés, sans risque de
   collision d'ID).
-- **`rapports`** : pas de CRUD REST direct (toujours pas de `RapportViewSet`) ;
-  un `Rapport` est créé par `POST /api/analyses/export/`. La génération
-  effective du fichier (`chemin_fichier`, `taille`) n'est pas encore
-  branchée : c'est un pipeline séparé, à développer sans changement d'API
-  une fois nécessaire.
+- **`rapports`** : pas de CRUD REST direct (toujours pas de `RapportViewSet`),
+  seulement `GET /api/rapports/<id>/telecharger/`. Un `Rapport` est créé et
+  son fichier généré par `POST /api/analyses/export/`
+  (`analyses/services.py::declencher_export`, `analyses/export.py` pour la
+  mise en forme CSV/XLSX/PDF). Les spectres sont toujours exportés au format
+  long (une ligne par point de mesure : échantillon, longueur d'onde,
+  absorbance) — un spectre comportant ~1000 points, une ligne par spectre
+  avec une colonne par longueur d'onde serait inexploitable en tableur. Le
+  nombre d'analyses exportables en une requête est plafonné
+  (`LIMITE_EXPORT_ANALYSES`, 500) pour éviter un timeout HTTP silencieux sur
+  un très gros export ; au-delà, l'API renvoie une erreur explicite plutôt
+  que de laisser la requête expirer.
 - **`dashboard`** et **`analyses`** : apps sans modèle propre, agrègent en
   lecture seule les données d'`echantillons`/`resultats`
   (`dashboard/services.py`, `analyses/services.py`) — tout le
   filtrage/tri/pagination se fait en base (ORM), jamais en mémoire.
+- **Import de modèle et sécurité de la désérialisation** : un modèle
+  scikit-learn est généralement sérialisé en pickle/joblib, dont le
+  chargement peut exécuter du code arbitraire. `POST /api/modeles/` (réservé
+  aux administrateurs) valide donc uniquement l'extension
+  (`Modele.EXTENSIONS_AUTORISEES` : `pkl`, `pickle`, `joblib`) et la taille
+  (`Modele.TAILLE_MAX_OCTETS`, 50 Mo), stocke le fichier tel quel sous un nom
+  généré côté serveur (jamais le nom fourni par le client), et calcule son
+  empreinte SHA-256 (`empreinte_sha256`) pour vérification d'intégrité
+  ultérieure — **le fichier n'est jamais ouvert ni désérialisé par l'API**
+  (`modeles/services.py` ne fait que lire ses octets bruts pour le hash). Le
+  chargement effectif d'un modèle pour l'inférence relève d'un processus
+  séparé et contrôlé (hors périmètre de cette API), qui doit vérifier
+  l'empreinte avant toute désérialisation.

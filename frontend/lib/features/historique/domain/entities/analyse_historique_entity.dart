@@ -67,11 +67,16 @@ class AnalyseHistoriqueEntity extends Equatable {
 class PageAnalysesHistorique extends Equatable {
   final List<AnalyseHistoriqueEntity> analyses;
   final bool aPageSuivante;
+  final int total;
 
-  const PageAnalysesHistorique({required this.analyses, required this.aPageSuivante});
+  const PageAnalysesHistorique({
+    required this.analyses,
+    required this.aPageSuivante,
+    required this.total,
+  });
 
   @override
-  List<Object?> get props => [analyses, aPageSuivante];
+  List<Object?> get props => [analyses, aPageSuivante, total];
 }
 
 /// Critères de recherche/filtrage de l'écran Historique — transmis tels

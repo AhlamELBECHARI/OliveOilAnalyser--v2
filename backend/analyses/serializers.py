@@ -1,6 +1,10 @@
+from django.urls import reverse
 from rest_framework import serializers
 
+from core.qualite import LIBELLES_CATEGORIE
 from rapports.models import Rapport
+
+from .export import CONTENU_CHOICES, CONTENU_RESULTATS
 
 
 class ResultatHistoriqueSerializer(serializers.Serializer):
@@ -60,11 +64,45 @@ class StatistiquesRapidesSerializer(serializers.Serializer):
 
 
 class ExportDemandeSerializer(serializers.Serializer):
+    """Corps de POST /api/analyses/export/. Deux modes de sélection,
+    exclusifs côté UI mais non forcés ici : si `identifiants` est fourni, il
+    prime sur les filtres (mêmes filtres que GET /api/analyses/historique/,
+    réutilisés tels quels pour que « toutes les analyses correspondant aux
+    filtres actifs » corresponde exactement à ce que l'écran affiche déjà)."""
+
+    contenu = serializers.ChoiceField(choices=CONTENU_CHOICES)
     format = serializers.ChoiceField(choices=Rapport.Format.choices)
+    identifiants = serializers.ListField(
+        child=serializers.UUIDField(), required=False, allow_empty=False
+    )
+    recherche = serializers.CharField(required=False, allow_blank=True)
+    qualite = serializers.ChoiceField(choices=list(LIBELLES_CATEGORIE.keys()), required=False)
+    variete = serializers.CharField(required=False, allow_blank=True)
+    region = serializers.CharField(required=False, allow_blank=True)
+    date_debut = serializers.DateField(required=False)
+    date_fin = serializers.DateField(required=False)
+
+    def validate(self, donnees):
+        # Le PDF est un rapport de lecture pour des résultats ; un tableau de
+        # ~1000 points de spectre par échantillon n'a pas de sens en PDF.
+        if donnees["format"] == Rapport.Format.PDF and donnees["contenu"] != CONTENU_RESULTATS:
+            raise serializers.ValidationError(
+                "Le format PDF n'est disponible que pour l'export des résultats."
+            )
+        return donnees
 
 
 class RapportSerializer(serializers.ModelSerializer):
+    url_telechargement = serializers.SerializerMethodField()
+
     class Meta:
         model = Rapport
-        fields = ["id", "format", "date_generation", "chemin_fichier", "taille"]
+        fields = ["id", "format", "date_generation", "chemin_fichier", "taille", "url_telechargement"]
         read_only_fields = fields
+
+    def get_url_telechargement(self, rapport) -> str | None:
+        if not rapport.chemin_fichier:
+            return None
+        chemin = reverse("rapport-telecharger", kwargs={"pk": rapport.pk})
+        request = self.context.get("request")
+        return request.build_absolute_uri(chemin) if request else chemin

@@ -11,6 +11,13 @@ def api_client():
     return APIClient()
 
 
+@pytest.fixture(autouse=True)
+def _media_root_temporaire(settings, tmp_path):
+    """Isole les fichiers écrits pendant les tests (exports, modèles
+    importés) dans un répertoire temporaire — jamais backend/media/."""
+    settings.MEDIA_ROOT = tmp_path
+
+
 @pytest.fixture
 def mot_de_passe():
     return MOT_DE_PASSE_TEST

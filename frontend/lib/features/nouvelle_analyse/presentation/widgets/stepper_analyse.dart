@@ -16,6 +16,7 @@ class StepperAnalyse extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final etapes = [
+      (EtapeAnalyse.connexion, l10n.etapeConnexionLabel),
       (EtapeAnalyse.echantillon, l10n.etapeEchantillonLabel),
       (EtapeAnalyse.analyse, l10n.etapeAnalyseLabel),
       (EtapeAnalyse.resultats, l10n.etapeResultatsLabel),

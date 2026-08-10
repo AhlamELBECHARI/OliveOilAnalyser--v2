@@ -12,9 +12,19 @@ from django.db.models.functions import TruncDate
 from django.utils import timezone
 
 from comptes.services import obtenir_configuration
+from core.exceptions import AucuneAnalyseAExporterError, LimiteExportDepasseeError
 from core.qualite import LIBELLES_CATEGORIE, annotation_categorie
 from rapports.models import Rapport
 from resultats.models import Resultat
+
+from . import export as export_fichiers
+
+# Un spectre pèse ~1000 points : au-delà de cette limite, l'export
+# risquerait de dépasser le temps de requête HTTP plutôt que d'échouer
+# proprement. Le message renvoyé indique explicitement le nombre demandé et
+# la limite, pour que l'utilisateur affine ses filtres plutôt que de
+# rencontrer un timeout muet.
+LIMITE_EXPORT_ANALYSES = 500
 
 # Fenêtre des indicateurs "tendance" (acidité moyenne, meilleure/plus forte
 # acidité) : 14 jours glissants, comparés aux 14 jours précédents.
@@ -47,6 +57,16 @@ def _resultats_utilisateur(utilisateur):
     return queryset
 
 
+def _annoter_categorie(queryset):
+    configuration = obtenir_configuration()
+    return queryset.annotate(
+        categorie=annotation_categorie(
+            seuil_evoo=configuration.seuil_acidite_evoo,
+            seuil_voo=configuration.seuil_acidite_voo,
+        )
+    )
+
+
 def _variation_pourcentage(valeur_actuelle, valeur_precedente):
     if valeur_actuelle is None or not valeur_precedente:
         return None
@@ -66,13 +86,7 @@ def rechercher_historique(
 ):
     """Queryset annoté de la catégorie qualité, filtré/trié entièrement en
     base pour GET /api/analyses/historique/."""
-    configuration = obtenir_configuration()
-    queryset = _resultats_utilisateur(utilisateur).annotate(
-        categorie=annotation_categorie(
-            seuil_evoo=configuration.seuil_acidite_evoo,
-            seuil_voo=configuration.seuil_acidite_voo,
-        )
-    )
+    queryset = _annoter_categorie(_resultats_utilisateur(utilisateur))
 
     if recherche:
         queryset = queryset.filter(
@@ -239,14 +253,55 @@ def obtenir_statistiques_rapides(*, utilisateur):
     }
 
 
-def declencher_export(*, utilisateur, format_rapport):
-    """Crée l'enregistrement Rapport correspondant à la demande d'export.
-    La génération effective du fichier (chemin_fichier/taille) est un
-    pipeline séparé, pas encore développé — même limite assumée que pour
-    Resultat.duree_analyse_secondes : le champ existe et sera peuplé dès que
-    ce pipeline tournera, sans changement d'API."""
-    return Rapport.objects.create(
-        genere_par=utilisateur,
-        format=format_rapport,
-        chemin_fichier="",
+def declencher_export(
+    *,
+    utilisateur,
+    contenu,
+    format_rapport,
+    identifiants=None,
+    recherche=None,
+    qualite=None,
+    variete=None,
+    region=None,
+    date_debut=None,
+    date_fin=None,
+):
+    """Sélectionne les résultats concernés (par identifiants explicites ou
+    par les mêmes filtres que l'historique), génère réellement le fichier et
+    l'associe au Rapport créé pour tracer qui a exporté quoi et quand."""
+    if identifiants:
+        queryset = _annoter_categorie(_resultats_utilisateur(utilisateur)).filter(
+            id__in=identifiants
+        )
+    else:
+        queryset = rechercher_historique(
+            utilisateur=utilisateur,
+            recherche=recherche,
+            qualite=qualite,
+            variete=variete,
+            region=region,
+            date_debut=date_debut,
+            date_fin=date_fin,
+        )
+
+    nombre = queryset.count()
+    if nombre == 0:
+        raise AucuneAnalyseAExporterError()
+    if nombre > LIMITE_EXPORT_ANALYSES:
+        raise LimiteExportDepasseeError(
+            f"Cette exportation porte sur {nombre} analyses, ce qui dépasse la "
+            f"limite de {LIMITE_EXPORT_ANALYSES} analyses par export. Affinez "
+            f"vos filtres ou réduisez votre sélection."
+        )
+
+    rapport = Rapport.objects.create(genere_par=utilisateur, format=format_rapport, chemin_fichier="")
+    chemin, taille = export_fichiers.generer_fichier(
+        rapport=rapport,
+        contenu=contenu,
+        format_rapport=format_rapport,
+        queryset_resultats=queryset,
     )
+    rapport.chemin_fichier = chemin
+    rapport.taille = taille
+    rapport.save(update_fields=["chemin_fichier", "taille"])
+    return rapport

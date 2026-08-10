@@ -1,11 +1,17 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import '../../domain/entities/appareil_appaire_entity.dart';
 import '../../domain/entities/commande_analyseur.dart';
 import '../../domain/entities/etat_connexion_analyseur_entity.dart';
 import '../../domain/entities/info_appareil_analyseur_entity.dart';
 import '../../domain/entities/spectre_entity.dart';
 import '../../domain/repositories/analyseur_repository.dart';
+
+/// Seul "appareil" que le simulateur peut proposer dans l'écran de
+/// configuration — il n'y a évidemment rien à appairer en simulation, mais
+/// l'écran doit rester utilisable en mode démo sans matériel.
+const _appareilSimule = AppareilAppaireEntity(adresse: 'SIM-0001', nom: 'NIR-Simulateur-01');
 
 /// Délais (ms) de chaque étape simulée — regroupés ici pour être ajustables
 /// sans fouiller la logique. Le vrai timing dépendra de l'instrument réel.
@@ -63,6 +69,7 @@ class AnalyseurSimuleImpl implements AnalyseurRepository {
   int _niveauBatterie = 88;
   bool _annulationDemandee = false;
   int _generationAcquisition = 0;
+  String? _adresseParDefaut;
 
   @override
   Stream<EtatConnexionAnalyseurEntity> get flusEtatConnexion async* {
@@ -172,5 +179,22 @@ class AnalyseurSimuleImpl implements AnalyseurRepository {
   Future<void> liberer() async {
     await _etatController.close();
     await _spectreController.close();
+  }
+
+  @override
+  Future<List<AppareilAppaireEntity>> listerAppareilsAppaires() async => const [_appareilSimule];
+
+  @override
+  Future<void> definirAppareilParDefaut(String? adresse) async {
+    _adresseParDefaut = adresse;
+  }
+
+  @override
+  Future<String?> obtenirAppareilParDefaut() async => _adresseParDefaut;
+
+  @override
+  Future<bool> testerConnexion(String adresse) async {
+    await Future.delayed(_DelaisSimulation.connexion);
+    return adresse == _appareilSimule.adresse;
   }
 }

@@ -6,7 +6,6 @@ from django.utils import timezone
 from comptes.services import obtenir_configuration
 from echantillons.models import Echantillon
 from modeles.models import Modele
-from rapports.models import Rapport
 from resultats.models import Resultat
 
 pytestmark = pytest.mark.django_db
@@ -232,25 +231,12 @@ def test_statistiques_rapides_vide_ne_plante_pas(client_utilisateur):
     assert response.data["analyses_par_jour"]["valeur"] == 0.0
 
 
-# --- /api/analyses/export/ ---
-
-
-def test_export_cree_un_rapport(client_utilisateur, utilisateur):
-    response = client_utilisateur.post("/api/analyses/export/", {"format": "CSV"}, format="json")
-    assert response.status_code == 201
-    assert Rapport.objects.count() == 1
-    rapport = Rapport.objects.get()
-    assert rapport.genere_par == utilisateur
-    assert rapport.format == "CSV"
+# Les tests de POST /api/analyses/export/ et GET /api/rapports/<id>/telecharger/
+# vivent dans analyses/tests/test_export.py (génération réelle du fichier).
 
 
 def test_export_format_invalide_rejete(client_utilisateur):
     response = client_utilisateur.post(
-        "/api/analyses/export/", {"format": "DOCX"}, format="json"
+        "/api/analyses/export/", {"contenu": "resultats", "format": "DOCX"}, format="json"
     )
     assert response.status_code == 400
-
-
-def test_export_non_authentifie_refuse(api_client):
-    response = api_client.post("/api/analyses/export/", {"format": "CSV"}, format="json")
-    assert response.status_code == 401

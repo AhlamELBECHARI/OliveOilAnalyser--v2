@@ -734,6 +734,114 @@ abstract class AppLocalizations {
   /// **'Déprécié'**
   String get modeleDeprecie;
 
+  /// No description provided for @ajouterModeleBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un modèle'**
+  String get ajouterModeleBouton;
+
+  /// No description provided for @ajouterModeleTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer un modèle'**
+  String get ajouterModeleTitre;
+
+  /// No description provided for @champNomModele.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get champNomModele;
+
+  /// No description provided for @champVersionModele.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version'**
+  String get champVersionModele;
+
+  /// No description provided for @champObligatoire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce champ est obligatoire.'**
+  String get champObligatoire;
+
+  /// No description provided for @valeurNumeriqueInvalide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur numérique invalide.'**
+  String get valeurNumeriqueInvalide;
+
+  /// No description provided for @valeurDoitEtrePositive.
+  ///
+  /// In fr, this message translates to:
+  /// **'La valeur doit être positive ou nulle.'**
+  String get valeurDoitEtrePositive;
+
+  /// No description provided for @champHyperparametres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hyperparamètres (JSON)'**
+  String get champHyperparametres;
+
+  /// No description provided for @champHyperparametresAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objet JSON, ex. : n_components 5'**
+  String get champHyperparametresAide;
+
+  /// No description provided for @jsonInvalide.
+  ///
+  /// In fr, this message translates to:
+  /// **'JSON invalide.'**
+  String get jsonInvalide;
+
+  /// No description provided for @champDateEntrainement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date d\'entraînement'**
+  String get champDateEntrainement;
+
+  /// No description provided for @choisirFichierModeleBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionner le fichier du modèle'**
+  String get choisirFichierModeleBouton;
+
+  /// No description provided for @formatsFichierModeleAutorises.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formats acceptés : {formats}'**
+  String formatsFichierModeleAutorises(String formats);
+
+  /// No description provided for @modeleAjouteMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle ajouté.'**
+  String get modeleAjouteMessage;
+
+  /// No description provided for @activerModeleAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer'**
+  String get activerModeleAction;
+
+  /// No description provided for @desactiverModeleAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver'**
+  String get desactiverModeleAction;
+
+  /// No description provided for @deprecierModeleAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer comme déprécié'**
+  String get deprecierModeleAction;
+
+  /// No description provided for @retirerDepreciationModeleAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer la dépréciation'**
+  String get retirerDepreciationModeleAction;
+
   /// No description provided for @detailResultatTitre.
   ///
   /// In fr, this message translates to:
@@ -818,6 +926,12 @@ abstract class AppLocalizations {
   /// **'Erreur'**
   String get etatErreurConnexion;
 
+  /// No description provided for @etapeConnexionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion'**
+  String get etapeConnexionLabel;
+
   /// No description provided for @etapeEchantillonLabel.
   ///
   /// In fr, this message translates to:
@@ -835,6 +949,90 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Résultats'**
   String get etapeResultatsLabel;
+
+  /// No description provided for @etapeConnexionRechercheTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche de l\'appareil...'**
+  String get etapeConnexionRechercheTitre;
+
+  /// No description provided for @etapeConnexionRechercheTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion en cours à l\'analyseur NIR appairé.'**
+  String get etapeConnexionRechercheTexte;
+
+  /// No description provided for @etapeConnexionEchecTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec de connexion'**
+  String get etapeConnexionEchecTitre;
+
+  /// No description provided for @etapeConnexionEchecTexteGenerique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bluetooth désactivé, appareil éteint ou hors de portée, ou permissions refusées.'**
+  String get etapeConnexionEchecTexteGenerique;
+
+  /// No description provided for @continuerBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get continuerBouton;
+
+  /// No description provided for @configurerAppareilLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configurer l\'appareil'**
+  String get configurerAppareilLien;
+
+  /// No description provided for @continuerSansAppareilLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans appareil'**
+  String get continuerSansAppareilLien;
+
+  /// No description provided for @configurationAppareilTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configuration de l\'appareil'**
+  String get configurationAppareilTitre;
+
+  /// No description provided for @configurationAppareilTexteAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez l\'appareil à utiliser pour la connexion automatique parmi ceux déjà appairés dans les réglages Bluetooth du téléphone.'**
+  String get configurationAppareilTexteAide;
+
+  /// No description provided for @aucunAppareilAppaireTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun appareil appairé. Appairez d\'abord le spectromètre dans les réglages Bluetooth du téléphone.'**
+  String get aucunAppareilAppaireTexte;
+
+  /// No description provided for @oublierAppareilParDefautBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oublier l\'appareil par défaut'**
+  String get oublierAppareilParDefautBouton;
+
+  /// No description provided for @testerConnexionBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tester'**
+  String get testerConnexionBouton;
+
+  /// No description provided for @testConnexionReussi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion réussie'**
+  String get testConnexionReussi;
+
+  /// No description provided for @testConnexionEchoue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec de la connexion'**
+  String get testConnexionEchoue;
 
   /// No description provided for @carteInformationsEchantillonTitre.
   ///
@@ -1189,6 +1387,96 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Export lancé. Vous serez notifié une fois le rapport prêt.'**
   String get exportLanceMessage;
+
+  /// No description provided for @exportTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter'**
+  String get exportTitre;
+
+  /// No description provided for @exportContenuLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quoi exporter'**
+  String get exportContenuLabel;
+
+  /// No description provided for @exportContenuResultats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultats'**
+  String get exportContenuResultats;
+
+  /// No description provided for @exportContenuSpectres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spectres bruts'**
+  String get exportContenuSpectres;
+
+  /// No description provided for @exportContenuLesDeux.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les deux'**
+  String get exportContenuLesDeux;
+
+  /// No description provided for @exportQuellesAnalysesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelles analyses'**
+  String get exportQuellesAnalysesLabel;
+
+  /// No description provided for @exportToutesFiltresLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les analyses correspondant aux filtres actifs ({total})'**
+  String exportToutesFiltresLabel(int total);
+
+  /// No description provided for @exportSelectionManuelleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélection manuelle'**
+  String get exportSelectionManuelleLabel;
+
+  /// No description provided for @exportFormatLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format'**
+  String get exportFormatLabel;
+
+  /// No description provided for @choisirAnalysesBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir les analyses'**
+  String get choisirAnalysesBouton;
+
+  /// No description provided for @exportTelechargeMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Export téléchargé.'**
+  String get exportTelechargeMessage;
+
+  /// No description provided for @exportAnnuleMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Export annulé.'**
+  String get exportAnnuleMessage;
+
+  /// No description provided for @selectionCompteurTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nombre} sélectionné(s)'**
+  String selectionCompteurTitre(int nombre);
+
+  /// No description provided for @toutSelectionnerBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout sélectionner'**
+  String get toutSelectionnerBouton;
+
+  /// No description provided for @validerExportBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider l\'export'**
+  String get validerExportBouton;
 
   /// No description provided for @filtresTitre.
   ///
