@@ -2,12 +2,13 @@ import 'package:drift/drift.dart';
 
 import 'echantillons_locaux_table.dart';
 
-/// Miroir local de backend.resultats.models.Resultat. Réservée pour quand
-/// un pipeline de scoring (modèle NIR) sera disponible : ce jalon ne
-/// l'alimente pas encore côté écran Nouvelle Analyse (même limite assumée
-/// que la carte "Paramètres d'Acquisition", non implémentée faute de
-/// matériel documenté) — mais le schéma complet est posé dès maintenant
-/// pour qu'aucune migration Drift ne soit nécessaire plus tard.
+/// Miroir local de backend.resultats.models.Resultat. Alimentée par
+/// l'écran Nouvelle Analyse à l'issue d'un scan (voir
+/// nouvelle_analyse_provider.dart) : les prédictions par modèle associées
+/// vivent dans [PredictionsLocales] (voir predictions_locales_table.dart).
+/// Avec l'analyseur Bluetooth réel, le pipeline de scoring n'est pas encore
+/// câblé côté protocole (même limite assumée que la carte "Paramètres
+/// d'Acquisition") — voir AnalyseurRepository.flusResultat.
 class ResultatsLocaux extends Table {
   TextColumn get id => text()();
   TextColumn get echantillonId => text().references(EchantillonsLocaux, #id)();

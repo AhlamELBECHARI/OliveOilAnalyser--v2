@@ -12,6 +12,7 @@ import '../widgets/carte_informations_echantillon.dart';
 import '../widgets/carte_parametres_acquisition_reservee.dart';
 import '../widgets/en_tete_nouvelle_analyse.dart';
 import '../widgets/etape_connexion_analyseur.dart';
+import '../widgets/etape_resultats.dart';
 import '../widgets/stepper_analyse.dart';
 
 /// Écran "Nouvelle Analyse" (design/3-analyse.png), 100% adossé au backend
@@ -72,53 +73,51 @@ class NouvelleAnalyseScreen extends ConsumerWidget {
               ),
             ),
             Expanded(
-              child: state.etapeCourante == EtapeAnalyse.connexion
-                  ? EtapeConnexionAnalyseur(
-                      etatConnexion: state.etatConnexion,
-                      infoAppareil: state.infoAppareil,
-                      onReessayer: notifier.reessayerConnexion,
-                      onContinuer: notifier.validerEtapeConnexion,
-                      onContinuerSansAppareil: notifier.validerEtapeConnexion,
-                    )
-                  : ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                children: [
-                  CarteInformationsEchantillon(
-                    mode: state.modeCarteEchantillon,
-                    brouillon: state.brouillon,
-                    echantillonValide: state.echantillonValide,
-                    enregistrementEnCours: state.enregistrementEnCours,
-                    positionEnCoursDeChargement: state.positionEnCoursDeChargement,
-                    echecPosition: state.echecPosition,
-                    onChangerNumero: notifier.mettreAJourNumero,
-                    onChangerProducteur: notifier.mettreAJourProducteur,
-                    onChangerVariete: notifier.mettreAJourVariete,
-                    onChangerRegion: notifier.mettreAJourRegion,
-                    onChangerDateRecolte: notifier.mettreAJourDateRecolte,
-                    onPositionActuelle: notifier.definirPositionActuelle,
-                    onValider: notifier.validerEchantillon,
-                    onModifier: notifier.modifierEchantillon,
-                  ),
-                  const SizedBox(height: 16),
-                  CarteConnexionInstrument(
+              child: switch (state.etapeCourante) {
+                EtapeAnalyse.connexion => EtapeConnexionAnalyseur(
                     etatConnexion: state.etatConnexion,
                     infoAppareil: state.infoAppareil,
                     onReessayer: notifier.reessayerConnexion,
+                    onContinuer: notifier.validerEtapeConnexion,
+                    onContinuerSansAppareil: notifier.validerEtapeConnexion,
                   ),
-                  const SizedBox(height: 16),
-                  const CarteParametresAcquisitionReservee(),
-                  if (state.acquisitionEnCours || state.dernierSpectre != null) ...[
-                    const SizedBox(height: 16),
-                    CarteApercuTempsReel(spectre: state.dernierSpectre, qualite: state.qualiteSignal),
-                  ],
-                  if (state.acquisitionTerminee) ...[
-                    const SizedBox(height: 16),
-                    _CarteAnalyseTerminee(onNouvelleAnalyse: notifier.reinitialiser),
-                  ],
-                  const SizedBox(height: 20),
-                  _BoutonsAction(state: state, notifier: notifier),
-                ],
-              ),
+                EtapeAnalyse.resultats => EtapeResultats(state: state, notifier: notifier),
+                EtapeAnalyse.echantillon || EtapeAnalyse.analyse => ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                    children: [
+                      CarteInformationsEchantillon(
+                        mode: state.modeCarteEchantillon,
+                        brouillon: state.brouillon,
+                        echantillonValide: state.echantillonValide,
+                        enregistrementEnCours: state.enregistrementEnCours,
+                        positionEnCoursDeChargement: state.positionEnCoursDeChargement,
+                        echecPosition: state.echecPosition,
+                        onChangerNumero: notifier.mettreAJourNumero,
+                        onChangerProducteur: notifier.mettreAJourProducteur,
+                        onChangerVariete: notifier.mettreAJourVariete,
+                        onChangerRegion: notifier.mettreAJourRegion,
+                        onChangerDateRecolte: notifier.mettreAJourDateRecolte,
+                        onPositionActuelle: notifier.definirPositionActuelle,
+                        onValider: notifier.validerEchantillon,
+                        onModifier: notifier.modifierEchantillon,
+                      ),
+                      const SizedBox(height: 16),
+                      CarteConnexionInstrument(
+                        etatConnexion: state.etatConnexion,
+                        infoAppareil: state.infoAppareil,
+                        onReessayer: notifier.reessayerConnexion,
+                      ),
+                      const SizedBox(height: 16),
+                      const CarteParametresAcquisitionReservee(),
+                      if (state.acquisitionEnCours || state.dernierSpectre != null) ...[
+                        const SizedBox(height: 16),
+                        CarteApercuTempsReel(spectre: state.dernierSpectre, qualite: state.qualiteSignal),
+                      ],
+                      const SizedBox(height: 20),
+                      _BoutonsAction(state: state, notifier: notifier),
+                    ],
+                  ),
+              },
             ),
           ],
         ),
@@ -175,44 +174,6 @@ class _BoutonsAction extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _CarteAnalyseTerminee extends StatelessWidget {
-  final VoidCallback onNouvelleAnalyse;
-
-  const _CarteAnalyseTerminee({required this.onNouvelleAnalyse});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.evooFond,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.vertOlive),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.check_circle, color: AppColors.succes),
-              const SizedBox(width: 8),
-              Text(
-                l10n.analyseTermineeTitre,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.vertOliveFonce),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(l10n.analyseTermineeTexte, style: AppTextStyles.sousTexteBienvenue),
-        ],
-      ),
     );
   }
 }

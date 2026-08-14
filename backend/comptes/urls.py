@@ -41,4 +41,45 @@ urlpatterns = [
         name="utilisateurs-creer-administrateur",
     ),
     path("configuration/", views.ConfigurationView.as_view(), name="configuration"),
+    # --- Espace admin ---
+    path(
+        "admin/utilisateurs/",
+        views.AdminUtilisateurListView.as_view(),
+        name="admin-utilisateurs-liste",
+    ),
+    path(
+        "admin/utilisateurs/<int:utilisateur_id>/",
+        views.AdminUtilisateurDetailView.as_view(),
+        name="admin-utilisateurs-detail",
+    ),
+    path(
+        "admin/utilisateurs/<int:utilisateur_id>/role/",
+        views.AdminChangerRoleView.as_view(),
+        name="admin-utilisateurs-role",
+    ),
+    path(
+        "admin/utilisateurs/<int:utilisateur_id>/activation/",
+        views.AdminActivationView.as_view(),
+        name="admin-utilisateurs-activation",
+    ),
+    path(
+        "admin/utilisateurs/<int:utilisateur_id>/deverrouiller/",
+        views.AdminDeverrouillerView.as_view(),
+        name="admin-utilisateurs-deverrouiller",
+    ),
+    path(
+        "admin/utilisateurs/<int:utilisateur_id>/reset-mot-de-passe/",
+        views.AdminResetMotDePasseView.as_view(),
+        name="admin-utilisateurs-reset-mot-de-passe",
+    ),
+    path(
+        "admin/utilisateurs/<int:utilisateur_id>/sessions/",
+        views.AdminSessionsView.as_view(),
+        name="admin-utilisateurs-sessions",
+    ),
+    path(
+        "admin/utilisateurs/<int:utilisateur_id>/sessions/<int:session_id>/",
+        views.AdminSessionDetailView.as_view(),
+        name="admin-utilisateurs-session-detail",
+    ),
 ]

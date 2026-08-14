@@ -30,11 +30,75 @@ from comptes.models import Utilisateur
 from comptes.services import SEUIL_ACIDITE_DEFAUT, SEUIL_PEROXYDE_DEFAUT
 from echantillons.models import Echantillon
 from modeles.models import Modele
-from resultats.models import Resultat
+from resultats.models import PredictionModele, Resultat
 from spectres.models import Spectre
 
 PREFIXE_DEMO = "DEMO-"
-MODELE_DEMO_NOM = "NIR-Demo"
+
+# Un scan est évalué par plusieurs modèles simultanément (voir Datas_Spect-
+# Re_flec.xlsx, fichier de référence de l'encadrante) : deux modèles
+# d'acidité (régression) et deux modèles de détection de mélange
+# (classification), sur le même principe que M5/M7 et Mixing1/Mixing11.
+# Un seul modèle "de référence" par grandeur pilote la synthèse écrite sur
+# Resultat (voir resultats.services._deriver_synthese_depuis_predictions,
+# répliqué manuellement ici puisque seed_demo écrit directement via l'ORM).
+MODELES_DEMO = [
+    {
+        "nom": "PLS-M5",
+        "version": "1.0",
+        "algorithme": "PLS",
+        "type_modele": "regression",
+        "grandeur_predite": "acidite",
+        "r2": 0.96,
+        "rmsecv": 0.045,
+        "est_reference": True,
+    },
+    {
+        "nom": "PLS-M7",
+        "version": "1.0",
+        "algorithme": "PLS",
+        "type_modele": "regression",
+        "grandeur_predite": "acidite",
+        "r2": 0.93,
+        "rmsecv": 0.061,
+        "est_reference": False,
+    },
+    {
+        "nom": "RF-Mixing1",
+        "version": "1.0",
+        "algorithme": "RandomForest",
+        "type_modele": "classification",
+        "grandeur_predite": "authenticite",
+        "exactitude": 0.94,
+        "precision_classification": 0.92,
+        "rappel": 0.90,
+        "est_reference": True,
+    },
+    {
+        "nom": "RF-Mixing11",
+        "version": "1.0",
+        "algorithme": "RandomForest",
+        "type_modele": "classification",
+        "grandeur_predite": "authenticite",
+        "exactitude": 0.91,
+        "precision_classification": 0.89,
+        "rappel": 0.87,
+        "est_reference": False,
+    },
+]
+NOMS_MODELES_DEMO = [m["nom"] for m in MODELES_DEMO]
+
+# Réplicats : un échantillon physique est en moyenne scanné 3 fois (voir
+# fichier de référence) — le spectre acquis est partagé entre les réplicats
+# (un seul Spectre par Echantillon, comme dans le flux réel de l'app), seule
+# l'étape de prédiction est rejouée plusieurs fois.
+POIDS_NOMBRE_REPLICATS = {2: 25, 3: 50, 4: 25}
+
+# Proportion d'échantillons pour lesquels une mesure de référence labo a été
+# saisie a posteriori (voir Resultat.acidite_reference et consorts) —
+# volontairement partielle : en pratique, seule une partie des échantillons
+# est effectivement re-mesurée au laboratoire.
+PROPORTION_AVEC_REFERENCE_LABO = 0.3
 
 # Compte à identifiants fixes utilisé par le bouton "Mode démo" du frontend :
 # celui-ci effectue une vraie connexion (POST /api/auth/login/) avec ces
@@ -131,10 +195,19 @@ class Command(BaseCommand):
                 "Aucun utilisateur trouvé. Créez d'abord un compte via /api/auth/register/."
             )
 
-        modele = self._obtenir_ou_creer_modele_demo()
+        modeles = self._obtenir_ou_creer_modeles_demo()
+        modeles_regression = [m for m in modeles if m.type_modele == "regression"]
+        modeles_classification = [m for m in modeles if m.type_modele == "classification"]
+        modele_reference_acidite = next(m for m in modeles_regression if m.est_reference)
 
         for utilisateur in utilisateurs:
-            self._seed_pour_utilisateur(utilisateur, modele, options["nombre"])
+            self._seed_pour_utilisateur(
+                utilisateur,
+                modeles_regression=modeles_regression,
+                modeles_classification=modeles_classification,
+                modele_reference_acidite=modele_reference_acidite,
+                nombre=options["nombre"],
+            )
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -161,24 +234,21 @@ class Command(BaseCommand):
                 raise CommandError(f"Aucun utilisateur avec l'email {email!r}.") from exc
         return list(Utilisateur.objects.filter(role=Utilisateur.Role.UTILISATEUR))
 
-    def _obtenir_ou_creer_modele_demo(self):
-        modele, cree = Modele.objects.get_or_create(
-            nom=MODELE_DEMO_NOM,
-            version="1.0",
-            defaults={
-                "algorithme": "PLS-NIR",
-                "hyperparametres": {"n_composantes": 8},
-                "r2": 0.96,
-                "rmsecv": 0.045,
-                "chemin_fichier": "",
-            },
-        )
-        if cree:
-            self.stdout.write(f"Modèle de démonstration créé : {modele}")
-        return modele
+    def _obtenir_ou_creer_modeles_demo(self):
+        modeles = []
+        for donnees in MODELES_DEMO:
+            modele, cree = Modele.objects.get_or_create(
+                nom=donnees["nom"], version=donnees["version"], defaults=donnees
+            )
+            if cree:
+                self.stdout.write(f"Modèle de démonstration créé : {modele}")
+            modeles.append(modele)
+        return modeles
 
     @transaction.atomic
-    def _seed_pour_utilisateur(self, utilisateur, modele, nombre):
+    def _seed_pour_utilisateur(
+        self, utilisateur, *, modeles_regression, modeles_classification, modele_reference_acidite, nombre
+    ):
         maintenant = timezone.now()
 
         for i in range(nombre):
@@ -219,8 +289,31 @@ class Command(BaseCommand):
                 notes="Échantillon de démonstration généré par seed_demo.",
             )
 
+            # Un seul spectre acquis par échantillon (comme dans le flux réel
+            # de l'app — voir features/nouvelle_analyse côté Flutter) ; les
+            # réplicats rejouent l'étape de prédiction sur ce même spectre.
             self._creer_spectre_demo(echantillon, date_analyse)
-            self._creer_resultat_demo(echantillon, modele, date_analyse)
+
+            a_reference_labo = random.random() < PROPORTION_AVEC_REFERENCE_LABO
+            valeurs_reference = (
+                self._generer_valeurs_reference_labo() if a_reference_labo else None
+            )
+
+            nombre_replicats = random.choices(
+                population=list(POIDS_NOMBRE_REPLICATS),
+                weights=list(POIDS_NOMBRE_REPLICATS.values()),
+                k=1,
+            )[0]
+            for numero_replicat in range(1, nombre_replicats + 1):
+                self._creer_resultat_demo(
+                    echantillon,
+                    modeles_regression=modeles_regression,
+                    modeles_classification=modeles_classification,
+                    modele_reference_acidite=modele_reference_acidite,
+                    date_analyse=date_analyse,
+                    numero_replicat=numero_replicat,
+                    valeurs_reference=valeurs_reference,
+                )
 
     def _creer_spectre_demo(self, echantillon, date_analyse):
         # Plage NIR typique 900-1700 nm, valeurs d'absorbance plausibles.
@@ -238,26 +331,88 @@ class Command(BaseCommand):
             taille_donnees=len(contenu),
         )
 
-    def _creer_resultat_demo(self, echantillon, modele, date_analyse):
+    def _generer_valeurs_reference_labo(self):
+        """Mesure de laboratoire simulée, indépendante des prédictions —
+        c'est justement l'écart entre les deux qui rend le bloc
+        "Comparaison avec la référence laboratoire" intéressant à visualiser
+        en démo plutôt qu'un accord parfait."""
         _categorie, _poids, (borne_min, borne_max) = random.choices(
             BANDES_ACIDITE, weights=[b[1] for b in BANDES_ACIDITE], k=1
         )[0]
-        acidite = Decimal(str(round(random.uniform(borne_min, borne_max), 3)))
-        indice_peroxyde = Decimal(str(round(random.uniform(5, 22), 3)))
-        conforme = acidite <= SEUIL_ACIDITE_DEFAUT and indice_peroxyde <= SEUIL_PEROXYDE_DEFAUT
+        return {
+            "acidite_reference": Decimal(str(round(random.uniform(borne_min, borne_max), 3))),
+            "indice_peroxyde_reference": Decimal(str(round(random.uniform(5, 22), 3))),
+            "authenticite_reference": "pure" if random.random() < 0.85 else "melangee",
+            "date_mesure_reference": timezone.now().date() - timedelta(days=random.randint(1, 10)),
+        }
 
+    def _creer_resultat_demo(
+        self,
+        echantillon,
+        *,
+        modeles_regression,
+        modeles_classification,
+        modele_reference_acidite,
+        date_analyse,
+        numero_replicat,
+        valeurs_reference,
+    ):
+        _categorie, _poids, (borne_min, borne_max) = random.choices(
+            BANDES_ACIDITE, weights=[b[1] for b in BANDES_ACIDITE], k=1
+        )[0]
+        acidite_vraie = round(random.uniform(borne_min, borne_max), 3)
+        indice_peroxyde = Decimal(str(round(random.uniform(5, 22), 3)))
+        estime_pure = random.random() < 0.85
+
+        # Chaque valeur/verdict est tiré UNE SEULE FOIS par modèle, pour que
+        # la synthèse écrite sur Resultat corresponde exactement à la
+        # prédiction du modèle de référence (voir
+        # resultats.services._deriver_synthese_depuis_predictions) plutôt
+        # que d'être un second tirage indépendant.
+        valeurs_regression = {
+            modele: self._valeur_avec_bruit(acidite_vraie, ampleur=0.03) for modele in modeles_regression
+        }
+        confiances_classification = {
+            modele: round(random.uniform(0.85, 0.99) if estime_pure else random.uniform(0.55, 0.9), 3)
+            for modele in modeles_classification
+        }
+
+        acidite_retenue = valeurs_regression[modele_reference_acidite]
+        conforme = acidite_retenue <= SEUIL_ACIDITE_DEFAUT and indice_peroxyde <= SEUIL_PEROXYDE_DEFAUT
+
+        donnees_reference = valeurs_reference or {}
         resultat = Resultat.objects.create(
             echantillon=echantillon,
-            modele_utilise=modele,
-            acidite=acidite,
+            modele_utilise=modele_reference_acidite,
+            acidite=acidite_retenue,
             indice_peroxyde=indice_peroxyde,
             duree_analyse_secondes=random.randint(45, 240),
             conforme=conforme,
+            numero_replicat=numero_replicat,
+            **donnees_reference,
         )
         # date_calcul est auto_now_add : on la recale juste après la création
-        # pour simuler un délai de traitement réaliste (quelques minutes).
-        date_calcul = date_analyse + timedelta(minutes=random.randint(2, 12))
+        # pour simuler un délai de traitement réaliste (quelques minutes),
+        # décalé par réplicat pour que l'ordre chronologique reste cohérent.
+        date_calcul = date_analyse + timedelta(minutes=random.randint(2, 12) * numero_replicat)
         Resultat.objects.filter(pk=resultat.pk).update(date_calcul=date_calcul)
+
+        predictions = [
+            PredictionModele(resultat=resultat, modele=modele, valeur_numerique=valeur)
+            for modele, valeur in valeurs_regression.items()
+        ] + [
+            PredictionModele(
+                resultat=resultat,
+                modele=modele,
+                classe_predite="pure" if estime_pure else "melangee",
+                score_confiance=confiance,
+            )
+            for modele, confiance in confiances_classification.items()
+        ]
+        PredictionModele.objects.bulk_create(predictions)
+
+    def _valeur_avec_bruit(self, valeur_base, *, ampleur):
+        return Decimal(str(round(valeur_base + random.uniform(-ampleur, ampleur), 3)))
 
     def _vider(self):
         resultats_supprimes, _ = Resultat.objects.filter(
@@ -269,12 +424,12 @@ class Command(BaseCommand):
         echantillons_supprimes, _ = Echantillon.objects.filter(
             numero__startswith=PREFIXE_DEMO
         ).delete()
-        modeles_supprimes, _ = Modele.objects.filter(nom=MODELE_DEMO_NOM).delete()
+        modeles_supprimes, _ = Modele.objects.filter(nom__in=NOMS_MODELES_DEMO).delete()
 
         self.stdout.write(
             self.style.SUCCESS(
                 "Données de démonstration supprimées : "
                 f"{echantillons_supprimes} échantillon(s), {spectres_supprimes} spectre(s), "
-                f"{resultats_supprimes} résultat(s), {modeles_supprimes} modèle(s)."
+                f"{resultats_supprimes} résultat(s) (et leurs prédictions), {modeles_supprimes} modèle(s)."
             )
         )

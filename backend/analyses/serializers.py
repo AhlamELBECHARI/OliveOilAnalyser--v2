@@ -19,6 +19,11 @@ class ResultatHistoriqueSerializer(serializers.Serializer):
     variete_echantillon = serializers.CharField(source="echantillon.variete")
     region_echantillon = serializers.CharField(source="echantillon.region")
     origine_echantillon = serializers.CharField(source="echantillon.origine")
+    # Utile côté admin (voir l'onglet Analyses de l'espace admin, qui
+    # affiche l'auteur de chaque ligne) — sans coût pour un utilisateur
+    # standard, qui ne voit de toute façon que ses propres analyses.
+    auteur_id = serializers.IntegerField(source="echantillon.utilisateur_id")
+    auteur_nom = serializers.CharField(source="echantillon.utilisateur.nom")
     acidite = serializers.DecimalField(max_digits=6, decimal_places=3)
     indice_peroxyde = serializers.DecimalField(max_digits=6, decimal_places=3)
     date_calcul = serializers.DateTimeField()
@@ -79,6 +84,7 @@ class ExportDemandeSerializer(serializers.Serializer):
     qualite = serializers.ChoiceField(choices=list(LIBELLES_CATEGORIE.keys()), required=False)
     variete = serializers.CharField(required=False, allow_blank=True)
     region = serializers.CharField(required=False, allow_blank=True)
+    operateur = serializers.IntegerField(required=False)
     date_debut = serializers.DateField(required=False)
     date_fin = serializers.DateField(required=False)
 

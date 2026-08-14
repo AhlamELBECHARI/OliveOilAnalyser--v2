@@ -8,6 +8,7 @@ import '../../domain/entities/appareil_appaire_entity.dart';
 import '../../domain/entities/commande_analyseur.dart';
 import '../../domain/entities/etat_connexion_analyseur_entity.dart';
 import '../../domain/entities/info_appareil_analyseur_entity.dart';
+import '../../domain/entities/resultat_scan_entity.dart';
 import '../../domain/entities/spectre_entity.dart';
 import '../../domain/repositories/analyseur_repository.dart';
 import '../local/appareil_prefere_datasource.dart';
@@ -60,6 +61,13 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
 
   @override
   Stream<SpectreBrutEntity> get flusSpectre => _spectreController.stream;
+
+  // Voir AnalyseurRepository.flusResultat : le protocole réel (encore non
+  // documenté par le fabricant) ne transmet aujourd'hui aucune trame de
+  // résultat, seulement le spectre brut — ce flux ne peut donc jamais rien
+  // émettre pour l'instant.
+  @override
+  Stream<ResultatScanEntity> get flusResultat => const Stream.empty();
 
   void _publierEtat(EtatConnexionAnalyseurEntity etat) {
     _etatActuel = etat;

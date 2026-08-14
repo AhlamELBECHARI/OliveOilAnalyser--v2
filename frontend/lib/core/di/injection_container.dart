@@ -8,6 +8,27 @@ import '../navigation/app_navigator.dart';
 import '../network/dio_client.dart';
 import '../storage/token_storage_service.dart';
 import '../sync/synchronisation_service.dart';
+import '../../features/administration/data/datasources/administration_remote_datasource.dart';
+import '../../features/administration/data/datasources/utilisateurs_admin_remote_datasource.dart';
+import '../../features/administration/data/repositories/administration_repository_impl.dart';
+import '../../features/administration/data/repositories/utilisateurs_admin_repository_impl.dart';
+import '../../features/administration/domain/repositories/administration_repository.dart';
+import '../../features/administration/domain/repositories/utilisateurs_admin_repository.dart';
+import '../../features/administration/domain/usecases/changer_role_admin_usecase.dart';
+import '../../features/administration/domain/usecases/creer_utilisateur_admin_usecase.dart';
+import '../../features/administration/domain/usecases/declencher_reset_mot_de_passe_admin_usecase.dart';
+import '../../features/administration/domain/usecases/definir_activation_admin_usecase.dart';
+import '../../features/administration/domain/usecases/deverrouiller_admin_usecase.dart';
+import '../../features/administration/domain/usecases/executer_purge_usecase.dart';
+import '../../features/administration/domain/usecases/lister_journal_audit_usecase.dart';
+import '../../features/administration/domain/usecases/lister_sessions_admin_usecase.dart';
+import '../../features/administration/domain/usecases/lister_utilisateurs_admin_usecase.dart';
+import '../../features/administration/domain/usecases/obtenir_statistiques_occupation_usecase.dart';
+import '../../features/administration/domain/usecases/obtenir_supervision_usecase.dart';
+import '../../features/administration/domain/usecases/obtenir_utilisateur_admin_usecase.dart';
+import '../../features/administration/domain/usecases/previsualiser_purge_usecase.dart';
+import '../../features/administration/domain/usecases/resoudre_alerte_usecase.dart';
+import '../../features/administration/domain/usecases/revoquer_session_admin_usecase.dart';
 import '../../features/alertes/data/datasources/alertes_remote_datasource.dart';
 import '../../features/analyseur/data/local/appareil_prefere_datasource.dart';
 import '../../features/analyseur/data/repositories/analyseur_bluetooth_impl.dart';
@@ -20,6 +41,7 @@ import '../../features/analyseur/domain/usecases/lister_appareils_appaires_useca
 import '../../features/analyseur/domain/usecases/obtenir_appareil_par_defaut_usecase.dart';
 import '../../features/analyseur/domain/usecases/obtenir_info_appareil_usecase.dart';
 import '../../features/analyseur/domain/usecases/observer_etat_connexion_usecase.dart';
+import '../../features/analyseur/domain/usecases/observer_resultat_scan_usecase.dart';
 import '../../features/analyseur/domain/usecases/observer_spectre_usecase.dart';
 import '../../features/analyseur/domain/usecases/tester_connexion_usecase.dart';
 import '../../features/alertes/data/repositories/alertes_repository_impl.dart';
@@ -34,6 +56,7 @@ import '../../features/authentification/domain/usecases/demander_reset_mot_de_pa
 import '../../features/authentification/domain/usecases/get_session_locale_usecase.dart';
 import '../../features/authentification/domain/usecases/login_usecase.dart';
 import '../../features/authentification/domain/usecases/logout_usecase.dart';
+import '../../features/authentification/domain/usecases/obtenir_role_session_usecase.dart';
 import '../../features/authentification/domain/usecases/verifier_code_reset_usecase.dart';
 import '../../features/configuration/data/datasources/configuration_remote_datasource.dart';
 import '../../features/configuration/data/repositories/configuration_repository_impl.dart';
@@ -52,6 +75,7 @@ import '../../features/historique/domain/repositories/historique_repository.dart
 import '../../features/historique/domain/usecases/declencher_export_usecase.dart';
 import '../../features/historique/domain/usecases/lister_analyses_usecase.dart';
 import '../../features/historique/domain/usecases/obtenir_resultat_usecase.dart';
+import '../../features/historique/domain/usecases/obtenir_spectre_pour_echantillon_usecase.dart';
 import '../../features/historique/domain/usecases/obtenir_statistiques_rapides_usecase.dart';
 import '../../features/historique/domain/usecases/telecharger_rapport_usecase.dart';
 import '../../features/modeles/data/datasources/modeles_remote_datasource.dart';
@@ -64,6 +88,7 @@ import '../../features/modeles/domain/usecases/televerser_fichier_modele_usecase
 import '../../features/nouvelle_analyse/data/repositories/nouvelle_analyse_repository_impl.dart';
 import '../../features/nouvelle_analyse/domain/repositories/nouvelle_analyse_repository.dart';
 import '../../features/nouvelle_analyse/domain/usecases/enregistrer_echantillon_usecase.dart';
+import '../../features/nouvelle_analyse/domain/usecases/enregistrer_resultat_usecase.dart';
 import '../../features/nouvelle_analyse/domain/usecases/enregistrer_spectre_usecase.dart';
 import '../../features/parametres/data/datasources/parametres_local_datasource.dart';
 import '../../features/parametres/data/repositories/parametres_repository_impl.dart';
@@ -126,6 +151,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => VerifierCodeResetUseCase(sl()));
   sl.registerLazySingleton(() => ConfirmerResetMotDePasseUseCase(sl()));
   sl.registerLazySingleton(() => GetSessionLocaleUseCase(sl()));
+  sl.registerLazySingleton(() => ObtenirRoleSessionUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
 
   // --- Feature: analyseur (module Bluetooth) ---
@@ -145,6 +171,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => ObtenirInfoAppareilUseCase(sl()));
   sl.registerLazySingleton(() => ObserverEtatConnexionUseCase(sl()));
   sl.registerLazySingleton(() => ObserverSpectreUseCase(sl()));
+  sl.registerLazySingleton(() => ObserverResultatScanUseCase(sl()));
   sl.registerLazySingleton(() => ListerAppareilsAppairesUseCase(sl()));
   sl.registerLazySingleton(() => DefinirAppareilParDefautUseCase(sl()));
   sl.registerLazySingleton(() => ObtenirAppareilParDefautUseCase(sl()));
@@ -158,6 +185,7 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton(() => EnregistrerEchantillonUseCase(sl()));
   sl.registerLazySingleton(() => EnregistrerSpectreUseCase(sl()));
+  sl.registerLazySingleton(() => EnregistrerResultatUseCase(sl()));
 
   // --- Feature: dashboard ---
   sl.registerLazySingleton<DashboardRemoteDataSource>(
@@ -226,6 +254,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => ListerAnalysesUseCase(sl()));
   sl.registerLazySingleton(() => ObtenirStatistiquesRapidesUseCase(sl()));
   sl.registerLazySingleton(() => ObtenirResultatUseCase(sl()));
+  sl.registerLazySingleton(() => ObtenirSpectrePourEchantillonUseCase(sl()));
   sl.registerLazySingleton(() => DeclencherExportUseCase(sl()));
   sl.registerLazySingleton(() => TelechargerRapportUseCase(sl()));
 
@@ -240,4 +269,34 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => CreerModeleUseCase(sl()));
   sl.registerLazySingleton(() => TeleverserFichierModeleUseCase(sl()));
   sl.registerLazySingleton(() => ModifierStatutModeleUseCase(sl()));
+
+  // --- Feature: administration (espace admin) ---
+  sl.registerLazySingleton<AdministrationRemoteDataSource>(
+    () => AdministrationRemoteDataSourceImpl(dio: sl()),
+  );
+  sl.registerLazySingleton<AdministrationRepository>(
+    () => AdministrationRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => ObtenirSupervisionUseCase(sl()));
+  sl.registerLazySingleton(() => ResoudreAlerteUseCase(sl()));
+  sl.registerLazySingleton(() => ListerJournalAuditUseCase(sl()));
+  sl.registerLazySingleton(() => ObtenirStatistiquesOccupationUseCase(sl()));
+  sl.registerLazySingleton(() => PrevisualiserPurgeUseCase(sl()));
+  sl.registerLazySingleton(() => ExecuterPurgeUseCase(sl()));
+
+  sl.registerLazySingleton<UtilisateursAdminRemoteDataSource>(
+    () => UtilisateursAdminRemoteDataSourceImpl(dio: sl()),
+  );
+  sl.registerLazySingleton<UtilisateursAdminRepository>(
+    () => UtilisateursAdminRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => ListerUtilisateursAdminUseCase(sl()));
+  sl.registerLazySingleton(() => ObtenirUtilisateurAdminUseCase(sl()));
+  sl.registerLazySingleton(() => CreerUtilisateurAdminUseCase(sl()));
+  sl.registerLazySingleton(() => ChangerRoleAdminUseCase(sl()));
+  sl.registerLazySingleton(() => DefinirActivationAdminUseCase(sl()));
+  sl.registerLazySingleton(() => DeverrouillerAdminUseCase(sl()));
+  sl.registerLazySingleton(() => DeclencherResetMotDePasseAdminUseCase(sl()));
+  sl.registerLazySingleton(() => ListerSessionsAdminUseCase(sl()));
+  sl.registerLazySingleton(() => RevoquerSessionAdminUseCase(sl()));
 }

@@ -29,5 +29,11 @@ abstract class AuthRepository {
   /// vérifiée qu'au premier appel authentifié (voir core/network/AuthInterceptor).
   Future<bool> possedeSessionLocale();
 
+  /// Rôle persisté au dernier login réussi ('utilisateur'/'administrateur'),
+  /// ou `null` si aucune session — utilisé au démarrage de l'app pour
+  /// choisir la coquille de navigation (utilisateur/admin) sans appel
+  /// réseau (voir main.dart).
+  Future<String?> obtenirRoleSession();
+
   Future<void> deconnecter();
 }

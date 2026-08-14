@@ -141,6 +141,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Erreur de validation. Vérifiez les informations saisies.';
 
   @override
+  String get erreurAutoModificationInterdite =>
+      'Vous ne pouvez pas effectuer cette action sur votre propre compte.';
+
+  @override
+  String get erreurDernierAdministrateur =>
+      'Impossible : il doit rester au moins un administrateur actif.';
+
+  @override
   String get bonjour => 'Bonjour,';
 
   @override
@@ -273,6 +281,239 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navParametres => 'Paramètres';
 
   @override
+  String get navSupervision => 'Supervision';
+
+  @override
+  String get navUtilisateurs => 'Utilisateurs';
+
+  @override
+  String get navAnalyses => 'Analyses';
+
+  @override
+  String get navAdministration => 'Administration';
+
+  @override
+  String get supervisionTitre => 'Supervision';
+
+  @override
+  String get etatSystemeTitre => 'État du système';
+
+  @override
+  String get apiLabel => 'API';
+
+  @override
+  String get baseDeDonneesLabel => 'Base de données';
+
+  @override
+  String get tailleBaseLabel => 'Taille de la base';
+
+  @override
+  String get derniereSauvegardeLabel => 'Dernière sauvegarde';
+
+  @override
+  String get analyseursRecentsLabel => 'Analyseurs récents';
+
+  @override
+  String get nonDisponibleLabel => 'Non disponible';
+
+  @override
+  String get disponibleLabel => 'Disponible';
+
+  @override
+  String get indisponibleLabel => 'Indisponible';
+
+  @override
+  String get activiteJourTitre => 'Activité du jour';
+
+  @override
+  String get utilisateursConnectesLabel => 'Utilisateurs connectés';
+
+  @override
+  String get sessionsActivesLabel => 'Sessions actives';
+
+  @override
+  String get analysesAujourdHuiLabel => 'Analyses aujourd\'hui';
+
+  @override
+  String get analysesSemaineLabel => 'Analyses cette semaine';
+
+  @override
+  String get alertesNonResoluesTitre => 'Alertes non résolues';
+
+  @override
+  String get aucuneAlerteNonResolueTexte => 'Aucune alerte non résolue.';
+
+  @override
+  String get activiteOperateurTitre => 'Activité par opérateur';
+
+  @override
+  String get aucuneActiviteOperateurTexte =>
+      'Aucune activité enregistrée pour l\'instant.';
+
+  @override
+  String get anomaliesTitre => 'Anomalies à surveiller';
+
+  @override
+  String get comptesVerrouillesLabel => 'Comptes verrouillés';
+
+  @override
+  String get modelesDepreciesUtilisesLabel =>
+      'Modèles dépréciés encore utilisés';
+
+  @override
+  String get resoudreBouton => 'Résoudre';
+
+  @override
+  String get ecranAdminBientotDisponibleTexte =>
+      'Cet écran sera disponible prochainement.';
+
+  @override
+  String get rechercherUtilisateurPlaceholder => 'Rechercher par nom, email...';
+
+  @override
+  String get filtreRoleLabel => 'Rôle';
+
+  @override
+  String get filtreStatutLabel => 'Statut';
+
+  @override
+  String get filtreVerrouilleLabel => 'Verrouillé';
+
+  @override
+  String get roleUtilisateurLabel => 'Utilisateur';
+
+  @override
+  String get roleAdministrateurLabel => 'Administrateur';
+
+  @override
+  String get statutActifLabel => 'Actif';
+
+  @override
+  String get statutInactifLabel => 'Inactif';
+
+  @override
+  String get aucunUtilisateurTexte => 'Aucun utilisateur trouvé.';
+
+  @override
+  String get creerCompteBouton => 'Créer un compte';
+
+  @override
+  String get creerCompteTitre => 'Créer un compte';
+
+  @override
+  String get champNomUtilisateur => 'Nom';
+
+  @override
+  String get champRoleLabel => 'Rôle';
+
+  @override
+  String get creerBouton => 'Créer';
+
+  @override
+  String get dateDerniereConnexionLabel => 'Dernière connexion';
+
+  @override
+  String get dateInscriptionLabel => 'Inscrit le';
+
+  @override
+  String get nombreAnalysesLabel => 'Nombre d\'analyses';
+
+  @override
+  String get tentativesEchoueesLabel => 'Tentatives échouées';
+
+  @override
+  String get modifierRoleAction => 'Modifier le rôle';
+
+  @override
+  String get activerCompteAction => 'Activer le compte';
+
+  @override
+  String get desactiverCompteAction => 'Désactiver le compte';
+
+  @override
+  String get deverrouillerCompteAction => 'Déverrouiller le compte';
+
+  @override
+  String get declencherResetAction => 'Envoyer un code de réinitialisation';
+
+  @override
+  String get resetDeclencheMessage => 'Code de réinitialisation envoyé.';
+
+  @override
+  String get voirAnalysesUtilisateurAction => 'Voir ses analyses';
+
+  @override
+  String get jamaisConnecteLabel => 'Jamais connecté';
+
+  @override
+  String get confirmerDesactivationTexte =>
+      'Désactiver ce compte ? L\'utilisateur ne pourra plus se connecter, mais ses analyses restent conservées.';
+
+  @override
+  String get confirmerChangerRoleAdminTexte =>
+      'Donner le rôle administrateur à cet utilisateur ?';
+
+  @override
+  String get confirmerRetrograderTexte =>
+      'Retirer le rôle administrateur de cet utilisateur ?';
+
+  @override
+  String get journalAuditTitre => 'Journal d\'audit';
+
+  @override
+  String get aucuneEntreeJournalTexte => 'Aucune entrée pour l\'instant.';
+
+  @override
+  String get gestionDonneesAdminTitre => 'Gestion des données';
+
+  @override
+  String get statistiquesOccupationTitre => 'Occupation de la base';
+
+  @override
+  String get exportGlobalBouton => 'Exporter toutes les analyses';
+
+  @override
+  String get purgeTitre => 'Purger les données';
+
+  @override
+  String get purgeDescriptionTexte =>
+      'Supprime définitivement les échantillons (et leurs spectres/résultats) antérieurs à la date choisie.';
+
+  @override
+  String get choisirDateLimitePurge => 'Choisir la date limite';
+
+  @override
+  String get previsualiserPurgeBouton => 'Prévisualiser';
+
+  @override
+  String get purgeApercuTitre => 'Seront supprimés :';
+
+  @override
+  String get confirmerPurgeBouton => 'Confirmer la purge';
+
+  @override
+  String get purgeIrreversibleAvertissement => 'Cette action est irréversible.';
+
+  @override
+  String get purgeReussieMessage => 'Purge effectuée.';
+
+  @override
+  String get administrationTitre => 'Administration';
+
+  @override
+  String get journalAuditSousTitre => 'Historique des actions sensibles';
+
+  @override
+  String get gestionDonneesSousTitreAdmin => 'Export global, purge, occupation';
+
+  @override
+  String get configurationSousTitreAdmin =>
+      'Seuils de conformité et classification';
+
+  @override
+  String get monProfilAdminSousTitre => 'Profil personnel, déconnexion';
+
+  @override
   String get modeDemoBanniere =>
       'Mode démo — connecté avec le compte de démonstration.';
 
@@ -346,6 +587,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get modeleRmsecvLabel => 'RMSECV';
+
+  @override
+  String get modeleExactitudeLabel => 'Exactitude';
+
+  @override
+  String get modelePrecisionLabel => 'Précision';
+
+  @override
+  String get typeModeleRegressionLabel => 'Régression';
+
+  @override
+  String get typeModeleClassificationLabel => 'Classification';
+
+  @override
+  String get modeleReferenceLabel => 'Modèle de référence';
 
   @override
   String get modeleActif => 'Actif';
@@ -429,6 +685,43 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commentaireLabel => 'Commentaire';
+
+  @override
+  String get ongletResultatsLabel => 'Résultats';
+
+  @override
+  String get ongletSpectreLabel => 'Spectre';
+
+  @override
+  String replicatLabel(int numero) {
+    return 'Réplicat $numero';
+  }
+
+  @override
+  String get blocComparaisonLaboTitre =>
+      'Comparaison avec la référence laboratoire';
+
+  @override
+  String get valeurPrediteLabel => 'Valeur prédite';
+
+  @override
+  String get valeurReferenceLabel => 'Référence labo';
+
+  @override
+  String get ecartLabel => 'Écart';
+
+  @override
+  String get authenticiteReferenceLabel => 'Nature réelle';
+
+  @override
+  String get nombrePointsLabel => 'Nombre de points';
+
+  @override
+  String get exporterSpectreBouton => 'Exporter ce spectre';
+
+  @override
+  String get aucuneDonneeSpectreTexte =>
+      'Aucun spectre synchronisé pour cet échantillon.';
 
   @override
   String get analyseEnAttenteTitre => 'En attente du module Bluetooth';
@@ -637,6 +930,60 @@ class AppLocalizationsFr extends AppLocalizations {
   String get nouvelleAnalyseBouton => 'Nouvelle analyse';
 
   @override
+  String get calculResultatEnCoursTexte => 'Calcul du résultat…';
+
+  @override
+  String get resultatDateScanLabel => 'Date du scan';
+
+  @override
+  String get blocPredictionsAciditeTitre => 'Prédictions d\'acidité';
+
+  @override
+  String get blocAuthenticiteTitre => 'Détection d\'authenticité';
+
+  @override
+  String get huilePureLabel => 'Huile pure';
+
+  @override
+  String get melangeDetecteLabel => 'Mélange détecté';
+
+  @override
+  String scoreConfianceLabel(int pourcentage) {
+    return 'Confiance $pourcentage%';
+  }
+
+  @override
+  String get categorieEvooLabel => 'Extra Vierge (EVOO)';
+
+  @override
+  String get categorieVooLabel => 'Vierge (VOO)';
+
+  @override
+  String get categorieLampanteLabel => 'Lampante';
+
+  @override
+  String get blocSpectreAcquisTitre => 'Spectre acquis';
+
+  @override
+  String get indicateurSyncEnAttenteTexte => 'En attente de synchronisation';
+
+  @override
+  String get indicateurSyncSynchroniseTexte => 'Synchronisé avec le serveur';
+
+  @override
+  String get indicateurSyncErreurTexte => 'Échec de synchronisation';
+
+  @override
+  String get aucunModeleActifTexte =>
+      'Aucun modèle actif n\'est enregistré côté serveur pour l\'acidité : le résultat n\'a pas pu être calculé. L\'échantillon et le spectre restent enregistrés.';
+
+  @override
+  String get exporterResultatBouton => 'Exporter ce résultat';
+
+  @override
+  String get voirDansHistoriqueBouton => 'Voir dans l\'historique';
+
+  @override
   String enAttenteSynchronisation(int nombre) {
     return '$nombre en attente de synchronisation';
   }
@@ -769,12 +1116,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get monProfilSousTitre => 'Informations du compte & préférences';
-
-  @override
-  String get roleAdministrateurLabel => 'Administrateur';
-
-  @override
-  String get roleUtilisateurLabel => 'Utilisateur';
 
   @override
   String get champTelephone => 'Téléphone';

@@ -10,6 +10,8 @@ const _codeCompteVerrouille = 'compte_verrouille';
 const _codeCompteDesactive = 'compte_desactive';
 const _codeCodeResetInvalide = 'code_reset_invalide';
 const _codeTropDeDemandes = 'trop_de_demandes';
+const _codeAutoModificationInterdite = 'auto_modification_interdite';
+const _codeDernierAdministrateur = 'dernier_administrateur';
 
 /// Traduction des erreurs Dio en exceptions core/error, réutilisée par tous
 /// les datasources distants. Le mapping se fait uniquement à partir du champ
@@ -29,6 +31,10 @@ Exception traduireDioException(DioException e) {
       return const CodeResetInvalideException();
     case _codeTropDeDemandes:
       return const TropDeDemandesException();
+    case _codeAutoModificationInterdite:
+      return const AutoModificationInterditeException();
+    case _codeDernierAdministrateur:
+      return const DernierAdministrateurException();
   }
 
   if (statusCode != null && statusCode >= 400 && statusCode < 500) {

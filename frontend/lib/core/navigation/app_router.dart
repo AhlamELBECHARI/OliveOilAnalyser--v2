@@ -1,5 +1,11 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/administration/presentation/screens/administration_screen.dart';
+import '../../features/administration/presentation/screens/gestion_donnees_admin_screen.dart';
+import '../../features/administration/presentation/screens/journal_audit_screen.dart';
+import '../../features/administration/presentation/screens/supervision_screen.dart';
+import '../../features/administration/presentation/screens/utilisateur_detail_screen.dart';
+import '../../features/administration/presentation/screens/utilisateurs_liste_screen.dart';
 import '../../features/alertes/presentation/screens/alertes_screen.dart';
 import '../../features/authentification/presentation/screens/login_screen.dart';
 import '../../features/authentification/presentation/screens/reset_password/email_reset_screen.dart';
@@ -19,7 +25,9 @@ import '../../features/profil/presentation/screens/mentions_legales_screen.dart'
 import '../../features/profil/presentation/screens/profil_screen.dart';
 import '../../features/profil/presentation/screens/securite_screen.dart';
 import '../../features/profil/presentation/screens/sessions_actives_screen.dart';
+import '../localization/build_context_l10n_extension.dart';
 import 'coquille_navigation.dart';
+import 'coquille_navigation_admin.dart';
 
 /// Construit l'arbre de routes de l'app avec go_router.
 ///
@@ -112,6 +120,61 @@ GoRouter creerRouter({required String emplacementInitial}) {
                 GoRoute(
                   path: 'mentions-legales',
                   builder: (context, state) => const MentionsLegalesScreen(),
+                ),
+              ],
+            ),
+          ]),
+        ],
+      ),
+      // Espace admin : coquille et onglets entièrement séparés de la
+      // navigation utilisateur ci-dessus (voir CoquilleNavigationAdmin) —
+      // un administrateur ne voit jamais l'application utilisateur enrichie.
+      // Analyses et Modèles réutilisent volontairement les mêmes écrans que
+      // côté utilisateur (voir cahier des charges de l'espace admin), sans
+      // en dupliquer le code.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            CoquilleNavigationAdmin(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/admin/supervision', builder: (context, state) => const SupervisionScreen()),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/admin/utilisateurs',
+              builder: (context, state) => const UtilisateursListeScreen(),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) => UtilisateurDetailScreen(
+                    utilisateurId: int.parse(state.pathParameters['id']!),
+                  ),
+                ),
+              ],
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/admin/analyses', builder: (context, state) => const HistoriqueScreen()),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/admin/modeles', builder: (context, state) => const ModelesScreen()),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/admin/administration',
+              builder: (context, state) => const AdministrationScreen(),
+              routes: [
+                GoRoute(
+                  path: 'journal-audit',
+                  builder: (context, state) => const JournalAuditScreen(),
+                ),
+                GoRoute(
+                  path: 'gestion-donnees',
+                  builder: (context, state) => const GestionDonneesAdminScreen(),
+                ),
+                GoRoute(
+                  path: 'configuration',
+                  builder: (context, state) => const PreferencesAnalyseScreen(),
                 ),
               ],
             ),

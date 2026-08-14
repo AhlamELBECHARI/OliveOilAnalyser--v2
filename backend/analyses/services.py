@@ -51,7 +51,7 @@ def _resultats_utilisateur(utilisateur):
     """Un utilisateur standard ne voit que les résultats de ses propres
     échantillons ; un administrateur voit tout — même règle que dans
     dashboard.services, resultats.services et echantillons.services."""
-    queryset = Resultat.objects.select_related("echantillon").all()
+    queryset = Resultat.objects.select_related("echantillon", "echantillon__utilisateur").all()
     if not _est_administrateur(utilisateur):
         queryset = queryset.filter(echantillon__utilisateur=utilisateur)
     return queryset
@@ -80,12 +80,16 @@ def rechercher_historique(
     qualite=None,
     variete=None,
     region=None,
+    operateur=None,
     date_debut=None,
     date_fin=None,
     tri=None,
 ):
     """Queryset annoté de la catégorie qualité, filtré/trié entièrement en
-    base pour GET /api/analyses/historique/."""
+    base pour GET /api/analyses/historique/. `operateur` n'a d'effet réel
+    que pour un administrateur (déjà non filtré par auteur) — pour un
+    utilisateur standard, déjà limité à ses propres résultats, il ne fait
+    que re-filtrer sur lui-même sans rien exposer d'autrui."""
     queryset = _annoter_categorie(_resultats_utilisateur(utilisateur))
 
     if recherche:
@@ -101,6 +105,8 @@ def rechercher_historique(
         queryset = queryset.filter(echantillon__variete__iexact=variete)
     if region:
         queryset = queryset.filter(echantillon__region__iexact=region)
+    if operateur:
+        queryset = queryset.filter(echantillon__utilisateur_id=operateur)
     if date_debut:
         queryset = queryset.filter(date_calcul__date__gte=date_debut)
     if date_fin:
@@ -263,12 +269,15 @@ def declencher_export(
     qualite=None,
     variete=None,
     region=None,
+    operateur=None,
     date_debut=None,
     date_fin=None,
 ):
     """Sélectionne les résultats concernés (par identifiants explicites ou
-    par les mêmes filtres que l'historique), génère réellement le fichier et
-    l'associe au Rapport créé pour tracer qui a exporté quoi et quand."""
+    par les mêmes filtres que l'historique — voir l'export global de
+    l'espace admin, qui réutilise ce même mécanisme sans filtre auteur pour
+    un administrateur), génère réellement le fichier et l'associe au
+    Rapport créé pour tracer qui a exporté quoi et quand."""
     if identifiants:
         queryset = _annoter_categorie(_resultats_utilisateur(utilisateur)).filter(
             id__in=identifiants
@@ -280,6 +289,7 @@ def declencher_export(
             qualite=qualite,
             variete=variete,
             region=region,
+            operateur=operateur,
             date_debut=date_debut,
             date_fin=date_fin,
         )

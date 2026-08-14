@@ -67,3 +67,17 @@ def test_alertes_filtre_par_est_resolue(client_administrateur):
     assert response.status_code == 200
     assert response.data["count"] == 1
     assert response.data["results"][0]["est_resolue"] is False
+
+
+def test_resoudre_alerte_admin_ok(client_administrateur, administrateur):
+    alerte = _creer_alerte(echantillon=None)
+    response = client_administrateur.post(f"/api/alertes/{alerte.id}/resoudre/")
+    assert response.status_code == 200
+    assert response.data["est_resolue"] is True
+    assert response.data["resolue_par"] == administrateur.id
+
+
+def test_resoudre_alerte_non_admin_refuse(client_utilisateur):
+    alerte = _creer_alerte(echantillon=None)
+    response = client_utilisateur.post(f"/api/alertes/{alerte.id}/resoudre/")
+    assert response.status_code == 403

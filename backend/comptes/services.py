@@ -118,11 +118,27 @@ def login(*, email, password):
 
     if not utilisateur.check_password(password):
         _enregistrer_echec(utilisateur)
+        _journaliser_connexion(utilisateur, reussie=False)
         raise IdentifiantsInvalidesError()
 
     _enregistrer_succes(utilisateur)
+    _journaliser_connexion(utilisateur, reussie=True)
     tokens = _generer_tokens(utilisateur)
     return {**tokens, "utilisateur": utilisateur}
+
+
+def _journaliser_connexion(utilisateur, *, reussie):
+    from administration.models import JournalAudit
+    from administration.services import enregistrer_action
+
+    enregistrer_action(
+        action=(
+            JournalAudit.Action.CONNEXION_REUSSIE if reussie else JournalAudit.Action.CONNEXION_ECHOUEE
+        ),
+        acteur=utilisateur,
+        cible_type="Utilisateur",
+        cible_id=utilisateur.pk,
+    )
 
 
 # --- Réinitialisation de mot de passe (code à 6 chiffres) ------------------
@@ -357,3 +373,163 @@ def revoquer_session(*, utilisateur, session_id):
     except OutstandingToken.DoesNotExist:
         raise Http404
     BlacklistedToken.objects.get_or_create(token=token)
+
+
+# --- Espace admin : gestion des utilisateurs --------------------------------
+#
+# `administration.services.enregistrer_action`/`administration.models` sont
+# importés localement (dans chaque fonction, pas en tête de module) : cette
+# app y écrit le journal d'audit, et administration.services importe à son
+# tour Utilisateur/obtenir_configuration d'ici — un import en tête de module
+# des deux côtés créerait un cycle au chargement de Django.
+
+def lister_utilisateurs_admin(*, recherche=None, role=None, actif=None, verrouille=None):
+    """Recherche (nom, email) + filtres (rôle, statut actif, compte
+    verrouillé) — voir GET /api/admin/utilisateurs/."""
+    from django.db.models import Q
+
+    queryset = Utilisateur.objects.all()
+    if recherche:
+        queryset = queryset.filter(Q(nom__icontains=recherche) | Q(email__icontains=recherche))
+    if role:
+        queryset = queryset.filter(role=role)
+    if actif is not None:
+        queryset = queryset.filter(est_actif=actif)
+    if verrouille is not None:
+        maintenant = timezone.now()
+        if verrouille:
+            queryset = queryset.filter(verrouille_jusqu_a__gt=maintenant)
+        else:
+            queryset = queryset.exclude(verrouille_jusqu_a__gt=maintenant)
+    return queryset
+
+
+def obtenir_utilisateur_admin(utilisateur_id):
+    try:
+        return Utilisateur.objects.get(pk=utilisateur_id)
+    except Utilisateur.DoesNotExist:
+        raise Http404
+
+
+def _est_dernier_administrateur_actif(utilisateur):
+    """Vrai si `utilisateur` est actuellement admin actif ET qu'aucun autre
+    admin actif n'existe — la cible d'une opération qui le priverait de ce
+    statut (rétrogradation ou désactivation) doit alors être bloquée."""
+    if utilisateur.role != Utilisateur.Role.ADMINISTRATEUR or not utilisateur.est_actif:
+        return False
+    autres_admins_actifs = Utilisateur.objects.filter(
+        role=Utilisateur.Role.ADMINISTRATEUR, est_actif=True
+    ).exclude(pk=utilisateur.pk)
+    return not autres_admins_actifs.exists()
+
+
+def changer_role_admin(*, acteur, cible, nouveau_role):
+    from administration.models import JournalAudit
+    from administration.services import enregistrer_action
+    from core.exceptions import AutoModificationInterditeError, DernierAdministrateurError
+
+    if cible.pk == acteur.pk:
+        raise AutoModificationInterditeError("Vous ne pouvez pas modifier votre propre rôle.")
+    if nouveau_role != Utilisateur.Role.ADMINISTRATEUR and _est_dernier_administrateur_actif(cible):
+        raise DernierAdministrateurError()
+
+    ancien_role = cible.role
+    cible.role = nouveau_role
+    cible.is_staff = nouveau_role == Utilisateur.Role.ADMINISTRATEUR
+    cible.save(update_fields=["role", "is_staff"])
+
+    enregistrer_action(
+        action=JournalAudit.Action.CHANGEMENT_ROLE,
+        acteur=acteur,
+        cible_type="Utilisateur",
+        cible_id=cible.pk,
+        details={"ancien_role": ancien_role, "nouveau_role": nouveau_role},
+    )
+    return cible
+
+
+def definir_activation_admin(*, acteur, cible, actif):
+    from administration.models import JournalAudit
+    from administration.services import enregistrer_action
+    from core.exceptions import AutoModificationInterditeError, DernierAdministrateurError
+
+    if cible.pk == acteur.pk and not actif:
+        raise AutoModificationInterditeError("Vous ne pouvez pas désactiver votre propre compte.")
+    if not actif and _est_dernier_administrateur_actif(cible):
+        raise DernierAdministrateurError()
+
+    cible.est_actif = actif
+    cible.save(update_fields=["est_actif"])
+    if not actif:
+        # Une désactivation a la même portée de sécurité qu'un changement de
+        # mot de passe : toutes les sessions en circulation sont invalidées.
+        _blacklister_tokens_utilisateur(cible)
+
+    enregistrer_action(
+        action=(
+            JournalAudit.Action.ACTIVATION_COMPTE
+            if actif
+            else JournalAudit.Action.DESACTIVATION_COMPTE
+        ),
+        acteur=acteur,
+        cible_type="Utilisateur",
+        cible_id=cible.pk,
+    )
+    return cible
+
+
+def deverrouiller_compte_admin(*, acteur, cible):
+    from administration.models import JournalAudit
+    from administration.services import enregistrer_action
+
+    cible.tentatives_echouees = 0
+    cible.verrouille_jusqu_a = None
+    cible.save(update_fields=["tentatives_echouees", "verrouille_jusqu_a"])
+
+    enregistrer_action(
+        action=JournalAudit.Action.DEVERROUILLAGE_COMPTE,
+        acteur=acteur,
+        cible_type="Utilisateur",
+        cible_id=cible.pk,
+    )
+    return cible
+
+
+def declencher_reset_mot_de_passe_admin(*, acteur, cible):
+    from administration.models import JournalAudit
+    from administration.services import enregistrer_action
+
+    demander_reset_mot_de_passe(email=cible.email)
+    enregistrer_action(
+        action=JournalAudit.Action.RESET_MOT_DE_PASSE_DECLENCHE,
+        acteur=acteur,
+        cible_type="Utilisateur",
+        cible_id=cible.pk,
+    )
+
+
+def creer_utilisateur_admin(*, acteur, nom, email, password, role):
+    from administration.models import JournalAudit
+    from administration.services import enregistrer_action
+
+    if role == Utilisateur.Role.ADMINISTRATEUR:
+        cible = creer_administrateur(nom=nom, email=email, password=password)
+    else:
+        cible = inscrire_utilisateur(nom=nom, email=email, password=password)
+
+    enregistrer_action(
+        action=JournalAudit.Action.CREATION_COMPTE,
+        acteur=acteur,
+        cible_type="Utilisateur",
+        cible_id=cible.pk,
+        details={"role": role},
+    )
+    return cible
+
+
+def lister_sessions_admin(*, cible):
+    return lister_sessions(utilisateur=cible)
+
+
+def revoquer_session_admin(*, cible, session_id):
+    return revoquer_session(utilisateur=cible, session_id=session_id)

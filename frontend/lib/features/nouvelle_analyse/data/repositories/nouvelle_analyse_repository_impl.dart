@@ -10,6 +10,7 @@ import '../../../../core/local_storage/local_database.dart';
 import '../../../../core/sync/synchronisation_service.dart';
 import '../../../analyseur/domain/entities/spectre_entity.dart';
 import '../../domain/entities/nouvel_echantillon_entity.dart';
+import '../../domain/entities/resultat_a_creer_entity.dart';
 import '../../domain/repositories/nouvelle_analyse_repository.dart';
 
 const _uuid = Uuid();
@@ -68,6 +69,42 @@ class NouvelleAnalyseRepositoryImpl implements NouvelleAnalyseRepository {
         nombreSeries: valeursX.length,
         dateAcquisition: spectre.dateAcquisition,
       ));
+      unawaited(_synchronisation.synchroniser());
+      return const Right(null);
+    } catch (_) {
+      return const Left(ErreurStockageLocalFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> enregistrerResultat({
+    required String resultatId,
+    required String echantillonId,
+    required ResultatACreerEntity resultat,
+  }) async {
+    try {
+      final companionResultat = ResultatsLocauxCompanion.insert(
+        id: resultatId,
+        echantillonId: echantillonId,
+        modeleUtiliseId: Value(resultat.modeleUtiliseId),
+        acidite: Value(resultat.acidite),
+        indicePeroxyde: Value(resultat.indicePeroxyde),
+        dateCalcul: Value(DateTime.now()),
+        dureeAnalyseSecondes: Value(resultat.dureeAnalyseSecondes),
+        conforme: Value(resultat.conforme),
+      );
+      final companionsPredictions = [
+        for (final prediction in resultat.predictions)
+          PredictionsLocalesCompanion.insert(
+            id: _uuid.v4(),
+            resultatId: resultatId,
+            modeleId: prediction.modeleId,
+            valeurNumerique: Value(prediction.valeurNumerique),
+            classePredite: Value(prediction.classePredite ?? ''),
+            scoreConfiance: Value(prediction.scoreConfiance),
+          ),
+      ];
+      await _base.insererResultat(companionResultat, companionsPredictions);
       unawaited(_synchronisation.synchroniser());
       return const Right(null);
     } catch (_) {

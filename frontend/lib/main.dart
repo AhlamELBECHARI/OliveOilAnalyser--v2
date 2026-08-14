@@ -8,6 +8,7 @@ import 'core/navigation/app_navigator.dart';
 import 'core/theme/app_theme.dart';
 import 'core/usecase/usecase.dart';
 import 'features/authentification/domain/usecases/get_session_locale_usecase.dart';
+import 'features/authentification/domain/usecases/obtenir_role_session_usecase.dart';
 import 'features/parametres/presentation/providers/locale_provider.dart';
 import 'features/parametres/presentation/providers/theme_mode_provider.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -21,7 +22,14 @@ Future<void> main() async {
   final resultatSession = await sl<GetSessionLocaleUseCase>()(const NoParams());
   final possedeSession = resultatSession.fold((_) => false, (valeur) => valeur);
 
-  sl<AppNavigator>().initialiserRouter(possedeSession ? '/accueil' : '/login');
+  String emplacementInitial = '/login';
+  if (possedeSession) {
+    final resultatRole = await sl<ObtenirRoleSessionUseCase>()(const NoParams());
+    final role = resultatRole.fold((_) => null, (valeur) => valeur);
+    emplacementInitial = role == 'administrateur' ? '/admin/supervision' : '/accueil';
+  }
+
+  sl<AppNavigator>().initialiserRouter(emplacementInitial);
 
   runApp(const ProviderScope(child: OliveIQApp()));
 }

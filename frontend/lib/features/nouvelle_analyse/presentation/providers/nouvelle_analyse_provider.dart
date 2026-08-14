@@ -13,15 +13,24 @@ import '../../../analyseur/domain/entities/commande_analyseur.dart';
 import '../../../analyseur/domain/entities/etat_connexion_analyseur_entity.dart';
 import '../../../analyseur/domain/entities/info_appareil_analyseur_entity.dart';
 import '../../../analyseur/domain/entities/qualite_signal_entity.dart';
+import '../../../analyseur/domain/entities/resultat_scan_entity.dart';
 import '../../../analyseur/domain/entities/spectre_entity.dart';
 import '../../../analyseur/domain/services/calculateur_qualite_signal.dart';
 import '../../../analyseur/domain/usecases/connecter_automatiquement_usecase.dart';
 import '../../../analyseur/domain/usecases/envoyer_commande_usecase.dart';
 import '../../../analyseur/domain/usecases/observer_etat_connexion_usecase.dart';
+import '../../../analyseur/domain/usecases/observer_resultat_scan_usecase.dart';
 import '../../../analyseur/domain/usecases/observer_spectre_usecase.dart';
 import '../../../analyseur/domain/usecases/obtenir_info_appareil_usecase.dart';
+import '../../../configuration/domain/entities/configuration_entity.dart';
+import '../../../configuration/domain/usecases/obtenir_configuration_usecase.dart';
+import '../../../modeles/domain/entities/modele_entity.dart';
+import '../../../modeles/domain/usecases/lister_modeles_usecase.dart';
 import '../../domain/entities/nouvel_echantillon_entity.dart';
+import '../../domain/entities/resultat_a_creer_entity.dart';
+import '../../domain/services/repartiteur_predictions.dart';
 import '../../domain/usecases/enregistrer_echantillon_usecase.dart';
+import '../../domain/usecases/enregistrer_resultat_usecase.dart';
 import '../../domain/usecases/enregistrer_spectre_usecase.dart';
 
 enum EtapeAnalyse { connexion, echantillon, analyse, resultats }
@@ -61,6 +70,19 @@ class NouvelleAnalyseState extends Equatable {
   final bool positionEnCoursDeChargement;
   final String? echecPosition;
   final bool etapeConnexionFranchie;
+  final String? resultatId;
+  final ResultatACreerEntity? resultatCree;
+  // Modèles/seuils utilisés pour calculer [resultatCree], conservés pour
+  // que l'étape Résultats puisse afficher nom/version/type de chaque
+  // modèle et la catégorie commerciale sans nouvel appel réseau.
+  final List<ModeleEntity> modelesResultat;
+  final ConfigurationEntity? configurationResultat;
+  final bool calculResultatEnCours;
+  // `true` si le scan est terminé mais qu'aucun modèle de régression actif
+  // pour l'acidité n'est enregistré côté backend : aucun Resultat ne peut
+  // alors être créé (modele_utilise est obligatoire côté API) — voir
+  // ResultatACreerEntity.peutEtreEnregistre.
+  final bool aucunModeleActifPourResultat;
 
   NouvelleAnalyseState({
     this.modeCarteEchantillon = ModeCarteEchantillon.formulaire,
@@ -77,6 +99,12 @@ class NouvelleAnalyseState extends Equatable {
     this.positionEnCoursDeChargement = false,
     this.echecPosition,
     this.etapeConnexionFranchie = false,
+    this.resultatId,
+    this.resultatCree,
+    this.modelesResultat = const [],
+    this.configurationResultat,
+    this.calculResultatEnCours = false,
+    this.aucunModeleActifPourResultat = false,
   }) : brouillon = brouillon ?? _nouveauBrouillon();
 
   /// L'écran est un unique scroll par étape (pas un assistant paginé au sens
@@ -111,9 +139,16 @@ class NouvelleAnalyseState extends Equatable {
     bool? positionEnCoursDeChargement,
     String? echecPosition,
     bool? etapeConnexionFranchie,
+    String? resultatId,
+    ResultatACreerEntity? resultatCree,
+    List<ModeleEntity>? modelesResultat,
+    ConfigurationEntity? configurationResultat,
+    bool? calculResultatEnCours,
+    bool? aucunModeleActifPourResultat,
     bool effacerEchecEnregistrement = false,
     bool effacerEchecPosition = false,
     bool effacerSpectre = false,
+    bool effacerResultat = false,
   }) {
     return NouvelleAnalyseState(
       modeCarteEchantillon: modeCarteEchantillon ?? this.modeCarteEchantillon,
@@ -131,6 +166,14 @@ class NouvelleAnalyseState extends Equatable {
       positionEnCoursDeChargement: positionEnCoursDeChargement ?? this.positionEnCoursDeChargement,
       echecPosition: effacerEchecPosition ? null : (echecPosition ?? this.echecPosition),
       etapeConnexionFranchie: etapeConnexionFranchie ?? this.etapeConnexionFranchie,
+      resultatId: effacerResultat ? null : (resultatId ?? this.resultatId),
+      resultatCree: effacerResultat ? null : (resultatCree ?? this.resultatCree),
+      modelesResultat: effacerResultat ? const [] : (modelesResultat ?? this.modelesResultat),
+      configurationResultat:
+          effacerResultat ? null : (configurationResultat ?? this.configurationResultat),
+      calculResultatEnCours: calculResultatEnCours ?? this.calculResultatEnCours,
+      aucunModeleActifPourResultat:
+          effacerResultat ? false : (aucunModeleActifPourResultat ?? this.aucunModeleActifPourResultat),
     );
   }
 
@@ -150,6 +193,12 @@ class NouvelleAnalyseState extends Equatable {
         positionEnCoursDeChargement,
         echecPosition,
         etapeConnexionFranchie,
+        resultatId,
+        resultatCree,
+        modelesResultat,
+        configurationResultat,
+        calculResultatEnCours,
+        aucunModeleActifPourResultat,
       ];
 }
 
@@ -157,29 +206,42 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
   final ConnecterAutomatiquementUseCase _connecterAutomatiquement;
   final ObserverEtatConnexionUseCase _observerEtatConnexion;
   final ObserverSpectreUseCase _observerSpectre;
+  final ObserverResultatScanUseCase _observerResultatScan;
   final ObtenirInfoAppareilUseCase _obtenirInfoAppareil;
   final EnvoyerCommandeUseCase _envoyerCommande;
   final EnregistrerEchantillonUseCase _enregistrerEchantillon;
   final EnregistrerSpectreUseCase _enregistrerSpectre;
+  final EnregistrerResultatUseCase _enregistrerResultat;
+  final ListerModelesUseCase _listerModeles;
+  final ObtenirConfigurationUseCase _obtenirConfiguration;
 
   StreamSubscription<EtatConnexionAnalyseurEntity>? _abonnementEtat;
   StreamSubscription<SpectreBrutEntity>? _abonnementSpectre;
+  StreamSubscription<ResultatScanEntity>? _abonnementResultat;
 
   NouvelleAnalyseNotifier({
     required ConnecterAutomatiquementUseCase connecterAutomatiquement,
     required ObserverEtatConnexionUseCase observerEtatConnexion,
     required ObserverSpectreUseCase observerSpectre,
+    required ObserverResultatScanUseCase observerResultatScan,
     required ObtenirInfoAppareilUseCase obtenirInfoAppareil,
     required EnvoyerCommandeUseCase envoyerCommande,
     required EnregistrerEchantillonUseCase enregistrerEchantillon,
     required EnregistrerSpectreUseCase enregistrerSpectre,
+    required EnregistrerResultatUseCase enregistrerResultat,
+    required ListerModelesUseCase listerModeles,
+    required ObtenirConfigurationUseCase obtenirConfiguration,
   })  : _connecterAutomatiquement = connecterAutomatiquement,
         _observerEtatConnexion = observerEtatConnexion,
         _observerSpectre = observerSpectre,
+        _observerResultatScan = observerResultatScan,
         _obtenirInfoAppareil = obtenirInfoAppareil,
         _envoyerCommande = envoyerCommande,
         _enregistrerEchantillon = enregistrerEchantillon,
         _enregistrerSpectre = enregistrerSpectre,
+        _enregistrerResultat = enregistrerResultat,
+        _listerModeles = listerModeles,
+        _obtenirConfiguration = obtenirConfiguration,
         super(NouvelleAnalyseState()) {
     _initialiser();
   }
@@ -195,6 +257,7 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
         qualiteSignal: calculerQualiteSignal(spectre),
       );
     });
+    _abonnementResultat = _observerResultatScan().listen(_creerResultat);
     unawaited(_connecterAutomatiquement(const NoParams()));
   }
 
@@ -296,6 +359,7 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
       acquisitionTerminee: false,
       effacerSpectre: true,
       effacerEchecEnregistrement: true,
+      effacerResultat: true,
     );
 
     final resultat = await _envoyerCommande(CommandeAnalyseur.demarrerAcquisition);
@@ -320,6 +384,55 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
     }
   }
 
+  /// Appelé quand [AnalyseurRepository.flusResultat] émet (voir
+  /// _initialiser) : répartit le résultat "brut" du scan sur les modèles
+  /// actifs réels (voir repartirPredictionsSurModeles), puis l'enregistre
+  /// localement — jamais directement sur le réseau, comme le reste de cet
+  /// écran (voir NouvelleAnalyseRepositoryImpl).
+  Future<void> _creerResultat(ResultatScanEntity resultatScan) async {
+    final echantillon = state.echantillonValide;
+    if (echantillon == null) return;
+
+    state = state.copierAvec(calculResultatEnCours: true);
+
+    final modelesResultat = await _listerModeles(const NoParams());
+    if (!mounted) return;
+    final modelesActifs = modelesResultat.fold((_) => const <ModeleEntity>[], (liste) => liste);
+
+    final configurationResultat = await _obtenirConfiguration(const NoParams());
+    if (!mounted) return;
+    final configuration = configurationResultat.fold((_) => null, (c) => c);
+
+    final resultatACreer = repartirPredictionsSurModeles(
+      resultatScan: resultatScan,
+      modelesActifs: modelesActifs,
+      configuration: configuration,
+    );
+
+    if (!resultatACreer.peutEtreEnregistre) {
+      state = state.copierAvec(
+        calculResultatEnCours: false,
+        aucunModeleActifPourResultat: true,
+      );
+      return;
+    }
+
+    final resultatId = _uuid.v4();
+    await _enregistrerResultat(EnregistrerResultatParams(
+      resultatId: resultatId,
+      echantillonId: echantillon.id,
+      resultat: resultatACreer,
+    ));
+    if (!mounted) return;
+    state = state.copierAvec(
+      calculResultatEnCours: false,
+      resultatId: resultatId,
+      resultatCree: resultatACreer,
+      modelesResultat: modelesActifs,
+      configurationResultat: configuration,
+    );
+  }
+
   /// Le bouton "Annuler" de l'écran (et "Nouvelle analyse" une fois une
   /// acquisition terminée) ne quitte jamais l'écran — Analyse est un onglet
   /// permanent, pas un écran qu'on ferme (voir Partie A du cahier des
@@ -338,6 +451,15 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
     );
   }
 
+  /// Bouton "Nouvelle analyse" de l'étape Résultats : contrairement à
+  /// [reinitialiser] (utilisé par "Annuler" plus tôt dans le parcours, qui
+  /// ne remonte qu'à l'étape Échantillon), celui-ci ramène explicitement à
+  /// l'étape 1 (Connexion) — voir EtapeAnalyse.etapeCourante, dérivée de
+  /// etapeConnexionFranchie, laissé à false ici.
+  void demarrerNouvelleAnalyse() {
+    state = NouvelleAnalyseState(etatConnexion: state.etatConnexion, infoAppareil: state.infoAppareil);
+  }
+
   @override
   void dispose() {
     // Ne libère JAMAIS AnalyseurRepository ici : c'est un singleton get_it
@@ -345,6 +467,7 @@ class NouvelleAnalyseNotifier extends StateNotifier<NouvelleAnalyseState> {
     // abonnements propres à cet écran sont annulés.
     _abonnementEtat?.cancel();
     _abonnementSpectre?.cancel();
+    _abonnementResultat?.cancel();
     super.dispose();
   }
 }
@@ -360,9 +483,13 @@ final nouvelleAnalyseProvider =
     connecterAutomatiquement: sl(),
     observerEtatConnexion: sl(),
     observerSpectre: sl(),
+    observerResultatScan: sl(),
     obtenirInfoAppareil: sl(),
     envoyerCommande: sl(),
     enregistrerEchantillon: sl(),
     enregistrerSpectre: sl(),
+    enregistrerResultat: sl(),
+    listerModeles: sl(),
+    obtenirConfiguration: sl(),
   );
 });

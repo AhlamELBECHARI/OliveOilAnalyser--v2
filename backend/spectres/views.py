@@ -13,7 +13,11 @@ class SpectreViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return services.lister_spectres(utilisateur=self.request.user)
+        queryset = services.lister_spectres(utilisateur=self.request.user)
+        echantillon_id = self.request.query_params.get("echantillon")
+        if echantillon_id:
+            queryset = queryset.filter(echantillon_id=echantillon_id)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.instance = services.creer_spectre(

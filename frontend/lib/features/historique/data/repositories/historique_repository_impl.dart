@@ -6,6 +6,7 @@ import '../../domain/entities/analyse_historique_entity.dart';
 import '../../domain/entities/demande_export_entity.dart';
 import '../../domain/entities/rapport_export_entity.dart';
 import '../../domain/entities/resultat_historique_entity.dart';
+import '../../domain/entities/spectre_historique_entity.dart';
 import '../../domain/entities/statistiques_rapides_entity.dart';
 import '../../domain/repositories/historique_repository.dart';
 import '../datasources/historique_remote_datasource.dart';
@@ -54,6 +55,21 @@ class HistoriqueRepositoryImpl implements HistoriqueRepository {
     try {
       final resultat = await remoteDataSource.obtenirResultat(resultatId);
       return Right(resultat);
+    } on ErreurValidationException {
+      return const Left(ErreurValidationFailure());
+    } on ErreurServeurException {
+      return const Left(ErreurServeurFailure());
+    } catch (_) {
+      return const Left(ErreurReseauFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, SpectreHistoriqueEntity?>> obtenirSpectrePourEchantillon(
+    String echantillonId,
+  ) async {
+    try {
+      return Right(await remoteDataSource.obtenirSpectrePourEchantillon(echantillonId));
     } on ErreurValidationException {
       return const Left(ErreurValidationFailure());
     } on ErreurServeurException {

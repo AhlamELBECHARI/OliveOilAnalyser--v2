@@ -2462,6 +2462,504 @@ class ResultatsLocauxCompanion extends UpdateCompanion<ResultatsLocauxData> {
   }
 }
 
+class $PredictionsLocalesTable extends PredictionsLocales
+    with TableInfo<$PredictionsLocalesTable, PredictionsLocalesData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PredictionsLocalesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resultatIdMeta = const VerificationMeta(
+    'resultatId',
+  );
+  @override
+  late final GeneratedColumn<String> resultatId = GeneratedColumn<String>(
+    'resultat_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES resultats_locaux (id)',
+    ),
+  );
+  static const VerificationMeta _modeleIdMeta = const VerificationMeta(
+    'modeleId',
+  );
+  @override
+  late final GeneratedColumn<int> modeleId = GeneratedColumn<int>(
+    'modele_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valeurNumeriqueMeta = const VerificationMeta(
+    'valeurNumerique',
+  );
+  @override
+  late final GeneratedColumn<double> valeurNumerique = GeneratedColumn<double>(
+    'valeur_numerique',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _classePrediteMeta = const VerificationMeta(
+    'classePredite',
+  );
+  @override
+  late final GeneratedColumn<String> classePredite = GeneratedColumn<String>(
+    'classe_predite',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _scoreConfianceMeta = const VerificationMeta(
+    'scoreConfiance',
+  );
+  @override
+  late final GeneratedColumn<double> scoreConfiance = GeneratedColumn<double>(
+    'score_confiance',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dateCreationLocaleMeta =
+      const VerificationMeta('dateCreationLocale');
+  @override
+  late final GeneratedColumn<DateTime> dateCreationLocale =
+      GeneratedColumn<DateTime>(
+        'date_creation_locale',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+        defaultValue: currentDateAndTime,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    resultatId,
+    modeleId,
+    valeurNumerique,
+    classePredite,
+    scoreConfiance,
+    dateCreationLocale,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'predictions_locales';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PredictionsLocalesData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('resultat_id')) {
+      context.handle(
+        _resultatIdMeta,
+        resultatId.isAcceptableOrUnknown(data['resultat_id']!, _resultatIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_resultatIdMeta);
+    }
+    if (data.containsKey('modele_id')) {
+      context.handle(
+        _modeleIdMeta,
+        modeleId.isAcceptableOrUnknown(data['modele_id']!, _modeleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modeleIdMeta);
+    }
+    if (data.containsKey('valeur_numerique')) {
+      context.handle(
+        _valeurNumeriqueMeta,
+        valeurNumerique.isAcceptableOrUnknown(
+          data['valeur_numerique']!,
+          _valeurNumeriqueMeta,
+        ),
+      );
+    }
+    if (data.containsKey('classe_predite')) {
+      context.handle(
+        _classePrediteMeta,
+        classePredite.isAcceptableOrUnknown(
+          data['classe_predite']!,
+          _classePrediteMeta,
+        ),
+      );
+    }
+    if (data.containsKey('score_confiance')) {
+      context.handle(
+        _scoreConfianceMeta,
+        scoreConfiance.isAcceptableOrUnknown(
+          data['score_confiance']!,
+          _scoreConfianceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('date_creation_locale')) {
+      context.handle(
+        _dateCreationLocaleMeta,
+        dateCreationLocale.isAcceptableOrUnknown(
+          data['date_creation_locale']!,
+          _dateCreationLocaleMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PredictionsLocalesData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PredictionsLocalesData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      resultatId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}resultat_id'],
+      )!,
+      modeleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}modele_id'],
+      )!,
+      valeurNumerique: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}valeur_numerique'],
+      ),
+      classePredite: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}classe_predite'],
+      )!,
+      scoreConfiance: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}score_confiance'],
+      ),
+      dateCreationLocale: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date_creation_locale'],
+      )!,
+    );
+  }
+
+  @override
+  $PredictionsLocalesTable createAlias(String alias) {
+    return $PredictionsLocalesTable(attachedDatabase, alias);
+  }
+}
+
+class PredictionsLocalesData extends DataClass
+    implements Insertable<PredictionsLocalesData> {
+  final String id;
+  final String resultatId;
+  final int modeleId;
+  final double? valeurNumerique;
+  final String classePredite;
+  final double? scoreConfiance;
+  final DateTime dateCreationLocale;
+  const PredictionsLocalesData({
+    required this.id,
+    required this.resultatId,
+    required this.modeleId,
+    this.valeurNumerique,
+    required this.classePredite,
+    this.scoreConfiance,
+    required this.dateCreationLocale,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['resultat_id'] = Variable<String>(resultatId);
+    map['modele_id'] = Variable<int>(modeleId);
+    if (!nullToAbsent || valeurNumerique != null) {
+      map['valeur_numerique'] = Variable<double>(valeurNumerique);
+    }
+    map['classe_predite'] = Variable<String>(classePredite);
+    if (!nullToAbsent || scoreConfiance != null) {
+      map['score_confiance'] = Variable<double>(scoreConfiance);
+    }
+    map['date_creation_locale'] = Variable<DateTime>(dateCreationLocale);
+    return map;
+  }
+
+  PredictionsLocalesCompanion toCompanion(bool nullToAbsent) {
+    return PredictionsLocalesCompanion(
+      id: Value(id),
+      resultatId: Value(resultatId),
+      modeleId: Value(modeleId),
+      valeurNumerique: valeurNumerique == null && nullToAbsent
+          ? const Value.absent()
+          : Value(valeurNumerique),
+      classePredite: Value(classePredite),
+      scoreConfiance: scoreConfiance == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scoreConfiance),
+      dateCreationLocale: Value(dateCreationLocale),
+    );
+  }
+
+  factory PredictionsLocalesData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PredictionsLocalesData(
+      id: serializer.fromJson<String>(json['id']),
+      resultatId: serializer.fromJson<String>(json['resultatId']),
+      modeleId: serializer.fromJson<int>(json['modeleId']),
+      valeurNumerique: serializer.fromJson<double?>(json['valeurNumerique']),
+      classePredite: serializer.fromJson<String>(json['classePredite']),
+      scoreConfiance: serializer.fromJson<double?>(json['scoreConfiance']),
+      dateCreationLocale: serializer.fromJson<DateTime>(
+        json['dateCreationLocale'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'resultatId': serializer.toJson<String>(resultatId),
+      'modeleId': serializer.toJson<int>(modeleId),
+      'valeurNumerique': serializer.toJson<double?>(valeurNumerique),
+      'classePredite': serializer.toJson<String>(classePredite),
+      'scoreConfiance': serializer.toJson<double?>(scoreConfiance),
+      'dateCreationLocale': serializer.toJson<DateTime>(dateCreationLocale),
+    };
+  }
+
+  PredictionsLocalesData copyWith({
+    String? id,
+    String? resultatId,
+    int? modeleId,
+    Value<double?> valeurNumerique = const Value.absent(),
+    String? classePredite,
+    Value<double?> scoreConfiance = const Value.absent(),
+    DateTime? dateCreationLocale,
+  }) => PredictionsLocalesData(
+    id: id ?? this.id,
+    resultatId: resultatId ?? this.resultatId,
+    modeleId: modeleId ?? this.modeleId,
+    valeurNumerique: valeurNumerique.present
+        ? valeurNumerique.value
+        : this.valeurNumerique,
+    classePredite: classePredite ?? this.classePredite,
+    scoreConfiance: scoreConfiance.present
+        ? scoreConfiance.value
+        : this.scoreConfiance,
+    dateCreationLocale: dateCreationLocale ?? this.dateCreationLocale,
+  );
+  PredictionsLocalesData copyWithCompanion(PredictionsLocalesCompanion data) {
+    return PredictionsLocalesData(
+      id: data.id.present ? data.id.value : this.id,
+      resultatId: data.resultatId.present
+          ? data.resultatId.value
+          : this.resultatId,
+      modeleId: data.modeleId.present ? data.modeleId.value : this.modeleId,
+      valeurNumerique: data.valeurNumerique.present
+          ? data.valeurNumerique.value
+          : this.valeurNumerique,
+      classePredite: data.classePredite.present
+          ? data.classePredite.value
+          : this.classePredite,
+      scoreConfiance: data.scoreConfiance.present
+          ? data.scoreConfiance.value
+          : this.scoreConfiance,
+      dateCreationLocale: data.dateCreationLocale.present
+          ? data.dateCreationLocale.value
+          : this.dateCreationLocale,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PredictionsLocalesData(')
+          ..write('id: $id, ')
+          ..write('resultatId: $resultatId, ')
+          ..write('modeleId: $modeleId, ')
+          ..write('valeurNumerique: $valeurNumerique, ')
+          ..write('classePredite: $classePredite, ')
+          ..write('scoreConfiance: $scoreConfiance, ')
+          ..write('dateCreationLocale: $dateCreationLocale')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    resultatId,
+    modeleId,
+    valeurNumerique,
+    classePredite,
+    scoreConfiance,
+    dateCreationLocale,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PredictionsLocalesData &&
+          other.id == this.id &&
+          other.resultatId == this.resultatId &&
+          other.modeleId == this.modeleId &&
+          other.valeurNumerique == this.valeurNumerique &&
+          other.classePredite == this.classePredite &&
+          other.scoreConfiance == this.scoreConfiance &&
+          other.dateCreationLocale == this.dateCreationLocale);
+}
+
+class PredictionsLocalesCompanion
+    extends UpdateCompanion<PredictionsLocalesData> {
+  final Value<String> id;
+  final Value<String> resultatId;
+  final Value<int> modeleId;
+  final Value<double?> valeurNumerique;
+  final Value<String> classePredite;
+  final Value<double?> scoreConfiance;
+  final Value<DateTime> dateCreationLocale;
+  final Value<int> rowid;
+  const PredictionsLocalesCompanion({
+    this.id = const Value.absent(),
+    this.resultatId = const Value.absent(),
+    this.modeleId = const Value.absent(),
+    this.valeurNumerique = const Value.absent(),
+    this.classePredite = const Value.absent(),
+    this.scoreConfiance = const Value.absent(),
+    this.dateCreationLocale = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PredictionsLocalesCompanion.insert({
+    required String id,
+    required String resultatId,
+    required int modeleId,
+    this.valeurNumerique = const Value.absent(),
+    this.classePredite = const Value.absent(),
+    this.scoreConfiance = const Value.absent(),
+    this.dateCreationLocale = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       resultatId = Value(resultatId),
+       modeleId = Value(modeleId);
+  static Insertable<PredictionsLocalesData> custom({
+    Expression<String>? id,
+    Expression<String>? resultatId,
+    Expression<int>? modeleId,
+    Expression<double>? valeurNumerique,
+    Expression<String>? classePredite,
+    Expression<double>? scoreConfiance,
+    Expression<DateTime>? dateCreationLocale,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (resultatId != null) 'resultat_id': resultatId,
+      if (modeleId != null) 'modele_id': modeleId,
+      if (valeurNumerique != null) 'valeur_numerique': valeurNumerique,
+      if (classePredite != null) 'classe_predite': classePredite,
+      if (scoreConfiance != null) 'score_confiance': scoreConfiance,
+      if (dateCreationLocale != null)
+        'date_creation_locale': dateCreationLocale,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PredictionsLocalesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? resultatId,
+    Value<int>? modeleId,
+    Value<double?>? valeurNumerique,
+    Value<String>? classePredite,
+    Value<double?>? scoreConfiance,
+    Value<DateTime>? dateCreationLocale,
+    Value<int>? rowid,
+  }) {
+    return PredictionsLocalesCompanion(
+      id: id ?? this.id,
+      resultatId: resultatId ?? this.resultatId,
+      modeleId: modeleId ?? this.modeleId,
+      valeurNumerique: valeurNumerique ?? this.valeurNumerique,
+      classePredite: classePredite ?? this.classePredite,
+      scoreConfiance: scoreConfiance ?? this.scoreConfiance,
+      dateCreationLocale: dateCreationLocale ?? this.dateCreationLocale,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (resultatId.present) {
+      map['resultat_id'] = Variable<String>(resultatId.value);
+    }
+    if (modeleId.present) {
+      map['modele_id'] = Variable<int>(modeleId.value);
+    }
+    if (valeurNumerique.present) {
+      map['valeur_numerique'] = Variable<double>(valeurNumerique.value);
+    }
+    if (classePredite.present) {
+      map['classe_predite'] = Variable<String>(classePredite.value);
+    }
+    if (scoreConfiance.present) {
+      map['score_confiance'] = Variable<double>(scoreConfiance.value);
+    }
+    if (dateCreationLocale.present) {
+      map['date_creation_locale'] = Variable<DateTime>(
+        dateCreationLocale.value,
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PredictionsLocalesCompanion(')
+          ..write('id: $id, ')
+          ..write('resultatId: $resultatId, ')
+          ..write('modeleId: $modeleId, ')
+          ..write('valeurNumerique: $valeurNumerique, ')
+          ..write('classePredite: $classePredite, ')
+          ..write('scoreConfiance: $scoreConfiance, ')
+          ..write('dateCreationLocale: $dateCreationLocale, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -2471,6 +2969,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $ResultatsLocauxTable resultatsLocaux = $ResultatsLocauxTable(
     this,
   );
+  late final $PredictionsLocalesTable predictionsLocales =
+      $PredictionsLocalesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2479,6 +2979,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
     echantillonsLocaux,
     spectresLocaux,
     resultatsLocaux,
+    predictionsLocales,
   ];
 }
 
@@ -3652,6 +4153,30 @@ final class $$ResultatsLocauxTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static MultiTypedResultKey<
+    $PredictionsLocalesTable,
+    List<PredictionsLocalesData>
+  >
+  _predictionsLocalesRefsTable(_$LocalDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.predictionsLocales,
+        aliasName: 'resultats_locaux__id__predictions_locales__resultat_id',
+      );
+
+  $$PredictionsLocalesTableProcessedTableManager get predictionsLocalesRefs {
+    final manager = $$PredictionsLocalesTableTableManager(
+      $_db,
+      $_db.predictionsLocales,
+    ).filter((f) => f.resultatId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _predictionsLocalesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$ResultatsLocauxTableFilterComposer
@@ -3744,6 +4269,31 @@ class $$ResultatsLocauxTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> predictionsLocalesRefs(
+    Expression<bool> Function($$PredictionsLocalesTableFilterComposer f) f,
+  ) {
+    final $$PredictionsLocalesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.predictionsLocales,
+      getReferencedColumn: (t) => t.resultatId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PredictionsLocalesTableFilterComposer(
+            $db: $db,
+            $table: $db.predictionsLocales,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 }
 
@@ -3926,6 +4476,32 @@ class $$ResultatsLocauxTableAnnotationComposer
         );
     return composer;
   }
+
+  Expression<T> predictionsLocalesRefs<T extends Object>(
+    Expression<T> Function($$PredictionsLocalesTableAnnotationComposer a) f,
+  ) {
+    final $$PredictionsLocalesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.predictionsLocales,
+          getReferencedColumn: (t) => t.resultatId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PredictionsLocalesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.predictionsLocales,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$ResultatsLocauxTableTableManager
@@ -3941,7 +4517,10 @@ class $$ResultatsLocauxTableTableManager
           $$ResultatsLocauxTableUpdateCompanionBuilder,
           (ResultatsLocauxData, $$ResultatsLocauxTableReferences),
           ResultatsLocauxData,
-          PrefetchHooks Function({bool echantillonId})
+          PrefetchHooks Function({
+            bool echantillonId,
+            bool predictionsLocalesRefs,
+          })
         > {
   $$ResultatsLocauxTableTableManager(
     _$LocalDatabase db,
@@ -4028,7 +4607,412 @@ class $$ResultatsLocauxTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({echantillonId = false}) {
+          prefetchHooksCallback:
+              ({echantillonId = false, predictionsLocalesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (predictionsLocalesRefs) db.predictionsLocales,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (echantillonId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.echantillonId,
+                                    referencedTable:
+                                        $$ResultatsLocauxTableReferences
+                                            ._echantillonIdTable(db),
+                                    referencedColumn:
+                                        $$ResultatsLocauxTableReferences
+                                            ._echantillonIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (predictionsLocalesRefs)
+                        await $_getPrefetchedData<
+                          ResultatsLocauxData,
+                          $ResultatsLocauxTable,
+                          PredictionsLocalesData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ResultatsLocauxTableReferences
+                              ._predictionsLocalesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ResultatsLocauxTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).predictionsLocalesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.resultatId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$ResultatsLocauxTableProcessedTableManager =
+    ProcessedTableManager<
+      _$LocalDatabase,
+      $ResultatsLocauxTable,
+      ResultatsLocauxData,
+      $$ResultatsLocauxTableFilterComposer,
+      $$ResultatsLocauxTableOrderingComposer,
+      $$ResultatsLocauxTableAnnotationComposer,
+      $$ResultatsLocauxTableCreateCompanionBuilder,
+      $$ResultatsLocauxTableUpdateCompanionBuilder,
+      (ResultatsLocauxData, $$ResultatsLocauxTableReferences),
+      ResultatsLocauxData,
+      PrefetchHooks Function({bool echantillonId, bool predictionsLocalesRefs})
+    >;
+typedef $$PredictionsLocalesTableCreateCompanionBuilder =
+    PredictionsLocalesCompanion Function({
+      required String id,
+      required String resultatId,
+      required int modeleId,
+      Value<double?> valeurNumerique,
+      Value<String> classePredite,
+      Value<double?> scoreConfiance,
+      Value<DateTime> dateCreationLocale,
+      Value<int> rowid,
+    });
+typedef $$PredictionsLocalesTableUpdateCompanionBuilder =
+    PredictionsLocalesCompanion Function({
+      Value<String> id,
+      Value<String> resultatId,
+      Value<int> modeleId,
+      Value<double?> valeurNumerique,
+      Value<String> classePredite,
+      Value<double?> scoreConfiance,
+      Value<DateTime> dateCreationLocale,
+      Value<int> rowid,
+    });
+
+final class $$PredictionsLocalesTableReferences
+    extends
+        BaseReferences<
+          _$LocalDatabase,
+          $PredictionsLocalesTable,
+          PredictionsLocalesData
+        > {
+  $$PredictionsLocalesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ResultatsLocauxTable _resultatIdTable(_$LocalDatabase db) => db
+      .resultatsLocaux
+      .createAlias('predictions_locales__resultat_id__resultats_locaux__id');
+
+  $$ResultatsLocauxTableProcessedTableManager get resultatId {
+    final $_column = $_itemColumn<String>('resultat_id')!;
+
+    final manager = $$ResultatsLocauxTableTableManager(
+      $_db,
+      $_db.resultatsLocaux,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_resultatIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PredictionsLocalesTableFilterComposer
+    extends Composer<_$LocalDatabase, $PredictionsLocalesTable> {
+  $$PredictionsLocalesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get modeleId => $composableBuilder(
+    column: $table.modeleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get valeurNumerique => $composableBuilder(
+    column: $table.valeurNumerique,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get classePredite => $composableBuilder(
+    column: $table.classePredite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get scoreConfiance => $composableBuilder(
+    column: $table.scoreConfiance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dateCreationLocale => $composableBuilder(
+    column: $table.dateCreationLocale,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ResultatsLocauxTableFilterComposer get resultatId {
+    final $$ResultatsLocauxTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.resultatId,
+      referencedTable: $db.resultatsLocaux,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ResultatsLocauxTableFilterComposer(
+            $db: $db,
+            $table: $db.resultatsLocaux,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PredictionsLocalesTableOrderingComposer
+    extends Composer<_$LocalDatabase, $PredictionsLocalesTable> {
+  $$PredictionsLocalesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get modeleId => $composableBuilder(
+    column: $table.modeleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get valeurNumerique => $composableBuilder(
+    column: $table.valeurNumerique,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get classePredite => $composableBuilder(
+    column: $table.classePredite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get scoreConfiance => $composableBuilder(
+    column: $table.scoreConfiance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateCreationLocale => $composableBuilder(
+    column: $table.dateCreationLocale,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ResultatsLocauxTableOrderingComposer get resultatId {
+    final $$ResultatsLocauxTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.resultatId,
+      referencedTable: $db.resultatsLocaux,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ResultatsLocauxTableOrderingComposer(
+            $db: $db,
+            $table: $db.resultatsLocaux,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PredictionsLocalesTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $PredictionsLocalesTable> {
+  $$PredictionsLocalesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get modeleId =>
+      $composableBuilder(column: $table.modeleId, builder: (column) => column);
+
+  GeneratedColumn<double> get valeurNumerique => $composableBuilder(
+    column: $table.valeurNumerique,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get classePredite => $composableBuilder(
+    column: $table.classePredite,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get scoreConfiance => $composableBuilder(
+    column: $table.scoreConfiance,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dateCreationLocale => $composableBuilder(
+    column: $table.dateCreationLocale,
+    builder: (column) => column,
+  );
+
+  $$ResultatsLocauxTableAnnotationComposer get resultatId {
+    final $$ResultatsLocauxTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.resultatId,
+      referencedTable: $db.resultatsLocaux,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ResultatsLocauxTableAnnotationComposer(
+            $db: $db,
+            $table: $db.resultatsLocaux,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PredictionsLocalesTableTableManager
+    extends
+        RootTableManager<
+          _$LocalDatabase,
+          $PredictionsLocalesTable,
+          PredictionsLocalesData,
+          $$PredictionsLocalesTableFilterComposer,
+          $$PredictionsLocalesTableOrderingComposer,
+          $$PredictionsLocalesTableAnnotationComposer,
+          $$PredictionsLocalesTableCreateCompanionBuilder,
+          $$PredictionsLocalesTableUpdateCompanionBuilder,
+          (PredictionsLocalesData, $$PredictionsLocalesTableReferences),
+          PredictionsLocalesData,
+          PrefetchHooks Function({bool resultatId})
+        > {
+  $$PredictionsLocalesTableTableManager(
+    _$LocalDatabase db,
+    $PredictionsLocalesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PredictionsLocalesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PredictionsLocalesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PredictionsLocalesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> resultatId = const Value.absent(),
+                Value<int> modeleId = const Value.absent(),
+                Value<double?> valeurNumerique = const Value.absent(),
+                Value<String> classePredite = const Value.absent(),
+                Value<double?> scoreConfiance = const Value.absent(),
+                Value<DateTime> dateCreationLocale = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PredictionsLocalesCompanion(
+                id: id,
+                resultatId: resultatId,
+                modeleId: modeleId,
+                valeurNumerique: valeurNumerique,
+                classePredite: classePredite,
+                scoreConfiance: scoreConfiance,
+                dateCreationLocale: dateCreationLocale,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String resultatId,
+                required int modeleId,
+                Value<double?> valeurNumerique = const Value.absent(),
+                Value<String> classePredite = const Value.absent(),
+                Value<double?> scoreConfiance = const Value.absent(),
+                Value<DateTime> dateCreationLocale = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PredictionsLocalesCompanion.insert(
+                id: id,
+                resultatId: resultatId,
+                modeleId: modeleId,
+                valeurNumerique: valeurNumerique,
+                classePredite: classePredite,
+                scoreConfiance: scoreConfiance,
+                dateCreationLocale: dateCreationLocale,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PredictionsLocalesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({resultatId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -4048,17 +5032,17 @@ class $$ResultatsLocauxTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (echantillonId) {
+                    if (resultatId) {
                       state =
                           state.withJoin(
                                 currentTable: table,
-                                currentColumn: table.echantillonId,
+                                currentColumn: table.resultatId,
                                 referencedTable:
-                                    $$ResultatsLocauxTableReferences
-                                        ._echantillonIdTable(db),
+                                    $$PredictionsLocalesTableReferences
+                                        ._resultatIdTable(db),
                                 referencedColumn:
-                                    $$ResultatsLocauxTableReferences
-                                        ._echantillonIdTable(db)
+                                    $$PredictionsLocalesTableReferences
+                                        ._resultatIdTable(db)
                                         .id,
                               )
                               as T;
@@ -4075,19 +5059,19 @@ class $$ResultatsLocauxTableTableManager
       );
 }
 
-typedef $$ResultatsLocauxTableProcessedTableManager =
+typedef $$PredictionsLocalesTableProcessedTableManager =
     ProcessedTableManager<
       _$LocalDatabase,
-      $ResultatsLocauxTable,
-      ResultatsLocauxData,
-      $$ResultatsLocauxTableFilterComposer,
-      $$ResultatsLocauxTableOrderingComposer,
-      $$ResultatsLocauxTableAnnotationComposer,
-      $$ResultatsLocauxTableCreateCompanionBuilder,
-      $$ResultatsLocauxTableUpdateCompanionBuilder,
-      (ResultatsLocauxData, $$ResultatsLocauxTableReferences),
-      ResultatsLocauxData,
-      PrefetchHooks Function({bool echantillonId})
+      $PredictionsLocalesTable,
+      PredictionsLocalesData,
+      $$PredictionsLocalesTableFilterComposer,
+      $$PredictionsLocalesTableOrderingComposer,
+      $$PredictionsLocalesTableAnnotationComposer,
+      $$PredictionsLocalesTableCreateCompanionBuilder,
+      $$PredictionsLocalesTableUpdateCompanionBuilder,
+      (PredictionsLocalesData, $$PredictionsLocalesTableReferences),
+      PredictionsLocalesData,
+      PrefetchHooks Function({bool resultatId})
     >;
 
 class $LocalDatabaseManager {
@@ -4099,4 +5083,6 @@ class $LocalDatabaseManager {
       $$SpectresLocauxTableTableManager(_db, _db.spectresLocaux);
   $$ResultatsLocauxTableTableManager get resultatsLocaux =>
       $$ResultatsLocauxTableTableManager(_db, _db.resultatsLocaux);
+  $$PredictionsLocalesTableTableManager get predictionsLocales =>
+      $$PredictionsLocalesTableTableManager(_db, _db.predictionsLocales);
 }

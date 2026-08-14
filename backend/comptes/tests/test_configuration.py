@@ -9,9 +9,13 @@ def test_get_configuration_admin_ok(client_administrateur):
     assert "seuil_conformite_acidite" in response.data
 
 
-def test_get_configuration_non_admin_refuse(client_utilisateur):
+def test_get_configuration_utilisateur_standard_autorise(client_utilisateur):
+    """Les seuils qu'elle porte (ex. catégorie EVOO/VOO/Lampante) sont
+    utilisés par l'app mobile bien au-delà de l'écran d'administration —
+    seule la modification (PUT) reste réservée aux administrateurs."""
     response = client_utilisateur.get("/api/configuration/")
-    assert response.status_code == 403
+    assert response.status_code == 200
+    assert "seuil_conformite_acidite" in response.data
 
 
 def test_get_configuration_non_authentifie_refuse(api_client):

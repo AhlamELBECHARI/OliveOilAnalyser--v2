@@ -26,11 +26,13 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         password: password,
       );
+      final session = reponse.versEntity();
       await localDataSource.enregistrerSession(
         accessToken: reponse.access,
         refreshToken: reponse.refresh,
+        role: session.utilisateur.role,
       );
-      return Right(reponse.versEntity());
+      return Right(session);
     } on IdentifiantsInvalidesException {
       return const Left(IdentifiantsInvalidesFailure());
     } on CompteVerrouilleException {
@@ -111,6 +113,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<bool> possedeSessionLocale() => localDataSource.possedeSessionLocale();
+
+  @override
+  Future<String?> obtenirRoleSession() => localDataSource.obtenirRoleSession();
 
   @override
   Future<void> deconnecter() => localDataSource.supprimerSession();

@@ -66,6 +66,7 @@ partagé entre apps :
 | `rapports` | `Rapport` | pas de CRUD direct ; créé par `POST /api/analyses/export/` |
 | `alertes` | `Alerte` | `/api/alertes/` |
 | `dashboard` | *(aucun — agrège en lecture seule)* | `/api/dashboard/statistiques/` |
+| `administration` | `JournalAudit` | `/api/admin/supervision/`, `/api/admin/journal-audit/`, `/api/admin/donnees/statistiques/`, `/api/admin/donnees/purge/apercu/`, `/api/admin/donnees/purge/` |
 
 `core/qualite.py` centralise la dérivation de la catégorie qualité
 (EVOO/VOO/Lampante) à partir de l'acidité et des seuils de `Configuration` :
@@ -293,3 +294,16 @@ Profil.
   chargement effectif d'un modèle pour l'inférence relève d'un processus
   séparé et contrôlé (hors périmètre de cette API), qui doit vérifier
   l'empreinte avant toute désérialisation.
+- **Pas de restauration de base de données depuis l'app mobile** : l'espace
+  administrateur (`administration/`) expose l'export global des analyses et
+  une purge des données antérieures à une date choisie
+  (`administration/services.py::previsualiser_purge` / `purger_donnees_avant`,
+  `GestionDonneesAdminScreen` côté Flutter), mais **aucune fonctionnalité de
+  restauration** (réimport d'une sauvegarde, rollback de purge, etc.). Une
+  restauration réécrit potentiellement toute la base à partir d'un fichier
+  externe — un risque disproportionné à exposer sur un terminal mobile,
+  potentiellement partagé ou volé, alors qu'un simple token JWT suffit à s'y
+  authentifier. Cette opération reste un geste d'infrastructure volontairement
+  réservé à un accès direct au serveur (`pg_dump`/`pg_restore`, ou l'outillage
+  de sauvegarde de l'hébergeur), hors de portée de l'API REST comme de
+  l'application.

@@ -10,16 +10,20 @@ from core.serializers import ErreurSerializer, MessageSerializer
 
 from . import services
 from .serializers import (
+    ActivationSerializer,
     ChangerMotDePasseSerializer,
+    ChangerRoleSerializer,
     ConfigurationSerializer,
     ConfirmerResetMotDePasseSerializer,
     CreerAdministrateurSerializer,
+    CreerUtilisateurAdminSerializer,
     DemandeResetMotDePasseSerializer,
     LoginResponseSerializer,
     LoginSerializer,
     MonProfilSerializer,
     RegisterSerializer,
     SessionSerializer,
+    UtilisateurAdminSerializer,
     UtilisateurSerializer,
     VerifierCodeResetSerializer,
 )
@@ -143,9 +147,15 @@ class UtilisateurListView(ListAPIView):
 
 
 class ConfigurationView(APIView):
-    """GET/PUT /api/configuration/ — réservé aux administrateurs."""
+    """GET /api/configuration/ — consultable par tout utilisateur authentifié
+    (les seuils qu'elle porte, ex. catégorie EVOO/VOO/Lampante, sont utilisés
+    par l'app mobile bien au-delà de l'écran d'administration). PUT réservé
+    aux administrateurs."""
 
-    permission_classes = [IsAdministrateur]
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [IsAuthenticated()]
+        return [IsAdministrateur()]
 
     @extend_schema(responses={200: ConfigurationSerializer, 403: ErreurSerializer})
     def get(self, request):
@@ -236,4 +246,152 @@ class SessionDetailView(APIView):
     @extend_schema(responses={204: None, 404: ErreurSerializer})
     def delete(self, request, session_id):
         services.revoquer_session(utilisateur=request.user, session_id=session_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# --- Espace admin : gestion des utilisateurs --------------------------------
+
+
+class AdminUtilisateurListView(APIView):
+    """GET/POST /api/admin/utilisateurs/?recherche=&role=&actif=&verrouille=
+    — liste (recherche nom/email, filtres rôle/actif/verrouillé) et création
+    de compte (utilisateur ou administrateur)."""
+
+    permission_classes = [IsAdministrateur]
+
+    @extend_schema(responses=UtilisateurAdminSerializer(many=True))
+    def get(self, request):
+        from core.pagination import PaginationStandard
+
+        parametres = request.query_params
+        actif = parametres.get("actif")
+        verrouille = parametres.get("verrouille")
+        queryset = services.lister_utilisateurs_admin(
+            recherche=parametres.get("recherche"),
+            role=parametres.get("role"),
+            actif=None if actif is None else actif == "true",
+            verrouille=None if verrouille is None else verrouille == "true",
+        )
+        paginateur = PaginationStandard()
+        page = paginateur.paginate_queryset(queryset, request)
+        serializer = UtilisateurAdminSerializer(page, many=True)
+        return paginateur.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        request=CreerUtilisateurAdminSerializer,
+        responses={201: UtilisateurAdminSerializer, 400: ErreurSerializer, 403: ErreurSerializer},
+    )
+    def post(self, request):
+        serializer = CreerUtilisateurAdminSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        donnees = dict(serializer.validated_data)
+        donnees.pop("password2")
+        utilisateur = services.creer_utilisateur_admin(acteur=request.user, **donnees)
+        return Response(
+            UtilisateurAdminSerializer(utilisateur).data, status=status.HTTP_201_CREATED
+        )
+
+
+class AdminUtilisateurDetailView(APIView):
+    """GET /api/admin/utilisateurs/<id>/"""
+
+    permission_classes = [IsAdministrateur]
+
+    @extend_schema(responses={200: UtilisateurAdminSerializer, 404: ErreurSerializer})
+    def get(self, request, utilisateur_id):
+        cible = services.obtenir_utilisateur_admin(utilisateur_id)
+        return Response(UtilisateurAdminSerializer(cible).data)
+
+
+class AdminChangerRoleView(APIView):
+    """PATCH /api/admin/utilisateurs/<id>/role/ — voir les garde-fous dans
+    comptes.services.changer_role_admin (auto-modification, dernier
+    administrateur)."""
+
+    permission_classes = [IsAdministrateur]
+
+    @extend_schema(
+        request=ChangerRoleSerializer,
+        responses={200: UtilisateurAdminSerializer, 400: ErreurSerializer, 403: ErreurSerializer},
+    )
+    def patch(self, request, utilisateur_id):
+        serializer = ChangerRoleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        cible = services.obtenir_utilisateur_admin(utilisateur_id)
+        cible = services.changer_role_admin(
+            acteur=request.user, cible=cible, nouveau_role=serializer.validated_data["role"]
+        )
+        return Response(UtilisateurAdminSerializer(cible).data)
+
+
+class AdminActivationView(APIView):
+    """PATCH /api/admin/utilisateurs/<id>/activation/ — désactivation
+    LOGIQUE uniquement (jamais de suppression, voir comptes.services.
+    definir_activation_admin) ; garde-fous : auto-désactivation, dernier
+    administrateur."""
+
+    permission_classes = [IsAdministrateur]
+
+    @extend_schema(
+        request=ActivationSerializer,
+        responses={200: UtilisateurAdminSerializer, 400: ErreurSerializer, 403: ErreurSerializer},
+    )
+    def patch(self, request, utilisateur_id):
+        serializer = ActivationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        cible = services.obtenir_utilisateur_admin(utilisateur_id)
+        cible = services.definir_activation_admin(
+            acteur=request.user, cible=cible, actif=serializer.validated_data["actif"]
+        )
+        return Response(UtilisateurAdminSerializer(cible).data)
+
+
+class AdminDeverrouillerView(APIView):
+    """POST /api/admin/utilisateurs/<id>/deverrouiller/"""
+
+    permission_classes = [IsAdministrateur]
+
+    @extend_schema(request=None, responses={200: UtilisateurAdminSerializer, 404: ErreurSerializer})
+    def post(self, request, utilisateur_id):
+        cible = services.obtenir_utilisateur_admin(utilisateur_id)
+        cible = services.deverrouiller_compte_admin(acteur=request.user, cible=cible)
+        return Response(UtilisateurAdminSerializer(cible).data)
+
+
+class AdminResetMotDePasseView(APIView):
+    """POST /api/admin/utilisateurs/<id>/reset-mot-de-passe/ — déclenche
+    l'envoi du code de réinitialisation à CET utilisateur (même mécanisme
+    que la demande self-service, voir comptes.services.demander_reset_mot_de_passe)."""
+
+    permission_classes = [IsAdministrateur]
+
+    @extend_schema(request=None, responses={200: MessageSerializer, 404: ErreurSerializer})
+    def post(self, request, utilisateur_id):
+        cible = services.obtenir_utilisateur_admin(utilisateur_id)
+        services.declencher_reset_mot_de_passe_admin(acteur=request.user, cible=cible)
+        return Response({"detail": "Code de réinitialisation envoyé."})
+
+
+class AdminSessionsView(APIView):
+    """GET /api/admin/utilisateurs/<id>/sessions/"""
+
+    permission_classes = [IsAdministrateur]
+
+    @extend_schema(responses=SessionSerializer(many=True))
+    def get(self, request, utilisateur_id):
+        cible = services.obtenir_utilisateur_admin(utilisateur_id)
+        sessions = services.lister_sessions_admin(cible=cible)
+        return Response(SessionSerializer(sessions, many=True).data)
+
+
+class AdminSessionDetailView(APIView):
+    """DELETE /api/admin/utilisateurs/<id>/sessions/<session_id>/ — révoque
+    la session d'un autre utilisateur."""
+
+    permission_classes = [IsAdministrateur]
+
+    @extend_schema(responses={204: None, 404: ErreurSerializer})
+    def delete(self, request, utilisateur_id, session_id):
+        cible = services.obtenir_utilisateur_admin(utilisateur_id)
+        services.revoquer_session_admin(cible=cible, session_id=session_id)
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -98,6 +98,8 @@ class SynchronisationService {
       // parent l'est déjà (contrainte de clé étrangère côté serveur) :
       // toujours synchroniser les échantillons avant les spectres.
       await _synchroniserSpectres();
+      // Même contrainte pour les résultats (FK vers l'échantillon).
+      await _synchroniserResultats();
     } finally {
       _synchronisationEnCours = false;
       await _publierElementsEnAttente();
@@ -170,6 +172,50 @@ class SynchronisationService {
       } catch (e) {
         await _base.incrementerTentativesSpectre(spectre.id);
         await _base.marquerSpectreErreur(spectre.id, _messageErreur(e));
+      }
+    }
+  }
+
+  /// Un résultat sans `modele_utilise`/`acidite` ne devrait jamais être
+  /// écrit localement (voir ResultatACreerEntity.peutEtreEnregistre,
+  /// vérifié avant l'écriture) — protection défensive seulement, pour ne
+  /// jamais poster un payload incomplet que l'API rejetterait de toute
+  /// façon.
+  Future<void> _synchroniserResultats() async {
+    final enAttente = await _base.obtenirResultatsEnAttente();
+    for (final resultat in enAttente) {
+      final echantillon = await _base.obtenirEchantillon(resultat.echantillonId);
+      final echantillonSynchronise = echantillon != null && echantillon.statutSync == 'synchronise';
+      if (!echantillonSynchronise) continue;
+      if (resultat.modeleUtiliseId == null || resultat.acidite == null) continue;
+
+      try {
+        final predictions = await _base.obtenirPredictionsPourResultat(resultat.id);
+        await _dio.post('/resultats/', data: {
+          'id': resultat.id,
+          'echantillon': resultat.echantillonId,
+          'modele_utilise': resultat.modeleUtiliseId,
+          'acidite': resultat.acidite,
+          'indice_peroxyde': resultat.indicePeroxyde ?? 0,
+          'conforme': resultat.conforme ?? true,
+          if (resultat.dureeAnalyseSecondes != null)
+            'duree_analyse_secondes': resultat.dureeAnalyseSecondes,
+          'commentaire': resultat.commentaire,
+          'predictions': [
+            for (final prediction in predictions)
+              {
+                'modele': prediction.modeleId,
+                if (prediction.valeurNumerique != null)
+                  'valeur_numerique': prediction.valeurNumerique,
+                if (prediction.classePredite.isNotEmpty) 'classe_predite': prediction.classePredite,
+                if (prediction.scoreConfiance != null) 'score_confiance': prediction.scoreConfiance,
+              },
+          ],
+        });
+        await _base.marquerResultatSynchronise(resultat.id);
+      } catch (e) {
+        await _base.incrementerTentativesResultat(resultat.id);
+        await _base.marquerResultatErreur(resultat.id, _messageErreur(e));
       }
     }
   }

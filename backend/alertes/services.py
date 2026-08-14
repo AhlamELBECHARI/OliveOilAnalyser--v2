@@ -1,5 +1,7 @@
 """Toute la logique métier (et les requêtes ORM) pour les alertes."""
 
+from django.utils import timezone
+
 from .models import Alerte
 
 
@@ -15,3 +17,13 @@ def lister_alertes(*, utilisateur, est_resolue=None):
     if est_resolue is not None:
         queryset = queryset.filter(est_resolue=est_resolue)
     return queryset
+
+
+def resoudre_alerte(*, alerte, utilisateur):
+    """Réservé aux administrateurs (voir AlerteViewSet.resoudre) — l'écran
+    Supervision rend chaque alerte non résolue cliquable pour la résoudre."""
+    alerte.est_resolue = True
+    alerte.date_resolution = timezone.now()
+    alerte.resolue_par = utilisateur
+    alerte.save(update_fields=["est_resolue", "date_resolution", "resolue_par"])
+    return alerte

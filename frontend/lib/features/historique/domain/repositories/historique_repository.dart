@@ -5,6 +5,7 @@ import '../entities/analyse_historique_entity.dart';
 import '../entities/demande_export_entity.dart';
 import '../entities/rapport_export_entity.dart';
 import '../entities/resultat_historique_entity.dart';
+import '../entities/spectre_historique_entity.dart';
 import '../entities/statistiques_rapides_entity.dart';
 
 abstract class HistoriqueRepository {
@@ -20,6 +21,13 @@ abstract class HistoriqueRepository {
 
   /// GET /api/resultats/{id}/ — écran de détail, inchangé.
   Future<Either<Failure, ResultatHistoriqueEntity>> obtenirResultat(String resultatId);
+
+  /// GET /api/spectres/?echantillon= — onglet "Spectre" de l'écran de
+  /// détail. `null` (sans échec) si aucun spectre n'a encore été synchronisé
+  /// pour cet échantillon.
+  Future<Either<Failure, SpectreHistoriqueEntity?>> obtenirSpectrePourEchantillon(
+    String echantillonId,
+  );
 
   /// POST /api/analyses/export/ — génère réellement le fichier d'export.
   Future<Either<Failure, RapportExportEntity>> declencherExport(DemandeExportEntity demande);

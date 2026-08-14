@@ -5,6 +5,7 @@ import '../../domain/entities/appareil_appaire_entity.dart';
 import '../../domain/entities/commande_analyseur.dart';
 import '../../domain/entities/etat_connexion_analyseur_entity.dart';
 import '../../domain/entities/info_appareil_analyseur_entity.dart';
+import '../../domain/entities/resultat_scan_entity.dart';
 import '../../domain/entities/spectre_entity.dart';
 import '../../domain/repositories/analyseur_repository.dart';
 
@@ -64,6 +65,7 @@ class AnalyseurSimuleImpl implements AnalyseurRepository {
   final _random = math.Random();
   final _etatController = StreamController<EtatConnexionAnalyseurEntity>.broadcast();
   final _spectreController = StreamController<SpectreBrutEntity>.broadcast();
+  final _resultatController = StreamController<ResultatScanEntity>.broadcast();
 
   EtatConnexionAnalyseurEntity _etatActuel = const EtatConnexionAnalyseurEntity.deconnecte();
   int _niveauBatterie = 88;
@@ -79,6 +81,12 @@ class AnalyseurSimuleImpl implements AnalyseurRepository {
 
   @override
   Stream<SpectreBrutEntity> get flusSpectre => _spectreController.stream;
+
+  // Voir AnalyseurRepository.flusResultat : ici seulement (implémentation
+  // simulée), pour développer/démontrer l'écran Résultats avant que le
+  // pipeline de scoring réel ne soit branché.
+  @override
+  Stream<ResultatScanEntity> get flusResultat => _resultatController.stream;
 
   void _publierEtat(EtatConnexionAnalyseurEntity etat) {
     _etatActuel = etat;
@@ -121,6 +129,7 @@ class AnalyseurSimuleImpl implements AnalyseurRepository {
 
     _annulationDemandee = false;
     final generation = ++_generationAcquisition;
+    final chronometre = Stopwatch()..start();
 
     await Future.delayed(_DelaisSimulation.background); // BACKGROUND
     if (_annulationDemandee || generation != _generationAcquisition) return;
@@ -128,26 +137,81 @@ class AnalyseurSimuleImpl implements AnalyseurRepository {
     await Future.delayed(_DelaisSimulation.calibration); // CALIBRATION
     if (_annulationDemandee || generation != _generationAcquisition) return;
 
-    await _executerScanProgressif(generation); // SCAN
+    final spectre = await _executerScanProgressif(generation); // SCAN
+    if (spectre == null) return;
+
+    chronometre.stop();
+    _resultatController.add(_genererResultatSimule(
+      spectre: spectre,
+      dureeAnalyseSecondes: chronometre.elapsed.inSeconds,
+    ));
   }
 
-  Future<void> _executerScanProgressif(int generation) async {
+  Future<SpectreBrutEntity?> _executerScanProgressif(int generation) async {
     final pointsComplets = _genererSpectreNirRealiste();
     final maintenant = DateTime.now();
+    SpectreBrutEntity? dernierSpectre;
 
     for (var etape = 1; etape <= _nombreEtapesScanProgressif; etape++) {
-      if (_annulationDemandee || generation != _generationAcquisition) return;
+      if (_annulationDemandee || generation != _generationAcquisition) return null;
       await Future.delayed(_DelaisSimulation.intervalleEtapeScan);
-      if (_annulationDemandee || generation != _generationAcquisition) return;
+      if (_annulationDemandee || generation != _generationAcquisition) return null;
 
       final nombrePoints = (pointsComplets.length * etape / _nombreEtapesScanProgressif).round();
       final estComplet = etape == _nombreEtapesScanProgressif;
-      _spectreController.add(SpectreBrutEntity(
+      dernierSpectre = SpectreBrutEntity(
         points: pointsComplets.sublist(0, nombrePoints),
         dateAcquisition: maintenant,
         complet: estComplet,
-      ));
+      );
+      _spectreController.add(dernierSpectre);
     }
+    return dernierSpectre;
+  }
+
+  /// Résultat simulé, dérivé de l'amplitude du spectre généré autour des
+  /// bandes d'absorption des matières grasses (voir _bandesMatieresGrasses)
+  /// pour rester crédible, plutôt qu'un tirage totalement indépendant —
+  /// n'a AUCUNE valeur scientifique, seulement pour développer/démontrer
+  /// l'écran Résultats avant que le pipeline de scoring réel n'existe.
+  ResultatScanEntity _genererResultatSimule({
+    required SpectreBrutEntity spectre,
+    required int dureeAnalyseSecondes,
+  }) {
+    final absorbanceMoyenne =
+        spectre.points.map((p) => p.absorbance).reduce((a, b) => a + b) / spectre.points.length;
+
+    final acidite = (0.15 + absorbanceMoyenne * 0.6 + (_random.nextDouble() - 0.5) * 0.1)
+        .clamp(0.05, 1.8);
+    final indicePeroxyde =
+        (6 + absorbanceMoyenne * 10 + (_random.nextDouble() - 0.5) * 3).clamp(1.0, 25.0);
+
+    final estMelange = _random.nextDouble() < 0.15;
+    final scoreConfiance = estMelange
+        ? 0.55 + _random.nextDouble() * 0.3
+        : 0.85 + _random.nextDouble() * 0.14;
+
+    return ResultatScanEntity(
+      dureeAnalyseSecondes: dureeAnalyseSecondes,
+      predictions: [
+        PredictionBruteEntity(
+          grandeurPredite: 'acidite',
+          typeModele: 'regression',
+          valeurNumerique: double.parse(acidite.toStringAsFixed(3)),
+        ),
+        PredictionBruteEntity(
+          grandeurPredite: 'indice_peroxyde',
+          typeModele: 'regression',
+          valeurNumerique: double.parse(indicePeroxyde.toStringAsFixed(3)),
+        ),
+        PredictionBruteEntity(
+          grandeurPredite: 'authenticite',
+          typeModele: 'classification',
+          classePredite: estMelange ? 'melangee' : 'pure',
+          scoreConfiance: double.parse(scoreConfiance.toStringAsFixed(3)),
+        ),
+      ],
+    );
   }
 
   List<PointSpectreEntity> _genererSpectreNirRealiste() {
@@ -179,6 +243,7 @@ class AnalyseurSimuleImpl implements AnalyseurRepository {
   Future<void> liberer() async {
     await _etatController.close();
     await _spectreController.close();
+    await _resultatController.close();
   }
 
   @override

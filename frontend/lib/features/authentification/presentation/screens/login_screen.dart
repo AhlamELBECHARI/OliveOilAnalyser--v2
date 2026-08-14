@@ -83,7 +83,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (_tentativeModeDemo) {
           ref.read(demoModeProvider.notifier).state = true;
         }
-        context.go('/accueil');
+        final estAdministrateur = next.utilisateur?.estAdministrateur ?? false;
+        context.go(estAdministrateur ? '/admin/supervision' : '/accueil');
       }
     });
 

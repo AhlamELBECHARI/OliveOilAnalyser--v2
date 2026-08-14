@@ -63,3 +63,14 @@ class ErreurValidationFailure extends Failure {
 class ErreurStockageLocalFailure extends Failure {
   const ErreurStockageLocalFailure();
 }
+
+/// Garde-fou admin : un administrateur ne peut pas modifier son propre rôle
+/// ni désactiver son propre compte (voir espace admin, écran Utilisateurs).
+class AutoModificationInterditeFailure extends Failure {
+  const AutoModificationInterditeFailure();
+}
+
+/// Garde-fou admin : l'action rendrait le système sans administrateur actif.
+class DernierAdministrateurFailure extends Failure {
+  const DernierAdministrateurFailure();
+}

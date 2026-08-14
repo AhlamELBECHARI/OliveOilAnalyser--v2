@@ -75,6 +75,25 @@ def test_historique_admin_voit_tout(client_administrateur, utilisateur, autre_ut
     assert response.data["count"] == 2
 
 
+def test_historique_inclut_lauteur(client_administrateur, utilisateur, modele):
+    _creer_resultat(utilisateur=utilisateur, modele=modele, acidite="0.5", numero="ECH-AUTEUR")
+
+    response = client_administrateur.get("/api/analyses/historique/")
+
+    assert response.data["results"][0]["auteur_id"] == utilisateur.id
+    assert response.data["results"][0]["auteur_nom"] == utilisateur.nom
+
+
+def test_historique_filtre_operateur_admin(client_administrateur, utilisateur, autre_utilisateur, modele):
+    _creer_resultat(utilisateur=utilisateur, modele=modele, acidite="0.5", numero="ECH-OP-A")
+    _creer_resultat(utilisateur=autre_utilisateur, modele=modele, acidite="0.5", numero="ECH-OP-B")
+
+    response = client_administrateur.get(f"/api/analyses/historique/?operateur={utilisateur.id}")
+
+    assert response.data["count"] == 1
+    assert response.data["results"][0]["auteur_id"] == utilisateur.id
+
+
 def test_historique_inclut_la_categorie_qualite(client_utilisateur, utilisateur, modele):
     _creer_resultat(utilisateur=utilisateur, modele=modele, acidite="0.5", numero="ECH-EVOO")
     _creer_resultat(utilisateur=utilisateur, modele=modele, acidite="1.5", numero="ECH-VOO")

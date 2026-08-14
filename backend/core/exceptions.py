@@ -53,6 +53,8 @@ class CodesErreur:
     LIMITE_EXPORT_DEPASSEE = "limite_export_depassee"
     AUCUNE_ANALYSE_A_EXPORTER = "aucune_analyse_a_exporter"
     FICHIER_MODELE_INVALIDE = "fichier_modele_invalide"
+    AUTO_MODIFICATION_INTERDITE = "auto_modification_interdite"
+    DERNIER_ADMINISTRATEUR = "dernier_administrateur"
 
 
 class ErreurMetier(drf_exceptions.APIException):
@@ -120,6 +122,24 @@ class FichierModeleInvalideError(ErreurMetier):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Le fichier de modèle est invalide."
     code_erreur = CodesErreur.FICHIER_MODELE_INVALIDE
+
+
+class AutoModificationInterditeError(ErreurMetier):
+    """Garde-fou admin : un administrateur ne peut pas modifier son propre
+    rôle, ni désactiver son propre compte, depuis l'espace admin."""
+
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Vous ne pouvez pas effectuer cette action sur votre propre compte."
+    code_erreur = CodesErreur.AUTO_MODIFICATION_INTERDITE
+
+
+class DernierAdministrateurError(ErreurMetier):
+    """Garde-fou admin : au moins un administrateur actif doit toujours
+    rester dans le système."""
+
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Impossible : il doit rester au moins un administrateur actif."
+    code_erreur = CodesErreur.DERNIER_ADMINISTRATEUR
 
 
 def _code_par_defaut(exc):

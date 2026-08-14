@@ -5,6 +5,16 @@ from .models import Modele
 
 @admin.register(Modele)
 class ModeleAdmin(admin.ModelAdmin):
-    list_display = ("nom", "version", "algorithme", "r2", "rmsecv", "est_actif", "est_deprecie")
-    list_filter = ("est_actif", "est_deprecie", "algorithme")
+    list_display = (
+        "nom",
+        "version",
+        "type_modele",
+        "grandeur_predite",
+        "r2",
+        "rmsecv",
+        "est_reference",
+        "est_actif",
+        "est_deprecie",
+    )
+    list_filter = ("type_modele", "grandeur_predite", "est_reference", "est_actif", "est_deprecie")
     search_fields = ("nom", "version")

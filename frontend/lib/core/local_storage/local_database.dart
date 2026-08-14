@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'tables/echantillons_locaux_table.dart';
+import 'tables/predictions_locales_table.dart';
 import 'tables/resultats_locaux_table.dart';
 import 'tables/spectres_locaux_table.dart';
 
@@ -16,12 +17,27 @@ part 'local_database.g.dart';
 /// réseau — voir features/analyseur (acquisition) et
 /// core/sync/synchronisation_service.dart (envoi vers l'API). Aucune
 /// logique de synchronisation ici : uniquement des requêtes CRUD/lecture.
-@DriftDatabase(tables: [EchantillonsLocaux, SpectresLocaux, ResultatsLocaux])
+@DriftDatabase(
+  tables: [EchantillonsLocaux, SpectresLocaux, ResultatsLocaux, PredictionsLocales],
+)
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor]) : super(executor ?? _ouvrirConnexion());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          // v1 -> v2 : ajout de PredictionsLocales (ResultatsLocaux existait
+          // déjà en v1, réservée mais non alimentée) — table nouvelle
+          // uniquement, rien à migrer sur les données existantes.
+          if (from < 2) {
+            await m.createTable(predictionsLocales);
+          }
+        },
+      );
 
   static const nomFichier = 'olive_iq_local.sqlite';
 
@@ -122,12 +138,72 @@ class LocalDatabase extends _$LocalDatabase {
     );
   }
 
+  // --- Résultats et leurs prédictions par modèle ---
+
+  /// Écrit le résultat ET ses prédictions dans une seule transaction : soit
+  /// les deux sont visibles, soit aucun (jamais un résultat orphelin sans
+  /// ses lignes de prédiction en cas d'interruption).
+  Future<void> insererResultat(
+    ResultatsLocauxCompanion resultat,
+    List<PredictionsLocalesCompanion> predictions,
+  ) async {
+    await transaction(() async {
+      await into(resultatsLocaux).insertOnConflictUpdate(resultat);
+      for (final prediction in predictions) {
+        await into(predictionsLocales).insertOnConflictUpdate(prediction);
+      }
+    });
+  }
+
+  Future<ResultatsLocauxData?> obtenirResultat(String id) =>
+      (select(resultatsLocaux)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  /// Version réactive de [obtenirResultat], utilisée par l'étape Résultats
+  /// pour refléter en direct le passage "en attente" → "synchronisé" de
+  /// l'indicateur de synchronisation, sans avoir à re-solliciter le réseau.
+  Stream<ResultatsLocauxData?> observerResultat(String id) =>
+      (select(resultatsLocaux)..where((t) => t.id.equals(id))).watchSingleOrNull();
+
+  Future<List<PredictionsLocalesData>> obtenirPredictionsPourResultat(String resultatId) =>
+      (select(predictionsLocales)..where((t) => t.resultatId.equals(resultatId))).get();
+
+  /// Voir obtenirEchantillonsEnAttente : inclut aussi les résultats en
+  /// erreur, pour qu'un échec réseau soit retenté automatiquement.
+  Future<List<ResultatsLocauxData>> obtenirResultatsEnAttente() => (select(resultatsLocaux)
+        ..where((t) => t.statutSync.equals(_synchronise).not()))
+      .get();
+
+  Future<int> compterResultatsEnAttente() =>
+      obtenirResultatsEnAttente().then((liste) => liste.length);
+
+  Future<void> marquerResultatSynchronise(String id) =>
+      (update(resultatsLocaux)..where((t) => t.id.equals(id))).write(
+        const ResultatsLocauxCompanion(
+          statutSync: Value(_synchronise),
+          messageErreurSync: Value(null),
+        ),
+      );
+
+  Future<void> marquerResultatErreur(String id, String message) =>
+      (update(resultatsLocaux)..where((t) => t.id.equals(id))).write(
+        ResultatsLocauxCompanion(statutSync: const Value(_erreur), messageErreurSync: Value(message)),
+      );
+
+  Future<void> incrementerTentativesResultat(String id) async {
+    final ligne = await obtenirResultat(id);
+    if (ligne == null) return;
+    await (update(resultatsLocaux)..where((t) => t.id.equals(id))).write(
+      ResultatsLocauxCompanion(nombreTentativesSync: Value(ligne.nombreTentativesSync + 1)),
+    );
+  }
+
   /// Indicateur visible "éléments en attente de synchronisation" : somme
-  /// des échantillons et spectres pas encore confirmés par l'API.
+  /// des échantillons, spectres et résultats pas encore confirmés par l'API.
   Future<int> compterElementsEnAttente() async {
     final echantillons = await compterEchantillonsEnAttente();
     final spectres = await compterSpectresEnAttente();
-    return echantillons + spectres;
+    final resultats = await compterResultatsEnAttente();
+    return echantillons + spectres + resultats;
   }
 }
 

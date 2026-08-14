@@ -34,3 +34,11 @@ class ErreurValidationException implements Exception {
   final String message;
   const ErreurValidationException(this.message);
 }
+
+class AutoModificationInterditeException implements Exception {
+  const AutoModificationInterditeException();
+}
+
+class DernierAdministrateurException implements Exception {
+  const DernierAdministrateurException();
+}

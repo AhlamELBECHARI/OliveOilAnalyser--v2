@@ -7,6 +7,7 @@ import '../../domain/entities/demande_export_entity.dart';
 import '../models/analyse_historique_model.dart';
 import '../models/rapport_export_model.dart';
 import '../models/resultat_historique_model.dart';
+import '../models/spectre_historique_model.dart';
 import '../models/statistiques_rapides_model.dart';
 
 abstract class HistoriqueRemoteDataSource {
@@ -16,6 +17,7 @@ abstract class HistoriqueRemoteDataSource {
   });
   Future<StatistiquesRapidesModel> obtenirStatistiquesRapides();
   Future<ResultatHistoriqueModel> obtenirResultat(String resultatId);
+  Future<SpectreHistoriqueModel?> obtenirSpectrePourEchantillon(String echantillonId);
   Future<RapportExportModel> declencherExport(DemandeExportEntity demande);
   Future<List<int>> telechargerRapport(String rapportId);
 }
@@ -67,6 +69,18 @@ class HistoriqueRemoteDataSourceImpl implements HistoriqueRemoteDataSource {
     try {
       final reponse = await dio.get('/resultats/$resultatId/');
       return ResultatHistoriqueModel.fromJson(reponse.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw traduireDioException(e);
+    }
+  }
+
+  @override
+  Future<SpectreHistoriqueModel?> obtenirSpectrePourEchantillon(String echantillonId) async {
+    try {
+      final reponse = await dio.get('/spectres/', queryParameters: {'echantillon': echantillonId});
+      final resultats = (reponse.data as Map<String, dynamic>)['results'] as List;
+      if (resultats.isEmpty) return null;
+      return SpectreHistoriqueModel.fromJson(resultats.first as Map<String, dynamic>);
     } on DioException catch (e) {
       throw traduireDioException(e);
     }

@@ -89,3 +89,28 @@ def test_lister_spectres_isole_par_utilisateur(client_utilisateur, echantillon, 
 def test_non_authentifie_refuse(api_client):
     response = api_client.get("/api/spectres/")
     assert response.status_code == 401
+
+
+def test_filtrer_spectres_par_echantillon(client_utilisateur, echantillon):
+    autre_echantillon = Echantillon.objects.create(
+        numero="ECH-SPECTRE-2", date_analyse=timezone.now(), utilisateur=echantillon.utilisateur
+    )
+    Spectre.objects.create(
+        echantillon=echantillon,
+        valeurs_x=[1, 2],
+        valeurs_y=[1, 2],
+        nombre_series=2,
+        date_acquisition=timezone.now(),
+    )
+    Spectre.objects.create(
+        echantillon=autre_echantillon,
+        valeurs_x=[1, 2],
+        valeurs_y=[1, 2],
+        nombre_series=2,
+        date_acquisition=timezone.now(),
+    )
+
+    response = client_utilisateur.get(f"/api/spectres/?echantillon={echantillon.id}")
+
+    assert response.data["count"] == 1
+    assert str(response.data["results"][0]["echantillon"]) == str(echantillon.id)

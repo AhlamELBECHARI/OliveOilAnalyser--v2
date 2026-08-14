@@ -31,6 +31,7 @@ class HistoriqueAnalysesView(generics.ListAPIView):
             qualite=parametres.get("qualite"),
             variete=parametres.get("variete"),
             region=parametres.get("region"),
+            operateur=parametres.get("operateur"),
             date_debut=parametres.get("date_debut"),
             date_fin=parametres.get("date_fin"),
             tri=parametres.get("tri"),

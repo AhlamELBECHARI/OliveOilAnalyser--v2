@@ -338,6 +338,18 @@ abstract class AppLocalizations {
   /// **'Erreur de validation. Vérifiez les informations saisies.'**
   String get erreurValidationGenerique;
 
+  /// No description provided for @erreurAutoModificationInterdite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne pouvez pas effectuer cette action sur votre propre compte.'**
+  String get erreurAutoModificationInterdite;
+
+  /// No description provided for @erreurDernierAdministrateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible : il doit rester au moins un administrateur actif.'**
+  String get erreurDernierAdministrateur;
+
   /// No description provided for @bonjour.
   ///
   /// In fr, this message translates to:
@@ -578,6 +590,456 @@ abstract class AppLocalizations {
   /// **'Paramètres'**
   String get navParametres;
 
+  /// No description provided for @navSupervision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supervision'**
+  String get navSupervision;
+
+  /// No description provided for @navUtilisateurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateurs'**
+  String get navUtilisateurs;
+
+  /// No description provided for @navAnalyses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses'**
+  String get navAnalyses;
+
+  /// No description provided for @navAdministration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administration'**
+  String get navAdministration;
+
+  /// No description provided for @supervisionTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supervision'**
+  String get supervisionTitre;
+
+  /// No description provided for @etatSystemeTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'État du système'**
+  String get etatSystemeTitre;
+
+  /// No description provided for @apiLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'API'**
+  String get apiLabel;
+
+  /// No description provided for @baseDeDonneesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base de données'**
+  String get baseDeDonneesLabel;
+
+  /// No description provided for @tailleBaseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille de la base'**
+  String get tailleBaseLabel;
+
+  /// No description provided for @derniereSauvegardeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière sauvegarde'**
+  String get derniereSauvegardeLabel;
+
+  /// No description provided for @analyseursRecentsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyseurs récents'**
+  String get analyseursRecentsLabel;
+
+  /// No description provided for @nonDisponibleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non disponible'**
+  String get nonDisponibleLabel;
+
+  /// No description provided for @disponibleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get disponibleLabel;
+
+  /// No description provided for @indisponibleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indisponible'**
+  String get indisponibleLabel;
+
+  /// No description provided for @activiteJourTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activité du jour'**
+  String get activiteJourTitre;
+
+  /// No description provided for @utilisateursConnectesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateurs connectés'**
+  String get utilisateursConnectesLabel;
+
+  /// No description provided for @sessionsActivesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sessions actives'**
+  String get sessionsActivesLabel;
+
+  /// No description provided for @analysesAujourdHuiLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses aujourd\'hui'**
+  String get analysesAujourdHuiLabel;
+
+  /// No description provided for @analysesSemaineLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses cette semaine'**
+  String get analysesSemaineLabel;
+
+  /// No description provided for @alertesNonResoluesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alertes non résolues'**
+  String get alertesNonResoluesTitre;
+
+  /// No description provided for @aucuneAlerteNonResolueTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune alerte non résolue.'**
+  String get aucuneAlerteNonResolueTexte;
+
+  /// No description provided for @activiteOperateurTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activité par opérateur'**
+  String get activiteOperateurTitre;
+
+  /// No description provided for @aucuneActiviteOperateurTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune activité enregistrée pour l\'instant.'**
+  String get aucuneActiviteOperateurTexte;
+
+  /// No description provided for @anomaliesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anomalies à surveiller'**
+  String get anomaliesTitre;
+
+  /// No description provided for @comptesVerrouillesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comptes verrouillés'**
+  String get comptesVerrouillesLabel;
+
+  /// No description provided for @modelesDepreciesUtilisesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèles dépréciés encore utilisés'**
+  String get modelesDepreciesUtilisesLabel;
+
+  /// No description provided for @resoudreBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résoudre'**
+  String get resoudreBouton;
+
+  /// No description provided for @ecranAdminBientotDisponibleTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet écran sera disponible prochainement.'**
+  String get ecranAdminBientotDisponibleTexte;
+
+  /// No description provided for @rechercherUtilisateurPlaceholder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher par nom, email...'**
+  String get rechercherUtilisateurPlaceholder;
+
+  /// No description provided for @filtreRoleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rôle'**
+  String get filtreRoleLabel;
+
+  /// No description provided for @filtreStatutLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut'**
+  String get filtreStatutLabel;
+
+  /// No description provided for @filtreVerrouilleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verrouillé'**
+  String get filtreVerrouilleLabel;
+
+  /// No description provided for @roleUtilisateurLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur'**
+  String get roleUtilisateurLabel;
+
+  /// No description provided for @roleAdministrateurLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administrateur'**
+  String get roleAdministrateurLabel;
+
+  /// No description provided for @statutActifLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif'**
+  String get statutActifLabel;
+
+  /// No description provided for @statutInactifLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inactif'**
+  String get statutInactifLabel;
+
+  /// No description provided for @aucunUtilisateurTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun utilisateur trouvé.'**
+  String get aucunUtilisateurTexte;
+
+  /// No description provided for @creerCompteBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get creerCompteBouton;
+
+  /// No description provided for @creerCompteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get creerCompteTitre;
+
+  /// No description provided for @champNomUtilisateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get champNomUtilisateur;
+
+  /// No description provided for @champRoleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rôle'**
+  String get champRoleLabel;
+
+  /// No description provided for @creerBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer'**
+  String get creerBouton;
+
+  /// No description provided for @dateDerniereConnexionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière connexion'**
+  String get dateDerniereConnexionLabel;
+
+  /// No description provided for @dateInscriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscrit le'**
+  String get dateInscriptionLabel;
+
+  /// No description provided for @nombreAnalysesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'analyses'**
+  String get nombreAnalysesLabel;
+
+  /// No description provided for @tentativesEchoueesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tentatives échouées'**
+  String get tentativesEchoueesLabel;
+
+  /// No description provided for @modifierRoleAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le rôle'**
+  String get modifierRoleAction;
+
+  /// No description provided for @activerCompteAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le compte'**
+  String get activerCompteAction;
+
+  /// No description provided for @desactiverCompteAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver le compte'**
+  String get desactiverCompteAction;
+
+  /// No description provided for @deverrouillerCompteAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déverrouiller le compte'**
+  String get deverrouillerCompteAction;
+
+  /// No description provided for @declencherResetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer un code de réinitialisation'**
+  String get declencherResetAction;
+
+  /// No description provided for @resetDeclencheMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de réinitialisation envoyé.'**
+  String get resetDeclencheMessage;
+
+  /// No description provided for @voirAnalysesUtilisateurAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir ses analyses'**
+  String get voirAnalysesUtilisateurAction;
+
+  /// No description provided for @jamaisConnecteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jamais connecté'**
+  String get jamaisConnecteLabel;
+
+  /// No description provided for @confirmerDesactivationTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver ce compte ? L\'utilisateur ne pourra plus se connecter, mais ses analyses restent conservées.'**
+  String get confirmerDesactivationTexte;
+
+  /// No description provided for @confirmerChangerRoleAdminTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donner le rôle administrateur à cet utilisateur ?'**
+  String get confirmerChangerRoleAdminTexte;
+
+  /// No description provided for @confirmerRetrograderTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer le rôle administrateur de cet utilisateur ?'**
+  String get confirmerRetrograderTexte;
+
+  /// No description provided for @journalAuditTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal d\'audit'**
+  String get journalAuditTitre;
+
+  /// No description provided for @aucuneEntreeJournalTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune entrée pour l\'instant.'**
+  String get aucuneEntreeJournalTexte;
+
+  /// No description provided for @gestionDonneesAdminTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des données'**
+  String get gestionDonneesAdminTitre;
+
+  /// No description provided for @statistiquesOccupationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Occupation de la base'**
+  String get statistiquesOccupationTitre;
+
+  /// No description provided for @exportGlobalBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter toutes les analyses'**
+  String get exportGlobalBouton;
+
+  /// No description provided for @purgeTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Purger les données'**
+  String get purgeTitre;
+
+  /// No description provided for @purgeDescriptionTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprime définitivement les échantillons (et leurs spectres/résultats) antérieurs à la date choisie.'**
+  String get purgeDescriptionTexte;
+
+  /// No description provided for @choisirDateLimitePurge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir la date limite'**
+  String get choisirDateLimitePurge;
+
+  /// No description provided for @previsualiserPurgeBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévisualiser'**
+  String get previsualiserPurgeBouton;
+
+  /// No description provided for @purgeApercuTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seront supprimés :'**
+  String get purgeApercuTitre;
+
+  /// No description provided for @confirmerPurgeBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer la purge'**
+  String get confirmerPurgeBouton;
+
+  /// No description provided for @purgeIrreversibleAvertissement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette action est irréversible.'**
+  String get purgeIrreversibleAvertissement;
+
+  /// No description provided for @purgeReussieMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Purge effectuée.'**
+  String get purgeReussieMessage;
+
+  /// No description provided for @administrationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administration'**
+  String get administrationTitre;
+
+  /// No description provided for @journalAuditSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des actions sensibles'**
+  String get journalAuditSousTitre;
+
+  /// No description provided for @gestionDonneesSousTitreAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Export global, purge, occupation'**
+  String get gestionDonneesSousTitreAdmin;
+
+  /// No description provided for @configurationSousTitreAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuils de conformité et classification'**
+  String get configurationSousTitreAdmin;
+
+  /// No description provided for @monProfilAdminSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil personnel, déconnexion'**
+  String get monProfilAdminSousTitre;
+
   /// No description provided for @modeDemoBanniere.
   ///
   /// In fr, this message translates to:
@@ -721,6 +1183,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'RMSECV'**
   String get modeleRmsecvLabel;
+
+  /// No description provided for @modeleExactitudeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exactitude'**
+  String get modeleExactitudeLabel;
+
+  /// No description provided for @modelePrecisionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précision'**
+  String get modelePrecisionLabel;
+
+  /// No description provided for @typeModeleRegressionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régression'**
+  String get typeModeleRegressionLabel;
+
+  /// No description provided for @typeModeleClassificationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classification'**
+  String get typeModeleClassificationLabel;
+
+  /// No description provided for @modeleReferenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle de référence'**
+  String get modeleReferenceLabel;
 
   /// No description provided for @modeleActif.
   ///
@@ -883,6 +1375,72 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Commentaire'**
   String get commentaireLabel;
+
+  /// No description provided for @ongletResultatsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultats'**
+  String get ongletResultatsLabel;
+
+  /// No description provided for @ongletSpectreLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spectre'**
+  String get ongletSpectreLabel;
+
+  /// No description provided for @replicatLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réplicat {numero}'**
+  String replicatLabel(int numero);
+
+  /// No description provided for @blocComparaisonLaboTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparaison avec la référence laboratoire'**
+  String get blocComparaisonLaboTitre;
+
+  /// No description provided for @valeurPrediteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur prédite'**
+  String get valeurPrediteLabel;
+
+  /// No description provided for @valeurReferenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence labo'**
+  String get valeurReferenceLabel;
+
+  /// No description provided for @ecartLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart'**
+  String get ecartLabel;
+
+  /// No description provided for @authenticiteReferenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nature réelle'**
+  String get authenticiteReferenceLabel;
+
+  /// No description provided for @nombrePointsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de points'**
+  String get nombrePointsLabel;
+
+  /// No description provided for @exporterSpectreBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter ce spectre'**
+  String get exporterSpectreBouton;
+
+  /// No description provided for @aucuneDonneeSpectreTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun spectre synchronisé pour cet échantillon.'**
+  String get aucuneDonneeSpectreTexte;
 
   /// No description provided for @analyseEnAttenteTitre.
   ///
@@ -1268,6 +1826,108 @@ abstract class AppLocalizations {
   /// **'Nouvelle analyse'**
   String get nouvelleAnalyseBouton;
 
+  /// No description provided for @calculResultatEnCoursTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcul du résultat…'**
+  String get calculResultatEnCoursTexte;
+
+  /// No description provided for @resultatDateScanLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du scan'**
+  String get resultatDateScanLabel;
+
+  /// No description provided for @blocPredictionsAciditeTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prédictions d\'acidité'**
+  String get blocPredictionsAciditeTitre;
+
+  /// No description provided for @blocAuthenticiteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détection d\'authenticité'**
+  String get blocAuthenticiteTitre;
+
+  /// No description provided for @huilePureLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Huile pure'**
+  String get huilePureLabel;
+
+  /// No description provided for @melangeDetecteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mélange détecté'**
+  String get melangeDetecteLabel;
+
+  /// No description provided for @scoreConfianceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance {pourcentage}%'**
+  String scoreConfianceLabel(int pourcentage);
+
+  /// No description provided for @categorieEvooLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extra Vierge (EVOO)'**
+  String get categorieEvooLabel;
+
+  /// No description provided for @categorieVooLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vierge (VOO)'**
+  String get categorieVooLabel;
+
+  /// No description provided for @categorieLampanteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lampante'**
+  String get categorieLampanteLabel;
+
+  /// No description provided for @blocSpectreAcquisTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spectre acquis'**
+  String get blocSpectreAcquisTitre;
+
+  /// No description provided for @indicateurSyncEnAttenteTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de synchronisation'**
+  String get indicateurSyncEnAttenteTexte;
+
+  /// No description provided for @indicateurSyncSynchroniseTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisé avec le serveur'**
+  String get indicateurSyncSynchroniseTexte;
+
+  /// No description provided for @indicateurSyncErreurTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec de synchronisation'**
+  String get indicateurSyncErreurTexte;
+
+  /// No description provided for @aucunModeleActifTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun modèle actif n\'est enregistré côté serveur pour l\'acidité : le résultat n\'a pas pu être calculé. L\'échantillon et le spectre restent enregistrés.'**
+  String get aucunModeleActifTexte;
+
+  /// No description provided for @exporterResultatBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter ce résultat'**
+  String get exporterResultatBouton;
+
+  /// No description provided for @voirDansHistoriqueBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir dans l\'historique'**
+  String get voirDansHistoriqueBouton;
+
   /// No description provided for @enAttenteSynchronisation.
   ///
   /// In fr, this message translates to:
@@ -1519,18 +2179,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Informations du compte & préférences'**
   String get monProfilSousTitre;
-
-  /// No description provided for @roleAdministrateurLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Administrateur'**
-  String get roleAdministrateurLabel;
-
-  /// No description provided for @roleUtilisateurLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Utilisateur'**
-  String get roleUtilisateurLabel;
 
   /// No description provided for @champTelephone.
   ///

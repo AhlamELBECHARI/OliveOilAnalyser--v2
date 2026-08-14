@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../analyseur/domain/entities/spectre_entity.dart';
 import '../entities/nouvel_echantillon_entity.dart';
+import '../entities/resultat_a_creer_entity.dart';
 
 /// Écriture des données produites par l'écran Nouvelle Analyse (échantillon,
 /// spectre). Toujours écrit en local (Drift) EN PREMIER, avant toute
@@ -17,5 +18,11 @@ abstract class NouvelleAnalyseRepository {
   Future<Either<Failure, void>> enregistrerSpectre({
     required String echantillonId,
     required SpectreBrutEntity spectre,
+  });
+
+  Future<Either<Failure, void>> enregistrerResultat({
+    required String resultatId,
+    required String echantillonId,
+    required ResultatACreerEntity resultat,
   });
 }

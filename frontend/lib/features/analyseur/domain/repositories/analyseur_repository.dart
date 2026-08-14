@@ -2,6 +2,7 @@ import '../entities/appareil_appaire_entity.dart';
 import '../entities/commande_analyseur.dart';
 import '../entities/etat_connexion_analyseur_entity.dart';
 import '../entities/info_appareil_analyseur_entity.dart';
+import '../entities/resultat_scan_entity.dart';
 import '../entities/spectre_entity.dart';
 
 /// Abstraction du module Bluetooth pilotant l'analyseur spectroscopique.
@@ -42,6 +43,16 @@ abstract class AnalyseurRepository {
   /// successifs pendant une acquisition (rendu progressif "temps réel"),
   /// le dernier ayant `complet: true`.
   Stream<SpectreBrutEntity> get flusSpectre;
+
+  /// Résultat de scoring (une prédiction par grandeur) calculé à l'issue
+  /// d'un scan complet. RÉSERVÉ côté [AnalyseurBluetoothImpl] : le protocole
+  /// réel ne transmet aujourd'hui que le spectre brut (voir
+  /// data/protocole/protocole_spectrometre.dart, qui documente la trame
+  /// RESULT à ajouter dès que le fabricant confirme le format) — ce flux n'y
+  /// émet donc jamais rien pour l'instant. [AnalyseurSimuleImpl] l'alimente
+  /// pour permettre de développer/démontrer l'écran Résultats avant que le
+  /// matériel réel ne soit disponible.
+  Stream<ResultatScanEntity> get flusResultat;
 
   /// Informations de l'appareil actuellement connecté (nom, type, numéro de
   /// série, firmware, batterie), ou `null` si aucun appareil n'est connecté.

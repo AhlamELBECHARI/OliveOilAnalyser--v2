@@ -147,6 +147,54 @@ class ConfirmerResetMotDePasseSerializer(_CodeResetMixin, serializers.Serializer
         return value
 
 
+class UtilisateurAdminSerializer(serializers.ModelSerializer):
+    """Vue détaillée réservée à l'espace admin (voir GET
+    /api/admin/utilisateurs/) — ajoute le nombre d'analyses, absent de
+    UtilisateurSerializer (qui reste utilisé ailleurs sans ce coût de
+    requête supplémentaire)."""
+
+    date_derniere_connexion = serializers.DateTimeField(source="last_login", read_only=True)
+    nombre_analyses = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Utilisateur
+        fields = [
+            "id",
+            "nom",
+            "email",
+            "role",
+            "est_actif",
+            "is_staff",
+            "tentatives_echouees",
+            "verrouille_jusqu_a",
+            "date_derniere_connexion",
+            "date_creation",
+            "date_modification",
+            "nombre_analyses",
+        ]
+        read_only_fields = fields
+
+    def get_nombre_analyses(self, utilisateur) -> int:
+        from resultats.models import Resultat
+
+        return Resultat.objects.filter(echantillon__utilisateur=utilisateur).count()
+
+
+class ChangerRoleSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(choices=Utilisateur.Role.choices)
+
+
+class ActivationSerializer(serializers.Serializer):
+    actif = serializers.BooleanField()
+
+
+class CreerUtilisateurAdminSerializer(RegisterSerializer):
+    """Même validation que l'inscription publique, avec un rôle choisi
+    explicitement par l'administrateur plutôt que forcé à UTILISATEUR."""
+
+    role = serializers.ChoiceField(choices=Utilisateur.Role.choices, default=Utilisateur.Role.UTILISATEUR)
+
+
 class ConfigurationSerializer(serializers.ModelSerializer):
     modifie_par = UtilisateurSerializer(read_only=True)
 

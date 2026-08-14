@@ -12,6 +12,17 @@ def chemin_upload_modele(instance, nom_fichier):
     return f"modeles/{uuid.uuid4()}{extension}"
 
 
+class TypeModele(models.TextChoices):
+    REGRESSION = "regression", "Régression"
+    CLASSIFICATION = "classification", "Classification"
+
+
+class GrandeurPredite(models.TextChoices):
+    ACIDITE = "acidite", "Acidité"
+    INDICE_PEROXYDE = "indice_peroxyde", "Indice de peroxyde"
+    AUTHENTICITE = "authenticite", "Authenticité"
+
+
 class Modele(models.Model):
     # Un modèle scikit-learn est généralement sérialisé en pickle/joblib, dont
     # le chargement peut exécuter du code arbitraire. Le backend ne
@@ -27,8 +38,25 @@ class Modele(models.Model):
     version = models.CharField(max_length=30)
     algorithme = models.CharField(max_length=100)
     hyperparametres = models.JSONField(default=dict, blank=True)
-    r2 = models.FloatField()
-    rmsecv = models.FloatField()
+    type_modele = models.CharField(
+        max_length=20, choices=TypeModele.choices, default=TypeModele.REGRESSION
+    )
+    grandeur_predite = models.CharField(
+        max_length=30, choices=GrandeurPredite.choices, default=GrandeurPredite.ACIDITE
+    )
+    # Métriques de régression (R²/RMSECV) et de classification
+    # (exactitude/précision/rappel) : toutes optionnelles, seules celles
+    # pertinentes pour `type_modele` sont renseignées côté client — voir
+    # modeles.serializers pour l'affichage conditionnel.
+    r2 = models.FloatField(null=True, blank=True)
+    rmsecv = models.FloatField(null=True, blank=True)
+    exactitude = models.FloatField(null=True, blank=True)
+    precision_classification = models.FloatField(null=True, blank=True)
+    rappel = models.FloatField(null=True, blank=True)
+    # Modèle utilisé pour dériver les champs de synthèse de Resultat
+    # (acidité retenue, conformité) — un seul actif à la fois par grandeur
+    # (voir la contrainte ci-dessous), basculé depuis l'espace admin.
+    est_reference = models.BooleanField(default=False)
     est_actif = models.BooleanField(default=True)
     est_deprecie = models.BooleanField(default=False)
     fichier = models.FileField(upload_to=chemin_upload_modele, null=True, blank=True)
@@ -45,7 +73,16 @@ class Modele(models.Model):
                 fields=["nom", "version"], name="modele_nom_version_unique"
             ),
             models.CheckConstraint(
-                condition=models.Q(rmsecv__gte=0), name="modele_rmsecv_positif"
+                condition=models.Q(rmsecv__gte=0) | models.Q(rmsecv__isnull=True),
+                name="modele_rmsecv_positif",
+            ),
+            # Un seul modèle de référence actif par grandeur prédite (index
+            # partiel, supporté par Postgres) — appliqué en défense en
+            # profondeur en plus de modeles.services._appliquer_reference_exclusive.
+            models.UniqueConstraint(
+                fields=["grandeur_predite"],
+                condition=models.Q(est_reference=True),
+                name="modele_reference_unique_par_grandeur",
             ),
         ]
         verbose_name = "Modèle"

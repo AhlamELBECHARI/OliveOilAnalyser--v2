@@ -19,6 +19,8 @@ extension FailureLocalizer on Failure {
     if (failure is TropDeDemandesFailure) return l10n.erreurTropDeDemandes;
     if (failure is ErreurValidationFailure) return l10n.erreurValidationGenerique;
     if (failure is ErreurStockageLocalFailure) return l10n.erreurStockageLocal;
+    if (failure is AutoModificationInterditeFailure) return l10n.erreurAutoModificationInterdite;
+    if (failure is DernierAdministrateurFailure) return l10n.erreurDernierAdministrateur;
     return l10n.erreurServeur;
   }
 }

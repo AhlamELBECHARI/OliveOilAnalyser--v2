@@ -14,8 +14,14 @@ class ModeleSerializer(serializers.ModelSerializer):
             "version",
             "algorithme",
             "hyperparametres",
+            "type_modele",
+            "grandeur_predite",
             "r2",
             "rmsecv",
+            "exactitude",
+            "precision_classification",
+            "rappel",
+            "est_reference",
             "est_actif",
             "est_deprecie",
             "fichier",
@@ -27,7 +33,7 @@ class ModeleSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "empreinte_sha256", "date_creation", "date_modification"]
 
     def validate_rmsecv(self, value):
-        if value < 0:
+        if value is not None and value < 0:
             raise serializers.ValidationError("rmsecv doit être positif ou nul.")
         return value
 
@@ -47,3 +53,8 @@ class ModeleSerializer(serializers.ModelSerializer):
                 f"({Modele.TAILLE_MAX_OCTETS // (1024 * 1024)} Mo)."
             )
         return fichier
+
+
+class HistoriqueUtilisationModeleSerializer(serializers.Serializer):
+    nombre_resultats = serializers.IntegerField()
+    derniere_utilisation = serializers.DateTimeField(allow_null=True)
