@@ -10,6 +10,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/carte_stylisee.dart';
 import '../../domain/entities/utilisateur_admin_entity.dart';
 import '../providers/utilisateurs_liste_provider.dart';
+import '../widgets/entete_ecran_admin.dart';
 import '../widgets/feuille_creer_utilisateur.dart';
 
 /// Liste des utilisateurs (recherche + filtres), alimentée par
@@ -67,7 +68,13 @@ class _UtilisateursListeScreenState extends ConsumerState<UtilisateursListeScree
       appBar: AppBar(
         backgroundColor: AppColors.fond,
         elevation: 0,
-        title: Text(l10n.navUtilisateurs, style: AppTextStyles.bienvenue.copyWith(fontSize: 20)),
+        title: EnTeteEcranAdmin(
+          icone: Icons.people_outline,
+          couleur: AppColors.bleuIcone,
+          fond: AppColors.bleuFond,
+          titre: l10n.navUtilisateurs,
+          sousTitre: l10n.utilisateursSousTitreAdmin,
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.vertOlive,

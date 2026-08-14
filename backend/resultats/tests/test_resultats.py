@@ -82,6 +82,58 @@ def test_non_authentifie_refuse(api_client):
     assert response.status_code == 401
 
 
+def test_detail_resultat_inclut_lauteur(client_administrateur, echantillon, modele, utilisateur):
+    resultat = Resultat.objects.create(
+        echantillon=echantillon,
+        modele_utilise=modele,
+        acidite=Decimal("0.5"),
+        indice_peroxyde=Decimal("10"),
+        conforme=True,
+    )
+
+    response = client_administrateur.get(f"/api/resultats/{resultat.id}/")
+
+    assert response.data["auteur_id"] == utilisateur.id
+    assert response.data["auteur_nom"] == utilisateur.nom
+    assert response.data["producteur_echantillon"] == echantillon.producteur
+    assert response.data["region_echantillon"] == echantillon.region
+
+
+def test_admin_supprime_resultat_dun_autre_utilisateur(client_administrateur, echantillon, modele):
+    resultat = Resultat.objects.create(
+        echantillon=echantillon,
+        modele_utilise=modele,
+        acidite=Decimal("0.5"),
+        indice_peroxyde=Decimal("10"),
+        conforme=True,
+    )
+
+    response = client_administrateur.delete(f"/api/resultats/{resultat.id}/")
+
+    assert response.status_code == 204
+    assert not Resultat.objects.filter(id=resultat.id).exists()
+
+
+def test_utilisateur_standard_ne_supprime_pas_resultat_dautrui(
+    client_utilisateur, autre_utilisateur, modele
+):
+    echantillon_autrui = Echantillon.objects.create(
+        numero="ECH-AUTRUI-SUPPR", date_analyse=timezone.now(), utilisateur=autre_utilisateur
+    )
+    resultat = Resultat.objects.create(
+        echantillon=echantillon_autrui,
+        modele_utilise=modele,
+        acidite=Decimal("0.5"),
+        indice_peroxyde=Decimal("10"),
+        conforme=True,
+    )
+
+    response = client_utilisateur.delete(f"/api/resultats/{resultat.id}/")
+
+    assert response.status_code == 404
+    assert Resultat.objects.filter(id=resultat.id).exists()
+
+
 # --- Prédictions multi-modèles (régression + classification) ---
 
 

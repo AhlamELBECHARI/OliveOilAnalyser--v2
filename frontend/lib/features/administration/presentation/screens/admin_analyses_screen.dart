@@ -10,22 +10,29 @@ import '../../../../core/localization/build_context_l10n_extension.dart';
 import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/entete_ecran.dart';
-import '../../domain/entities/analyse_historique_entity.dart';
-import '../../domain/entities/demande_export_entity.dart';
-import '../providers/historique_provider.dart';
-import '../widgets/barre_recherche_filtres.dart';
-import '../widgets/carte_analyse_historique.dart';
-import '../widgets/carte_apercu_historique.dart';
-import '../widgets/carte_statistiques_rapides.dart';
-import '../widgets/feuille_export.dart';
-import '../widgets/feuille_filtres.dart';
+import '../../../historique/domain/entities/analyse_historique_entity.dart';
+import '../../../historique/domain/entities/demande_export_entity.dart';
+import '../../../historique/presentation/providers/historique_provider.dart';
+import '../../../historique/presentation/widgets/barre_recherche_filtres.dart';
+import '../../../historique/presentation/widgets/carte_analyse_historique.dart';
+import '../../../historique/presentation/widgets/carte_apercu_historique.dart';
+import '../../../historique/presentation/widgets/carte_statistiques_rapides.dart';
+import '../../../historique/presentation/widgets/feuille_export.dart';
+import '../../../historique/presentation/widgets/feuille_filtres.dart';
+import '../widgets/entete_ecran_admin.dart';
 
-/// Écran Historique (design/4-historiques.png) : 100% alimenté par
-/// GET /api/analyses/historique/ et /api/analyses/statistiques-rapides/,
-/// recherche/filtres/tri/pagination entièrement côté serveur.
-class HistoriqueScreen extends ConsumerWidget {
-  const HistoriqueScreen({super.key});
+/// Onglet "Analyses" de l'espace admin — dédié (ne réutilise plus
+/// HistoriqueScreen), enrichi d'une colonne opérateur sur chaque ligne et
+/// d'un filtre opérateur pouvant être pré-rempli en arrivant depuis
+/// UtilisateurDetailScreen ("Voir ses analyses"). Réutilise le même
+/// HistoriqueNotifier que HistoriqueScreen (voir adminAnalysesProvider),
+/// juste avec un état initial différent — aucune logique de
+/// chargement/export dupliquée.
+class AdminAnalysesScreen extends ConsumerWidget {
+  final int? operateurInitial;
+  final String? operateurNomInitial;
+
+  const AdminAnalysesScreen({super.key, this.operateurInitial, this.operateurNomInitial});
 
   Future<void> _terminerExport(
     BuildContext context,
@@ -52,34 +59,43 @@ class HistoriqueScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _ouvrirFeuilleExport(BuildContext context, WidgetRef ref, int total) {
+  Future<void> _ouvrirFeuilleExport(
+    BuildContext context,
+    WidgetRef ref,
+    FiltresHistorique filtres,
+    int total,
+  ) {
+    final provider = adminAnalysesProvider(_filtresInitiaux());
     return afficherFeuilleExport(
       context,
       totalAnalysesFiltrees: total,
       onExporterParFiltres: (demande) async {
-        final notifier = ref.read(historiqueProvider.notifier);
-        final filtres = ref.read(historiqueProvider).filtres;
+        final notifier = ref.read(provider.notifier);
         final resultat = await notifier.declencherEtTelecharger(
           DemandeExportEntity(contenu: demande.contenu, format: demande.format, filtres: filtres),
         );
         await _terminerExport(context, ref, resultat);
       },
       onDemarrerSelectionManuelle: ({required contenu, required format}) {
-        ref.read(historiqueProvider.notifier).activerModeSelection(contenu: contenu, format: format);
+        ref.read(provider.notifier).activerModeSelection(contenu: contenu, format: format);
       },
     );
   }
 
   Future<void> _validerSelection(BuildContext context, WidgetRef ref) async {
-    final resultat = await ref.read(historiqueProvider.notifier).exporterSelection();
+    final notifier = ref.read(adminAnalysesProvider(_filtresInitiaux()).notifier);
+    final resultat = await notifier.exporterSelection();
     await _terminerExport(context, ref, resultat);
   }
+
+  FiltresHistorique _filtresInitiaux() => FiltresHistorique(operateur: operateurInitial);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final state = ref.watch(historiqueProvider);
-    final notifier = ref.read(historiqueProvider.notifier);
+    final provider = adminAnalysesProvider(_filtresInitiaux());
+    final state = ref.watch(provider);
+    final notifier = ref.read(provider.notifier);
 
     return Scaffold(
       backgroundColor: AppColors.fond,
@@ -105,12 +121,12 @@ class HistoriqueScreen extends ConsumerWidget {
           : AppBar(
               backgroundColor: AppColors.fond,
               elevation: 0,
-              title: EnTeteEcran(
+              title: EnTeteEcranAdmin(
                 icone: Icons.description_outlined,
-                couleur: AppColors.bleuIcone,
-                fond: AppColors.bleuFond,
-                titre: l10n.historiquesTitre,
-                sousTitre: l10n.historiquesSousTitre,
+                couleur: AppColors.orangeIcone,
+                fond: AppColors.orangeFond,
+                titre: l10n.navAnalyses,
+                sousTitre: l10n.analysesSousTitreAdmin,
               ),
               actions: [
                 IconButton(
@@ -118,7 +134,7 @@ class HistoriqueScreen extends ConsumerWidget {
                   tooltip: l10n.exporterBouton,
                   onPressed: state.exportEnCours
                       ? null
-                      : () => _ouvrirFeuilleExport(context, ref, state.totalAnalyses),
+                      : () => _ouvrirFeuilleExport(context, ref, state.filtres, state.totalAnalyses),
                 ),
               ],
             ),
@@ -194,6 +210,20 @@ class HistoriqueScreen extends ConsumerWidget {
             CarteApercuHistorique(apercu: state.statistiques!.apercu),
             const SizedBox(height: 16),
           ],
+          if (state.filtres.operateur != null) ...[
+            _ChipOperateur(
+              nom: operateurNomInitial ?? '#${state.filtres.operateur}',
+              onEffacer: () => notifier.appliquerFiltres(FiltresHistorique(
+                recherche: state.filtres.recherche,
+                qualite: state.filtres.qualite,
+                variete: state.filtres.variete,
+                region: state.filtres.region,
+                dateDebut: state.filtres.dateDebut,
+                dateFin: state.filtres.dateFin,
+              )),
+            ),
+            const SizedBox(height: 12),
+          ],
           BarreRechercheFiltres(
             filtres: state.filtres,
             onChangerFiltres: notifier.appliquerFiltres,
@@ -223,11 +253,17 @@ class HistoriqueScreen extends ConsumerWidget {
               for (final analyse in groupe.analyses) ...[
                 CarteAnalyseHistorique(
                   analyse: analyse,
+                  afficherAuteur: true,
                   modeSelection: state.modeSelection,
                   selectionne: state.idsSelectionnes.contains(analyse.id),
                   onTap: state.modeSelection
                       ? () => notifier.basculerSelection(analyse.id)
-                      : () => context.push('/historique/resultat/${analyse.id}'),
+                      : () async {
+                          final supprime = await context.push<bool>(
+                            '/admin/analyses/resultat/${analyse.id}',
+                          );
+                          if (supprime == true) notifier.charger();
+                        },
                 ),
                 const SizedBox(height: 12),
               ],
@@ -284,4 +320,44 @@ class _GroupeMois {
   final List<AnalyseHistoriqueEntity> analyses;
 
   _GroupeMois({required this.libelleMois, required this.analyses});
+}
+
+class _ChipOperateur extends StatelessWidget {
+  final String nom;
+  final VoidCallback onEffacer;
+
+  const _ChipOperateur({required this.nom, required this.onEffacer});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.evooFond,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.vertOlive),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.person_outline, size: 14, color: AppColors.vertOliveFonce),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              nom,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.vertOliveFonce),
+            ),
+          ),
+          const SizedBox(width: 6),
+          InkWell(
+            onTap: onEffacer,
+            borderRadius: BorderRadius.circular(10),
+            child: const Icon(Icons.close, size: 14, color: AppColors.vertOliveFonce),
+          ),
+        ],
+      ),
+    );
+  }
 }

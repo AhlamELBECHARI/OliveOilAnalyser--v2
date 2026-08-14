@@ -20,6 +20,13 @@ abstract class HistoriqueRemoteDataSource {
   Future<SpectreHistoriqueModel?> obtenirSpectrePourEchantillon(String echantillonId);
   Future<RapportExportModel> declencherExport(DemandeExportEntity demande);
   Future<List<int>> telechargerRapport(String rapportId);
+  Future<void> supprimerResultat(String resultatId);
+  Future<void> modifierEchantillon({
+    required String echantillonId,
+    required String producteur,
+    required String variete,
+    required String region,
+  });
 }
 
 class HistoriqueRemoteDataSourceImpl implements HistoriqueRemoteDataSource {
@@ -43,6 +50,7 @@ class HistoriqueRemoteDataSourceImpl implements HistoriqueRemoteDataSource {
         if (filtres.region != null && filtres.region!.isNotEmpty) 'region': filtres.region,
         if (filtres.dateDebut != null) 'date_debut': _formaterDate(filtres.dateDebut!),
         if (filtres.dateFin != null) 'date_fin': _formaterDate(filtres.dateFin!),
+        if (filtres.operateur != null) 'operateur': filtres.operateur,
       });
       final data = reponse.data as Map<String, dynamic>;
       final analyses = (data['results'] as List)
@@ -101,6 +109,7 @@ class HistoriqueRemoteDataSourceImpl implements HistoriqueRemoteDataSource {
           if (filtres.region != null && filtres.region!.isNotEmpty) 'region': filtres.region,
           if (filtres.dateDebut != null) 'date_debut': _formaterDate(filtres.dateDebut!),
           if (filtres.dateFin != null) 'date_fin': _formaterDate(filtres.dateFin!),
+          if (filtres.operateur != null) 'operateur': filtres.operateur,
         },
       });
       return RapportExportModel.fromJson(reponse.data as Map<String, dynamic>);
@@ -117,6 +126,33 @@ class HistoriqueRemoteDataSourceImpl implements HistoriqueRemoteDataSource {
         options: Options(responseType: ResponseType.bytes),
       );
       return reponse.data!;
+    } on DioException catch (e) {
+      throw traduireDioException(e);
+    }
+  }
+
+  @override
+  Future<void> supprimerResultat(String resultatId) async {
+    try {
+      await dio.delete('/resultats/$resultatId/');
+    } on DioException catch (e) {
+      throw traduireDioException(e);
+    }
+  }
+
+  @override
+  Future<void> modifierEchantillon({
+    required String echantillonId,
+    required String producteur,
+    required String variete,
+    required String region,
+  }) async {
+    try {
+      await dio.patch('/echantillons/$echantillonId/', data: {
+        'producteur': producteur,
+        'variete': variete,
+        'region': region,
+      });
     } on DioException catch (e) {
       throw traduireDioException(e);
     }

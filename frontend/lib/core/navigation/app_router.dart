@@ -1,5 +1,7 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/administration/presentation/screens/admin_analyses_screen.dart';
+import '../../features/administration/presentation/screens/admin_modeles_screen.dart';
 import '../../features/administration/presentation/screens/administration_screen.dart';
 import '../../features/administration/presentation/screens/gestion_donnees_admin_screen.dart';
 import '../../features/administration/presentation/screens/journal_audit_screen.dart';
@@ -25,7 +27,6 @@ import '../../features/profil/presentation/screens/mentions_legales_screen.dart'
 import '../../features/profil/presentation/screens/profil_screen.dart';
 import '../../features/profil/presentation/screens/securite_screen.dart';
 import '../../features/profil/presentation/screens/sessions_actives_screen.dart';
-import '../localization/build_context_l10n_extension.dart';
 import 'coquille_navigation.dart';
 import 'coquille_navigation_admin.dart';
 
@@ -129,9 +130,11 @@ GoRouter creerRouter({required String emplacementInitial}) {
       // Espace admin : coquille et onglets entièrement séparés de la
       // navigation utilisateur ci-dessus (voir CoquilleNavigationAdmin) —
       // un administrateur ne voit jamais l'application utilisateur enrichie.
-      // Analyses et Modèles réutilisent volontairement les mêmes écrans que
-      // côté utilisateur (voir cahier des charges de l'espace admin), sans
-      // en dupliquer le code.
+      // Analyses et Modèles ont leurs propres écrans (AdminAnalysesScreen,
+      // AdminModelesScreen), distincts de HistoriqueScreen/ModelesScreen
+      // côté utilisateur : même domaine/données, mais présentation propre à
+      // l'espace admin (colonne opérateur, filtre pré-rempli, actions de
+      // gestion toujours visibles).
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             CoquilleNavigationAdmin(navigationShell: navigationShell),
@@ -154,10 +157,28 @@ GoRouter creerRouter({required String emplacementInitial}) {
             ),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/admin/analyses', builder: (context, state) => const HistoriqueScreen()),
+            GoRoute(
+              path: '/admin/analyses',
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
+                return AdminAnalysesScreen(
+                  operateurInitial: extra?['operateurId'] as int?,
+                  operateurNomInitial: extra?['operateurNom'] as String?,
+                );
+              },
+              routes: [
+                GoRoute(
+                  path: 'resultat/:id',
+                  builder: (context, state) => ResultatDetailScreen(
+                    resultatId: state.pathParameters['id']!,
+                    estAdmin: true,
+                  ),
+                ),
+              ],
+            ),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/admin/modeles', builder: (context, state) => const ModelesScreen()),
+            GoRoute(path: '/admin/modeles', builder: (context, state) => const AdminModelesScreen()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
@@ -175,6 +196,21 @@ GoRouter creerRouter({required String emplacementInitial}) {
                 GoRoute(
                   path: 'configuration',
                   builder: (context, state) => const PreferencesAnalyseScreen(),
+                ),
+                GoRoute(
+                  path: 'informations-personnelles',
+                  builder: (context, state) => const InformationsPersonnellesScreen(),
+                ),
+                GoRoute(path: 'securite', builder: (context, state) => const SecuriteScreen()),
+                GoRoute(
+                  path: 'sessions',
+                  builder: (context, state) => const SessionsActivesScreen(),
+                ),
+                GoRoute(path: 'a-propos', builder: (context, state) => const AProposScreen()),
+                GoRoute(path: 'aide', builder: (context, state) => const CentreAideScreen()),
+                GoRoute(
+                  path: 'mentions-legales',
+                  builder: (context, state) => const MentionsLegalesScreen(),
                 ),
               ],
             ),

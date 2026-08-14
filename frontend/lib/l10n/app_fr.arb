@@ -132,6 +132,12 @@
   "navAnalyses": "Analyses",
   "navAdministration": "Administration",
 
+  "supervisionSousTitre": "Vue d'ensemble du système",
+  "utilisateursSousTitreAdmin": "Gestion des comptes",
+  "analysesSousTitreAdmin": "Historique de toutes les analyses",
+  "modelesSousTitreAdmin": "Modèles d'analyse disponibles",
+  "administrationSousTitreEcran": "Journal, données, configuration",
+
   "supervisionTitre": "Supervision",
   "etatSystemeTitre": "État du système",
   "apiLabel": "API",
@@ -229,6 +235,7 @@
   "conforme": "Conforme",
   "nonConforme": "Non conforme",
 
+  "modelesSousTitre": "Modèles d'analyse disponibles",
   "aucunModele": "Aucun modèle disponible.",
   "modeleVersionLabel": "Version {version}",
   "@modeleVersionLabel": {
@@ -273,6 +280,15 @@
   "dateAnalyseLabel": "Date de l'analyse",
   "dateCalculLabel": "Date du résultat",
   "commentaireLabel": "Commentaire",
+
+  "informationsEchantillonAdminTitre": "Informations échantillon",
+  "realiseParLabel": "Réalisée par",
+  "modifierAction": "Modifier",
+  "supprimerAction": "Supprimer",
+  "modifierEchantillonTitre": "Modifier les informations de l'échantillon",
+  "echantillonModifieMessage": "Échantillon modifié.",
+  "confirmerSuppressionResultatTexte": "Supprimer définitivement cette analyse ? Cette action est irréversible.",
+  "resultatSupprimeMessage": "Analyse supprimée.",
 
   "ongletResultatsLabel": "Résultats",
   "ongletSpectreLabel": "Spectre",

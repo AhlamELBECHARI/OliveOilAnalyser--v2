@@ -5,8 +5,10 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/resultat_historique_entity.dart';
 import '../../domain/entities/spectre_historique_entity.dart';
+import '../../domain/usecases/modifier_echantillon_usecase.dart';
 import '../../domain/usecases/obtenir_resultat_usecase.dart';
 import '../../domain/usecases/obtenir_spectre_pour_echantillon_usecase.dart';
+import '../../domain/usecases/supprimer_resultat_usecase.dart';
 
 class ResultatDetailState extends Equatable {
   final bool enChargement;
@@ -18,6 +20,12 @@ class ResultatDetailState extends Equatable {
   final bool spectreEnChargement;
   final Failure? echecSpectre;
   final SpectreHistoriqueEntity? spectre;
+  // Actions admin (suppression du résultat, correction des métadonnées de
+  // l'échantillon) — voir ResultatDetailScreen.estAdmin.
+  final bool actionEnCours;
+  final Failure? echecAction;
+  final bool resultatSupprime;
+  final bool echantillonModifie;
 
   const ResultatDetailState({
     this.enChargement = false,
@@ -26,6 +34,10 @@ class ResultatDetailState extends Equatable {
     this.spectreEnChargement = false,
     this.echecSpectre,
     this.spectre,
+    this.actionEnCours = false,
+    this.echecAction,
+    this.resultatSupprime = false,
+    this.echantillonModifie = false,
   });
 
   ResultatDetailState copierAvec({
@@ -35,8 +47,13 @@ class ResultatDetailState extends Equatable {
     bool? spectreEnChargement,
     Failure? echecSpectre,
     SpectreHistoriqueEntity? spectre,
+    bool? actionEnCours,
+    Failure? echecAction,
+    bool? resultatSupprime,
+    bool? echantillonModifie,
     bool effacerErreur = false,
     bool effacerErreurSpectre = false,
+    bool effacerErreurAction = false,
   }) {
     return ResultatDetailState(
       enChargement: enChargement ?? this.enChargement,
@@ -45,21 +62,42 @@ class ResultatDetailState extends Equatable {
       spectreEnChargement: spectreEnChargement ?? this.spectreEnChargement,
       echecSpectre: effacerErreurSpectre ? null : (echecSpectre ?? this.echecSpectre),
       spectre: spectre ?? this.spectre,
+      actionEnCours: actionEnCours ?? this.actionEnCours,
+      echecAction: effacerErreurAction ? null : (echecAction ?? this.echecAction),
+      resultatSupprime: resultatSupprime ?? this.resultatSupprime,
+      echantillonModifie: echantillonModifie ?? this.echantillonModifie,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [enChargement, echec, resultat, spectreEnChargement, echecSpectre, spectre];
+  List<Object?> get props => [
+        enChargement,
+        echec,
+        resultat,
+        spectreEnChargement,
+        echecSpectre,
+        spectre,
+        actionEnCours,
+        echecAction,
+        resultatSupprime,
+        echantillonModifie,
+      ];
 }
 
 class ResultatDetailNotifier extends StateNotifier<ResultatDetailState> {
   final ObtenirResultatUseCase _obtenirResultatUseCase;
   final ObtenirSpectrePourEchantillonUseCase _obtenirSpectreUseCase;
+  final SupprimerResultatUseCase _supprimerResultatUseCase;
+  final ModifierEchantillonUseCase _modifierEchantillonUseCase;
   final String resultatId;
 
-  ResultatDetailNotifier(this._obtenirResultatUseCase, this._obtenirSpectreUseCase, this.resultatId)
-      : super(const ResultatDetailState()) {
+  ResultatDetailNotifier(
+    this._obtenirResultatUseCase,
+    this._obtenirSpectreUseCase,
+    this._supprimerResultatUseCase,
+    this._modifierEchantillonUseCase,
+    this.resultatId,
+  ) : super(const ResultatDetailState()) {
     charger();
   }
 
@@ -87,6 +125,41 @@ class ResultatDetailNotifier extends StateNotifier<ResultatDetailState> {
       (spectre) => state = state.copierAvec(spectreEnChargement: false, spectre: spectre),
     );
   }
+
+  Future<void> supprimer() async {
+    state = state.copierAvec(actionEnCours: true, effacerErreurAction: true);
+    final resultat = await _supprimerResultatUseCase(resultatId);
+    if (!mounted) return;
+    resultat.fold(
+      (failure) => state = state.copierAvec(actionEnCours: false, echecAction: failure),
+      (_) => state = state.copierAvec(actionEnCours: false, resultatSupprime: true),
+    );
+  }
+
+  Future<void> modifierEchantillon({
+    required String producteur,
+    required String variete,
+    required String region,
+  }) async {
+    final echantillonId = state.resultat?.echantillonId;
+    if (echantillonId == null) return;
+
+    state = state.copierAvec(actionEnCours: true, effacerErreurAction: true);
+    final resultat = await _modifierEchantillonUseCase(ModifierEchantillonParams(
+      echantillonId: echantillonId,
+      producteur: producteur,
+      variete: variete,
+      region: region,
+    ));
+    if (!mounted) return;
+    resultat.fold(
+      (failure) => state = state.copierAvec(actionEnCours: false, echecAction: failure),
+      (_) {
+        state = state.copierAvec(actionEnCours: false, echantillonModifie: true);
+        charger();
+      },
+    );
+  }
 }
 
 final resultatDetailProvider = StateNotifierProvider.autoDispose
@@ -94,6 +167,8 @@ final resultatDetailProvider = StateNotifierProvider.autoDispose
   (ref, resultatId) => ResultatDetailNotifier(
     sl<ObtenirResultatUseCase>(),
     sl<ObtenirSpectrePourEchantillonUseCase>(),
+    sl<SupprimerResultatUseCase>(),
+    sl<ModifierEchantillonUseCase>(),
     resultatId,
   ),
 );

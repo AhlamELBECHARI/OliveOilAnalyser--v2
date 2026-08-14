@@ -293,6 +293,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navAdministration => 'Administration';
 
   @override
+  String get supervisionSousTitre => 'Vue d\'ensemble du système';
+
+  @override
+  String get utilisateursSousTitreAdmin => 'Gestion des comptes';
+
+  @override
+  String get analysesSousTitreAdmin => 'Historique de toutes les analyses';
+
+  @override
+  String get modelesSousTitreAdmin => 'Modèles d\'analyse disponibles';
+
+  @override
+  String get administrationSousTitreEcran => 'Journal, données, configuration';
+
+  @override
   String get supervisionTitre => 'Supervision';
 
   @override
@@ -572,6 +587,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get nonConforme => 'Non conforme';
 
   @override
+  String get modelesSousTitre => 'Modèles d\'analyse disponibles';
+
+  @override
   String get aucunModele => 'Aucun modèle disponible.';
 
   @override
@@ -685,6 +703,32 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commentaireLabel => 'Commentaire';
+
+  @override
+  String get informationsEchantillonAdminTitre => 'Informations échantillon';
+
+  @override
+  String get realiseParLabel => 'Réalisée par';
+
+  @override
+  String get modifierAction => 'Modifier';
+
+  @override
+  String get supprimerAction => 'Supprimer';
+
+  @override
+  String get modifierEchantillonTitre =>
+      'Modifier les informations de l\'échantillon';
+
+  @override
+  String get echantillonModifieMessage => 'Échantillon modifié.';
+
+  @override
+  String get confirmerSuppressionResultatTexte =>
+      'Supprimer définitivement cette analyse ? Cette action est irréversible.';
+
+  @override
+  String get resultatSupprimeMessage => 'Analyse supprimée.';
 
   @override
   String get ongletResultatsLabel => 'Résultats';

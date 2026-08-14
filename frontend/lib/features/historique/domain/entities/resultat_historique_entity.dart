@@ -44,6 +44,12 @@ class ResultatHistoriqueEntity extends Equatable {
   final String numeroEchantillon;
   final String varieteEchantillon;
   final String origineEchantillon;
+  final String producteurEchantillon;
+  final String regionEchantillon;
+  // Toujours renvoyés par l'API (voir ResultatSerializer côté backend),
+  // utiles seulement côté admin — voir ResultatDetailScreen.
+  final int auteurId;
+  final String auteurNom;
   final double acidite;
   final double indicePeroxyde;
   final int? dureeAnalyseSecondes;
@@ -65,6 +71,10 @@ class ResultatHistoriqueEntity extends Equatable {
     required this.numeroEchantillon,
     required this.varieteEchantillon,
     required this.origineEchantillon,
+    required this.producteurEchantillon,
+    required this.regionEchantillon,
+    required this.auteurId,
+    required this.auteurNom,
     required this.acidite,
     required this.indicePeroxyde,
     required this.dureeAnalyseSecondes,
@@ -89,6 +99,10 @@ class ResultatHistoriqueEntity extends Equatable {
         numeroEchantillon,
         varieteEchantillon,
         origineEchantillon,
+        producteurEchantillon,
+        regionEchantillon,
+        auteurId,
+        auteurNom,
         acidite,
         indicePeroxyde,
         dureeAnalyseSecondes,

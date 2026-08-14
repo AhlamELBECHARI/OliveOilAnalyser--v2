@@ -614,6 +614,36 @@ abstract class AppLocalizations {
   /// **'Administration'**
   String get navAdministration;
 
+  /// No description provided for @supervisionSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue d\'ensemble du système'**
+  String get supervisionSousTitre;
+
+  /// No description provided for @utilisateursSousTitreAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des comptes'**
+  String get utilisateursSousTitreAdmin;
+
+  /// No description provided for @analysesSousTitreAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique de toutes les analyses'**
+  String get analysesSousTitreAdmin;
+
+  /// No description provided for @modelesSousTitreAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèles d\'analyse disponibles'**
+  String get modelesSousTitreAdmin;
+
+  /// No description provided for @administrationSousTitreEcran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal, données, configuration'**
+  String get administrationSousTitreEcran;
+
   /// No description provided for @supervisionTitre.
   ///
   /// In fr, this message translates to:
@@ -1154,6 +1184,12 @@ abstract class AppLocalizations {
   /// **'Non conforme'**
   String get nonConforme;
 
+  /// No description provided for @modelesSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèles d\'analyse disponibles'**
+  String get modelesSousTitre;
+
   /// No description provided for @aucunModele.
   ///
   /// In fr, this message translates to:
@@ -1375,6 +1411,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Commentaire'**
   String get commentaireLabel;
+
+  /// No description provided for @informationsEchantillonAdminTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations échantillon'**
+  String get informationsEchantillonAdminTitre;
+
+  /// No description provided for @realiseParLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réalisée par'**
+  String get realiseParLabel;
+
+  /// No description provided for @modifierAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get modifierAction;
+
+  /// No description provided for @supprimerAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get supprimerAction;
+
+  /// No description provided for @modifierEchantillonTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier les informations de l\'échantillon'**
+  String get modifierEchantillonTitre;
+
+  /// No description provided for @echantillonModifieMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échantillon modifié.'**
+  String get echantillonModifieMessage;
+
+  /// No description provided for @confirmerSuppressionResultatTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer définitivement cette analyse ? Cette action est irréversible.'**
+  String get confirmerSuppressionResultatTexte;
+
+  /// No description provided for @resultatSupprimeMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse supprimée.'**
+  String get resultatSupprimeMessage;
 
   /// No description provided for @ongletResultatsLabel.
   ///

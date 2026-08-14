@@ -11,20 +11,27 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../../../../core/widgets/carte_stylisee.dart';
 import '../../../authentification/domain/usecases/logout_usecase.dart';
+import '../../../../core/config/package_info_provider.dart';
 import '../../../parametres/presentation/providers/locale_provider.dart';
 import '../../../profil/presentation/providers/profil_provider.dart';
+import '../../../profil/presentation/providers/sessions_provider.dart';
 import '../../../profil/presentation/widgets/carte_identite.dart';
 import '../../../profil/presentation/widgets/ligne_parametre.dart';
+import '../widgets/entete_ecran_admin.dart';
 
 /// Onglet "Administration" — identité de l'administrateur affichée en tête
 /// (pas de sous-écran "Mon profil" séparé, pour éviter un tap supplémentaire
-/// sur une info consultée à chaque visite de cet onglet), puis la liste
-/// journal d'audit / gestion des données / préférences d'analyse (réutilise
-/// PreferencesAnalyseScreen, déjà admin-only côté API) / langue, et enfin la
-/// déconnexion. Pas de bascule de thème ici : le mode sombre existe déjà
-/// dans AppTheme mais la plupart des écrans lisent encore AppColors en dur
-/// plutôt que Theme.of(context), donc l'exposer ne changerait rien de
-/// visible — voir le commentaire de app_theme.dart pour ce chantier différé.
+/// sur une info consultée à chaque visite de cet onglet), puis dans l'ordre :
+/// Compte (informations personnelles / sécurité / sessions actives — mêmes
+/// écrans que ProfilScreen, réutilisés tels quels sous /admin/administration/...
+/// puisqu'aucun n'effectue de navigation interne), journal d'audit / gestion
+/// des données / préférences d'analyse (réutilise PreferencesAnalyseScreen,
+/// déjà admin-only côté API) / langue, À propos (à propos d'Olive IQ / centre
+/// d'aide / mentions légales), et enfin la déconnexion. Pas de bascule de
+/// thème ici : le mode sombre existe déjà dans AppTheme mais la plupart des
+/// écrans lisent encore AppColors en dur plutôt que Theme.of(context), donc
+/// l'exposer ne changerait rien de visible — voir le commentaire de
+/// app_theme.dart pour ce chantier différé.
 class AdministrationScreen extends ConsumerWidget {
   const AdministrationScreen({super.key});
 
@@ -114,7 +121,13 @@ class AdministrationScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.fond,
         elevation: 0,
-        title: Text(l10n.administrationTitre, style: AppTextStyles.bienvenue.copyWith(fontSize: 20)),
+        title: EnTeteEcranAdmin(
+          icone: Icons.admin_panel_settings_outlined,
+          couleur: AppColors.bleuIcone,
+          fond: AppColors.bleuFond,
+          titre: l10n.administrationTitre,
+          sousTitre: l10n.administrationSousTitreEcran,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
@@ -125,7 +138,52 @@ class AdministrationScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           _carteIdentite(context, ref, state),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          Text(
+            l10n.compteSectionTitre,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grisFonce),
+          ),
+          const SizedBox(height: 12),
+          CarteStylisee(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                LigneParametre(
+                  icone: Icons.person_outline,
+                  titre: l10n.informationsPersonnellesTitre,
+                  sousTitre: l10n.informationsPersonnellesSousTitre,
+                  onTap: () => context.push('/admin/administration/informations-personnelles'),
+                ),
+                const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
+                LigneParametre(
+                  icone: Icons.shield_outlined,
+                  titre: l10n.securiteTitre,
+                  sousTitre: l10n.securiteSousTitre,
+                  onTap: () => context.push('/admin/administration/securite'),
+                ),
+                const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
+                Consumer(builder: (context, ref, _) {
+                  final sessions = ref.watch(sessionsProvider).sessions;
+                  return LigneParametre(
+                    icone: Icons.devices_outlined,
+                    titre: l10n.sessionsActivesTitre,
+                    sousTitre: l10n.sessionsActivesSousTitre,
+                    fin: sessions == null
+                        ? null
+                        : Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              l10n.sessionsActivesCompteur(sessions.length),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.vertOlive),
+                            ),
+                          ),
+                    onTap: () => context.push('/admin/administration/sessions'),
+                  );
+                }),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           CarteStylisee(
             padding: EdgeInsets.zero,
             child: Column(
@@ -163,6 +221,45 @@ class AdministrationScreen extends ConsumerWidget {
                     onTap: () => _choisirLangue(context, ref),
                   );
                 }),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            l10n.aProposSectionTitre,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grisFonce),
+          ),
+          const SizedBox(height: 12),
+          CarteStylisee(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                Consumer(builder: (context, ref, _) {
+                  final infos = ref.watch(packageInfoProvider);
+                  return LigneParametre(
+                    icone: Icons.info_outline,
+                    titre: l10n.aProposOliveIQTitre,
+                    sousTitre: infos.when(
+                      data: (info) => l10n.versionBuildLabel(info.version, info.buildNumber),
+                      loading: () => null,
+                      error: (_, _) => null,
+                    ),
+                    onTap: () => context.push('/admin/administration/a-propos'),
+                  );
+                }),
+                const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
+                LigneParametre(
+                  icone: Icons.help_outline,
+                  titre: l10n.centreAideTitre,
+                  sousTitre: l10n.centreAideSousTitre,
+                  onTap: () => context.push('/admin/administration/aide'),
+                ),
+                const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
+                LigneParametre(
+                  icone: Icons.description_outlined,
+                  titre: l10n.mentionsLegalesTitre,
+                  onTap: () => context.push('/admin/administration/mentions-legales'),
+                ),
               ],
             ),
           ),

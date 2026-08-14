@@ -119,8 +119,9 @@ class HistoriqueNotifier extends StateNotifier<HistoriqueState> {
     this._listerAnalyses,
     this._obtenirStatistiquesRapides,
     this._declencherExport,
-    this._telechargerRapport,
-  ) : super(const HistoriqueState()) {
+    this._telechargerRapport, {
+    FiltresHistorique filtresInitiaux = const FiltresHistorique(),
+  }) : super(HistoriqueState(filtres: filtresInitiaux)) {
     charger();
   }
 
@@ -265,5 +266,20 @@ final historiqueProvider = StateNotifierProvider.autoDispose<HistoriqueNotifier,
     sl<ObtenirStatistiquesRapidesUseCase>(),
     sl<DeclencherExportUseCase>(),
     sl<TelechargerRapportUseCase>(),
+  ),
+);
+
+/// Même notifier que [historiqueProvider], réutilisé tel quel par
+/// AdminAnalysesScreen — paramétré par la famille pour pouvoir démarrer
+/// avec un filtre opérateur pré-rempli (voir "Voir ses analyses" côté
+/// UtilisateurDetailScreen), sans dupliquer la logique de chargement/export.
+final adminAnalysesProvider = StateNotifierProvider.autoDispose
+    .family<HistoriqueNotifier, HistoriqueState, FiltresHistorique>(
+  (ref, filtresInitiaux) => HistoriqueNotifier(
+    sl<ListerAnalysesUseCase>(),
+    sl<ObtenirStatistiquesRapidesUseCase>(),
+    sl<DeclencherExportUseCase>(),
+    sl<TelechargerRapportUseCase>(),
+    filtresInitiaux: filtresInitiaux,
   ),
 );

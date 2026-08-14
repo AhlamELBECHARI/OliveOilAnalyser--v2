@@ -30,6 +30,11 @@ class AnalyseHistoriqueEntity extends Equatable {
   final DateTime dateCalcul;
   final bool conforme;
   final CategorieQualiteHistorique categorie;
+  // Toujours renvoyés par l'API (voir ResultatHistoriqueSerializer côté
+  // backend), mais utiles seulement côté admin — un utilisateur standard ne
+  // voit de toute façon que ses propres analyses (voir AdminAnalysesScreen).
+  final int auteurId;
+  final String auteurNom;
 
   const AnalyseHistoriqueEntity({
     required this.id,
@@ -43,6 +48,8 @@ class AnalyseHistoriqueEntity extends Equatable {
     required this.dateCalcul,
     required this.conforme,
     required this.categorie,
+    required this.auteurId,
+    required this.auteurNom,
   });
 
   @override
@@ -58,6 +65,8 @@ class AnalyseHistoriqueEntity extends Equatable {
         dateCalcul,
         conforme,
         categorie,
+        auteurId,
+        auteurNom,
       ];
 }
 
@@ -89,6 +98,10 @@ class FiltresHistorique extends Equatable {
   final String? region;
   final DateTime? dateDebut;
   final DateTime? dateFin;
+  // Id d'utilisateur — n'a d'effet réel que pour un administrateur (voir
+  // analyses.services.rechercher_historique côté backend) ; utilisé
+  // uniquement par AdminAnalysesScreen, jamais par HistoriqueScreen.
+  final int? operateur;
 
   const FiltresHistorique({
     this.recherche,
@@ -97,6 +110,7 @@ class FiltresHistorique extends Equatable {
     this.region,
     this.dateDebut,
     this.dateFin,
+    this.operateur,
   });
 
   bool get estVide =>
@@ -105,7 +119,8 @@ class FiltresHistorique extends Equatable {
       (variete == null || variete!.isEmpty) &&
       (region == null || region!.isEmpty) &&
       dateDebut == null &&
-      dateFin == null;
+      dateFin == null &&
+      operateur == null;
 
   FiltresHistorique copierAvec({
     String? recherche,
@@ -114,6 +129,7 @@ class FiltresHistorique extends Equatable {
     String? region,
     DateTime? dateDebut,
     DateTime? dateFin,
+    int? operateur,
   }) {
     return FiltresHistorique(
       recherche: recherche ?? this.recherche,
@@ -122,9 +138,11 @@ class FiltresHistorique extends Equatable {
       region: region ?? this.region,
       dateDebut: dateDebut ?? this.dateDebut,
       dateFin: dateFin ?? this.dateFin,
+      operateur: operateur ?? this.operateur,
     );
   }
 
   @override
-  List<Object?> get props => [recherche, qualite, variete, region, dateDebut, dateFin];
+  List<Object?> get props =>
+      [recherche, qualite, variete, region, dateDebut, dateFin, operateur];
 }

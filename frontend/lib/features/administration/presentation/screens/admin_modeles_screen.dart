@@ -7,38 +7,35 @@ import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/carte_stylisee.dart';
-import '../../../../core/widgets/entete_ecran.dart';
-import '../../../profil/presentation/providers/profil_provider.dart';
-import '../../domain/entities/modele_entity.dart';
-import '../providers/modeles_provider.dart';
-import '../widgets/feuille_ajouter_modele.dart';
+import '../../../modeles/domain/entities/modele_entity.dart';
+import '../../../modeles/presentation/providers/modeles_provider.dart';
+import '../../../modeles/presentation/widgets/feuille_ajouter_modele.dart';
+import '../widgets/entete_ecran_admin.dart';
 
-/// Liste des modèles d'analyse disponibles, alimentée par GET /api/modeles/.
-/// Consultation et import ouverts à tout utilisateur authentifié (voir
-/// ModeleViewSet.get_permissions côté backend) ; activation/dépréciation et
-/// suppression restent réservées aux administrateurs, ces actions affectant
-/// le modèle utilisé par tous — voir profilProvider, déjà chargé par
-/// l'écran Profil.
-class ModelesScreen extends ConsumerWidget {
-  const ModelesScreen({super.key});
+/// Onglet "Modèles" de l'espace admin — dédié (ne réutilise plus
+/// ModelesScreen), sur les mêmes données/providers que côté utilisateur.
+/// Un administrateur voit toujours les actions de gestion (activer,
+/// déprécier...), pas besoin de vérifier le rôle comme le fait ModelesScreen
+/// pour un contexte mixte utilisateur/admin.
+class AdminModelesScreen extends ConsumerWidget {
+  const AdminModelesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final state = ref.watch(modelesProvider);
-    final estAdmin = ref.watch(profilProvider).profil?.estAdministrateur ?? false;
 
     return Scaffold(
       backgroundColor: AppColors.fond,
       appBar: AppBar(
         backgroundColor: AppColors.fond,
         elevation: 0,
-        title: EnTeteEcran(
+        title: EnTeteEcranAdmin(
           icone: Icons.insights_outlined,
           couleur: AppColors.vertOlive,
           fond: AppColors.evooFond,
           titre: l10n.navModeles,
-          sousTitre: l10n.modelesSousTitre,
+          sousTitre: l10n.modelesSousTitreAdmin,
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -47,11 +44,11 @@ class ModelesScreen extends ConsumerWidget {
         icon: const Icon(Icons.add, color: AppColors.blanc),
         label: Text(l10n.ajouterModeleBouton, style: AppTextStyles.boutonPrincipal),
       ),
-      body: _corps(context, ref, state, estAdmin),
+      body: _corps(context, ref, state),
     );
   }
 
-  Widget _corps(BuildContext context, WidgetRef ref, ModelesState state, bool estAdmin) {
+  Widget _corps(BuildContext context, WidgetRef ref, ModelesState state) {
     final l10n = context.l10n;
 
     if (state.modeles == null && state.enChargement) {
@@ -107,18 +104,16 @@ class ModelesScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               itemCount: modeles.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (context, index) =>
-                  _CarteModele(modele: modeles[index], estAdmin: estAdmin),
+              itemBuilder: (context, index) => _CarteModeleAdmin(modele: modeles[index]),
             ),
     );
   }
 }
 
-class _CarteModele extends ConsumerWidget {
+class _CarteModeleAdmin extends ConsumerWidget {
   final ModeleEntity modele;
-  final bool estAdmin;
 
-  const _CarteModele({required this.modele, required this.estAdmin});
+  const _CarteModeleAdmin({required this.modele});
 
   Future<void> _changerStatut(BuildContext context, WidgetRef ref, String action) async {
     final notifier = ref.read(modelesProvider.notifier);
@@ -169,27 +164,25 @@ class _CarteModele extends ConsumerWidget {
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: couleur),
                 ),
               ),
-              if (estAdmin) ...[
-                const SizedBox(width: 4),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, size: 18, color: AppColors.grisMoyen),
-                  onSelected: (action) => _changerStatut(context, ref, action),
-                  itemBuilder: (_) => [
-                    PopupMenuItem(
-                      value: modele.estActif ? 'desactiver' : 'activer',
-                      child: Text(modele.estActif ? l10n.desactiverModeleAction : l10n.activerModeleAction),
+              const SizedBox(width: 4),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, size: 18, color: AppColors.grisMoyen),
+                onSelected: (action) => _changerStatut(context, ref, action),
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: modele.estActif ? 'desactiver' : 'activer',
+                    child: Text(modele.estActif ? l10n.desactiverModeleAction : l10n.activerModeleAction),
+                  ),
+                  PopupMenuItem(
+                    value: modele.estDeprecie ? 'retirer_depreciation' : 'deprecier',
+                    child: Text(
+                      modele.estDeprecie
+                          ? l10n.retirerDepreciationModeleAction
+                          : l10n.deprecierModeleAction,
                     ),
-                    PopupMenuItem(
-                      value: modele.estDeprecie ? 'retirer_depreciation' : 'deprecier',
-                      child: Text(
-                        modele.estDeprecie
-                            ? l10n.retirerDepreciationModeleAction
-                            : l10n.deprecierModeleAction,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 4),
@@ -200,7 +193,7 @@ class _CarteModele extends ConsumerWidget {
                 style: AppTextStyles.sousTexteBienvenue.copyWith(fontSize: 12),
               ),
               const SizedBox(width: 8),
-              _InsigneTypeModele(type: modele.typeModele),
+              _InsigneTypeModeleAdmin(type: modele.typeModele),
               if (modele.estReference) ...[
                 const SizedBox(width: 6),
                 Tooltip(
@@ -213,22 +206,22 @@ class _CarteModele extends ConsumerWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              _Metrique(libelle: l10n.modeleAlgorithmeLabel, valeur: modele.algorithme),
+              _MetriqueAdmin(libelle: l10n.modeleAlgorithmeLabel, valeur: modele.algorithme),
               if (modele.typeModele == TypeModele.regression) ...[
-                _Metrique(
+                _MetriqueAdmin(
                   libelle: l10n.modeleR2Label,
                   valeur: modele.r2 == null ? '—' : formatDecimal.format(modele.r2),
                 ),
-                _Metrique(
+                _MetriqueAdmin(
                   libelle: l10n.modeleRmsecvLabel,
                   valeur: modele.rmsecv == null ? '—' : formatDecimal.format(modele.rmsecv),
                 ),
               ] else ...[
-                _Metrique(
+                _MetriqueAdmin(
                   libelle: l10n.modeleExactitudeLabel,
                   valeur: modele.exactitude == null ? '—' : formatDecimal.format(modele.exactitude),
                 ),
-                _Metrique(
+                _MetriqueAdmin(
                   libelle: l10n.modelePrecisionLabel,
                   valeur: modele.precisionClassification == null
                       ? '—'
@@ -243,10 +236,10 @@ class _CarteModele extends ConsumerWidget {
   }
 }
 
-class _InsigneTypeModele extends StatelessWidget {
+class _InsigneTypeModeleAdmin extends StatelessWidget {
   final TypeModele type;
 
-  const _InsigneTypeModele({required this.type});
+  const _InsigneTypeModeleAdmin({required this.type});
 
   @override
   Widget build(BuildContext context) {
@@ -275,11 +268,11 @@ class _InsigneTypeModele extends StatelessWidget {
   }
 }
 
-class _Metrique extends StatelessWidget {
+class _MetriqueAdmin extends StatelessWidget {
   final String libelle;
   final String valeur;
 
-  const _Metrique({required this.libelle, required this.valeur});
+  const _MetriqueAdmin({required this.libelle, required this.valeur});
 
   @override
   Widget build(BuildContext context) {

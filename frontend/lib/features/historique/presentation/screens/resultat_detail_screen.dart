@@ -23,15 +23,62 @@ import '../providers/resultat_detail_provider.dart';
 /// charges), chacune avec son propre export. Accessible depuis l'activité
 /// récente du dashboard, l'historique, et l'étape Résultats de Nouvelle
 /// Analyse une fois le résultat synchronisé.
+///
+/// [estAdmin] (mis à `true` uniquement par la route /admin/analyses/...,
+/// voir app_router.dart) affiche en plus qui a réalisé l'analyse et les
+/// actions Modifier/Supprimer — le backend les autorise de toute façon
+/// (ResultatViewSet/EchantillonViewSet, IsAdministrateur implicite via
+/// get_queryset), mais un utilisateur standard n'y a jamais accès depuis
+/// cet écran.
 class ResultatDetailScreen extends ConsumerWidget {
   final String resultatId;
+  final bool estAdmin;
 
-  const ResultatDetailScreen({super.key, required this.resultatId});
+  const ResultatDetailScreen({super.key, required this.resultatId, this.estAdmin = false});
+
+  Future<void> _confirmerSuppression(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final confirme = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        content: Text(l10n.confirmerSuppressionResultatTexte),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.annulerBouton),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.supprimerAction, style: const TextStyle(color: AppColors.erreur)),
+          ),
+        ],
+      ),
+    );
+    if (confirme == true) {
+      await ref.read(resultatDetailProvider(resultatId).notifier).supprimer();
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final state = ref.watch(resultatDetailProvider(resultatId));
+
+    ref.listen(resultatDetailProvider(resultatId), (previous, next) {
+      if (next.resultatSupprime && previous?.resultatSupprime != true) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.resultatSupprimeMessage)));
+        Navigator.of(context).pop(true);
+      }
+      if (next.echantillonModifie && previous?.echantillonModifie != true) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.echantillonModifieMessage)));
+      }
+      if (next.echecAction != null && next.echecAction != previous?.echecAction) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(next.echecAction!.messageLocalise(context))));
+      }
+    });
 
     return DefaultTabController(
       length: 2,
@@ -41,6 +88,20 @@ class ResultatDetailScreen extends ConsumerWidget {
           backgroundColor: AppColors.fond,
           elevation: 0,
           title: Text(l10n.detailResultatTitre, style: AppTextStyles.bienvenue.copyWith(fontSize: 20)),
+          actions: [
+            if (estAdmin)
+              IconButton(
+                icon: state.actionEnCours
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.erreur),
+                      )
+                    : const Icon(Icons.delete_outline, color: AppColors.erreur),
+                tooltip: l10n.supprimerAction,
+                onPressed: state.actionEnCours ? null : () => _confirmerSuppression(context, ref),
+              ),
+          ],
           bottom: TabBar(
             labelColor: AppColors.vertOliveFonce,
             unselectedLabelColor: AppColors.grisMoyen,
@@ -95,7 +156,12 @@ class ResultatDetailScreen extends ConsumerWidget {
 
     return TabBarView(
       children: [
-        _OngletResultats(resultatId: resultatId, resultat: state.resultat!),
+        _OngletResultats(
+          resultatId: resultatId,
+          resultat: state.resultat!,
+          estAdmin: estAdmin,
+          actionEnCours: state.actionEnCours,
+        ),
         _OngletSpectre(resultatId: resultatId, state: state),
       ],
     );
@@ -135,8 +201,15 @@ Future<void> _exporter(
 class _OngletResultats extends ConsumerWidget {
   final String resultatId;
   final ResultatHistoriqueEntity resultat;
+  final bool estAdmin;
+  final bool actionEnCours;
 
-  const _OngletResultats({required this.resultatId, required this.resultat});
+  const _OngletResultats({
+    required this.resultatId,
+    required this.resultat,
+    required this.estAdmin,
+    required this.actionEnCours,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -186,6 +259,14 @@ class _OngletResultats extends ConsumerWidget {
             ],
           ),
         ),
+        if (estAdmin) ...[
+          const SizedBox(height: 16),
+          _CarteInfosEchantillonAdmin(
+            resultatId: resultatId,
+            resultat: resultat,
+            enCours: actionEnCours,
+          ),
+        ],
         const SizedBox(height: 16),
         CarteStylisee(
           child: Column(
@@ -246,6 +327,120 @@ class _OngletResultats extends ConsumerWidget {
           label: Text(l10n.exporterResultatBouton),
         ),
       ],
+    );
+  }
+}
+
+class _CarteInfosEchantillonAdmin extends ConsumerWidget {
+  final String resultatId;
+  final ResultatHistoriqueEntity resultat;
+  final bool enCours;
+
+  const _CarteInfosEchantillonAdmin({
+    required this.resultatId,
+    required this.resultat,
+    required this.enCours,
+  });
+
+  Future<void> _ouvrirModification(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final producteurControleur = TextEditingController(text: resultat.producteurEchantillon);
+    final varieteControleur = TextEditingController(text: resultat.varieteEchantillon);
+    final regionControleur = TextEditingController(text: resultat.regionEchantillon);
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.blanc,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(sheetContext).viewInsets.bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.modifierEchantillonTitre, style: AppTextStyles.bienvenue.copyWith(fontSize: 18)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: producteurControleur,
+              decoration: InputDecoration(
+                labelText: l10n.champProducteur,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                isDense: true,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: varieteControleur,
+              decoration: InputDecoration(
+                labelText: l10n.champVariete,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                isDense: true,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: regionControleur,
+              decoration: InputDecoration(
+                labelText: l10n.champRegion,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                isDense: true,
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.vertOlive),
+                onPressed: () {
+                  ref.read(resultatDetailProvider(resultatId).notifier).modifierEchantillon(
+                        producteur: producteurControleur.text,
+                        variete: varieteControleur.text,
+                        region: regionControleur.text,
+                      );
+                  Navigator.of(sheetContext).pop();
+                },
+                child: Text(l10n.appliquerBouton, style: AppTextStyles.boutonPrincipal),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
+    return CarteStylisee(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.informationsEchantillonAdminTitre,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grisFonce),
+              ),
+              TextButton.icon(
+                onPressed: enCours ? null : () => _ouvrirModification(context, ref),
+                icon: const Icon(Icons.edit_outlined, size: 16),
+                label: Text(l10n.modifierAction),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          _LigneChamp(libelle: l10n.champProducteur, valeur: resultat.producteurEchantillon),
+          const Divider(height: 20, color: AppColors.grisLigne),
+          _LigneChamp(libelle: l10n.champRegion, valeur: resultat.regionEchantillon),
+          const Divider(height: 20, color: AppColors.grisLigne),
+          _LigneChamp(libelle: l10n.realiseParLabel, valeur: resultat.auteurNom),
+        ],
+      ),
     );
   }
 }

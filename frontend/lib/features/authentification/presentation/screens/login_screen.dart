@@ -241,19 +241,20 @@ class _SousTitreEncadre extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Divider(color: AppColors.grisLigne, thickness: 1)),
-        Flexible(
+        const SizedBox(width: 24, child: Divider(color: AppColors.grisLigne, thickness: 1)),
+        Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               context.l10n.sousTitreApp,
+              textAlign: TextAlign.center,
               style: AppTextStyles.sousTitreLogo,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
           ),
         ),
-        const Expanded(child: Divider(color: AppColors.grisLigne, thickness: 1)),
+        const SizedBox(width: 24, child: Divider(color: AppColors.grisLigne, thickness: 1)),
       ],
     );
   }

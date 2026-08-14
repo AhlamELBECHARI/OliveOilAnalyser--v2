@@ -168,6 +168,7 @@ class _FeuilleFiltresState extends State<_FeuilleFiltres> {
                         region: _regionControleur.text.isEmpty ? null : _regionControleur.text,
                         dateDebut: _dateDebut,
                         dateFin: _dateFin,
+                        operateur: widget.filtresActuels.operateur,
                       ));
                       Navigator.of(context).pop();
                     },

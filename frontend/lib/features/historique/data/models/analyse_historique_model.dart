@@ -13,6 +13,8 @@ class AnalyseHistoriqueModel extends AnalyseHistoriqueEntity {
     required super.dateCalcul,
     required super.conforme,
     required super.categorie,
+    required super.auteurId,
+    required super.auteurNom,
   });
 
   factory AnalyseHistoriqueModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,8 @@ class AnalyseHistoriqueModel extends AnalyseHistoriqueEntity {
       dateCalcul: DateTime.parse(json['date_calcul'] as String),
       conforme: json['conforme'] as bool,
       categorie: categorieQualiteHistoriqueDepuisCode(json['categorie'] as String),
+      auteurId: json['auteur_id'] as int,
+      auteurNom: json['auteur_nom'] as String,
     );
   }
 }

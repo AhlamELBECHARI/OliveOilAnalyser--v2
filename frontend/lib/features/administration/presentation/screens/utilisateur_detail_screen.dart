@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/localization/build_context_l10n_extension.dart';
@@ -251,6 +252,15 @@ class _CarteActions extends ConsumerWidget {
             libelle: l10n.declencherResetAction,
             enCours: enCours,
             onPressed: notifier.declencherResetMotDePasse,
+          ),
+          _BoutonAction(
+            icone: Icons.article_outlined,
+            libelle: l10n.voirAnalysesUtilisateurAction,
+            enCours: enCours,
+            onPressed: () => context.go(
+              '/admin/analyses',
+              extra: {'operateurId': utilisateur.id, 'operateurNom': utilisateur.nom},
+            ),
           ),
         ],
       ),

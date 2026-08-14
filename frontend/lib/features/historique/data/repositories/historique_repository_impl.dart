@@ -106,4 +106,42 @@ class HistoriqueRepositoryImpl implements HistoriqueRepository {
       return const Left(ErreurReseauFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, void>> supprimerResultat(String resultatId) async {
+    try {
+      await remoteDataSource.supprimerResultat(resultatId);
+      return const Right(null);
+    } on ErreurValidationException {
+      return const Left(ErreurValidationFailure());
+    } on ErreurServeurException {
+      return const Left(ErreurServeurFailure());
+    } catch (_) {
+      return const Left(ErreurReseauFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> modifierEchantillon({
+    required String echantillonId,
+    required String producteur,
+    required String variete,
+    required String region,
+  }) async {
+    try {
+      await remoteDataSource.modifierEchantillon(
+        echantillonId: echantillonId,
+        producteur: producteur,
+        variete: variete,
+        region: region,
+      );
+      return const Right(null);
+    } on ErreurValidationException {
+      return const Left(ErreurValidationFailure());
+    } on ErreurServeurException {
+      return const Left(ErreurServeurFailure());
+    } catch (_) {
+      return const Left(ErreurReseauFailure());
+    }
+  }
 }

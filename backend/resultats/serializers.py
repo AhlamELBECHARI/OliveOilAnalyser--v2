@@ -63,6 +63,13 @@ class ResultatSerializer(serializers.ModelSerializer):
     numero_echantillon = serializers.CharField(source="echantillon.numero", read_only=True)
     variete_echantillon = serializers.CharField(source="echantillon.variete", read_only=True)
     origine_echantillon = serializers.CharField(source="echantillon.origine", read_only=True)
+    producteur_echantillon = serializers.CharField(source="echantillon.producteur", read_only=True)
+    region_echantillon = serializers.CharField(source="echantillon.region", read_only=True)
+    # Utile côté admin (voir l'écran de détail d'analyse de l'espace admin,
+    # qui affiche qui a réalisé l'analyse) — sans coût pour un utilisateur
+    # standard, qui ne voit de toute façon que ses propres résultats.
+    auteur_id = serializers.IntegerField(source="echantillon.utilisateur_id", read_only=True)
+    auteur_nom = serializers.CharField(source="echantillon.utilisateur.nom", read_only=True)
     # En écriture : liste optionnelle des prédictions de chaque modèle
     # appliqué à ce scan (voir resultats.services.creer_resultat, qui les
     # crée et en dérive éventuellement acidite/conforme/modele_utilise).
@@ -76,6 +83,10 @@ class ResultatSerializer(serializers.ModelSerializer):
             "numero_echantillon",
             "variete_echantillon",
             "origine_echantillon",
+            "producteur_echantillon",
+            "region_echantillon",
+            "auteur_id",
+            "auteur_nom",
             "numero_replicat",
             "modele_utilise",
             "acidite",

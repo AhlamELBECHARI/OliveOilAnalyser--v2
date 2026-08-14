@@ -74,9 +74,11 @@ import '../../features/historique/data/repositories/historique_repository_impl.d
 import '../../features/historique/domain/repositories/historique_repository.dart';
 import '../../features/historique/domain/usecases/declencher_export_usecase.dart';
 import '../../features/historique/domain/usecases/lister_analyses_usecase.dart';
+import '../../features/historique/domain/usecases/modifier_echantillon_usecase.dart';
 import '../../features/historique/domain/usecases/obtenir_resultat_usecase.dart';
 import '../../features/historique/domain/usecases/obtenir_spectre_pour_echantillon_usecase.dart';
 import '../../features/historique/domain/usecases/obtenir_statistiques_rapides_usecase.dart';
+import '../../features/historique/domain/usecases/supprimer_resultat_usecase.dart';
 import '../../features/historique/domain/usecases/telecharger_rapport_usecase.dart';
 import '../../features/modeles/data/datasources/modeles_remote_datasource.dart';
 import '../../features/modeles/data/repositories/modeles_repository_impl.dart';
@@ -257,6 +259,8 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => ObtenirSpectrePourEchantillonUseCase(sl()));
   sl.registerLazySingleton(() => DeclencherExportUseCase(sl()));
   sl.registerLazySingleton(() => TelechargerRapportUseCase(sl()));
+  sl.registerLazySingleton(() => SupprimerResultatUseCase(sl()));
+  sl.registerLazySingleton(() => ModifierEchantillonUseCase(sl()));
 
   // --- Feature: modeles ---
   sl.registerLazySingleton<ModelesRemoteDataSource>(

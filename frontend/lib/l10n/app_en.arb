@@ -101,6 +101,12 @@
   "navAnalyses": "Analyses",
   "navAdministration": "Administration",
 
+  "supervisionSousTitre": "System overview",
+  "utilisateursSousTitreAdmin": "Account management",
+  "analysesSousTitreAdmin": "History of all analyses",
+  "modelesSousTitreAdmin": "Available analysis models",
+  "administrationSousTitreEcran": "Log, data, configuration",
+
   "supervisionTitre": "Supervision",
   "etatSystemeTitre": "System status",
   "apiLabel": "API",
@@ -198,6 +204,7 @@
   "conforme": "Compliant",
   "nonConforme": "Non-compliant",
 
+  "modelesSousTitre": "Available analysis models",
   "aucunModele": "No models available.",
   "modeleVersionLabel": "Version {version}",
   "modeleAlgorithmeLabel": "Algorithm",
@@ -236,6 +243,15 @@
   "dateAnalyseLabel": "Analysis date",
   "dateCalculLabel": "Result date",
   "commentaireLabel": "Comment",
+
+  "informationsEchantillonAdminTitre": "Sample information",
+  "realiseParLabel": "Performed by",
+  "modifierAction": "Edit",
+  "supprimerAction": "Delete",
+  "modifierEchantillonTitre": "Edit sample information",
+  "echantillonModifieMessage": "Sample updated.",
+  "confirmerSuppressionResultatTexte": "Permanently delete this analysis? This action cannot be undone.",
+  "resultatSupprimeMessage": "Analysis deleted.",
 
   "ongletResultatsLabel": "Results",
   "ongletSpectreLabel": "Spectrum",

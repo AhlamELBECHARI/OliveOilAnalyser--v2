@@ -291,6 +291,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navAdministration => 'Administration';
 
   @override
+  String get supervisionSousTitre => 'System overview';
+
+  @override
+  String get utilisateursSousTitreAdmin => 'Account management';
+
+  @override
+  String get analysesSousTitreAdmin => 'History of all analyses';
+
+  @override
+  String get modelesSousTitreAdmin => 'Available analysis models';
+
+  @override
+  String get administrationSousTitreEcran => 'Log, data, configuration';
+
+  @override
   String get supervisionTitre => 'Supervision';
 
   @override
@@ -567,6 +582,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nonConforme => 'Non-compliant';
 
   @override
+  String get modelesSousTitre => 'Available analysis models';
+
+  @override
   String get aucunModele => 'No models available.';
 
   @override
@@ -680,6 +698,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commentaireLabel => 'Comment';
+
+  @override
+  String get informationsEchantillonAdminTitre => 'Sample information';
+
+  @override
+  String get realiseParLabel => 'Performed by';
+
+  @override
+  String get modifierAction => 'Edit';
+
+  @override
+  String get supprimerAction => 'Delete';
+
+  @override
+  String get modifierEchantillonTitre => 'Edit sample information';
+
+  @override
+  String get echantillonModifieMessage => 'Sample updated.';
+
+  @override
+  String get confirmerSuppressionResultatTexte =>
+      'Permanently delete this analysis? This action cannot be undone.';
+
+  @override
+  String get resultatSupprimeMessage => 'Analysis deleted.';
 
   @override
   String get ongletResultatsLabel => 'Results';

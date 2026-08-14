@@ -35,4 +35,19 @@ abstract class HistoriqueRepository {
   /// GET /api/rapports/{id}/telecharger/ — récupère les octets du fichier
   /// généré pour un rapport, à enregistrer localement.
   Future<Either<Failure, List<int>>> telechargerRapport(String rapportId);
+
+  /// DELETE /api/resultats/{id}/ — réservé en pratique à l'espace admin
+  /// (voir ResultatDetailScreen.estAdmin) ; le backend n'accepte de toute
+  /// façon que la suppression de ses propres résultats pour un utilisateur
+  /// standard (voir resultats.views.ResultatViewSet.get_queryset).
+  Future<Either<Failure, void>> supprimerResultat(String resultatId);
+
+  /// PATCH /api/echantillons/{id}/ — corrige producteur/variété/région
+  /// depuis l'espace admin, sans toucher aux valeurs mesurées du résultat.
+  Future<Either<Failure, void>> modifierEchantillon({
+    required String echantillonId,
+    required String producteur,
+    required String variete,
+    required String region,
+  });
 }

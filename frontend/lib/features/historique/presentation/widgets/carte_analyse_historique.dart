@@ -16,6 +16,11 @@ class CarteAnalyseHistorique extends StatelessWidget {
   final VoidCallback onTap;
   final bool modeSelection;
   final bool selectionne;
+  // Colonne opérateur — n'a de sens que dans l'espace admin, où un même
+  // écran agrège les analyses de tous les utilisateurs (voir
+  // AdminAnalysesScreen) ; jamais affichée côté HistoriqueScreen, qui ne
+  // liste de toute façon que les analyses de l'utilisateur courant.
+  final bool afficherAuteur;
 
   const CarteAnalyseHistorique({
     super.key,
@@ -23,6 +28,7 @@ class CarteAnalyseHistorique extends StatelessWidget {
     required this.onTap,
     this.modeSelection = false,
     this.selectionne = false,
+    this.afficherAuteur = false,
   });
 
   @override
@@ -76,6 +82,23 @@ class CarteAnalyseHistorique extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.sousTexteBienvenue.copyWith(fontSize: 12),
                   ),
+                  if (afficherAuteur) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Icon(Icons.person_outline, size: 12, color: AppColors.grisMoyen),
+                        const SizedBox(width: 3),
+                        Flexible(
+                          child: Text(
+                            analyse.auteurNom,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grisMoyen),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
