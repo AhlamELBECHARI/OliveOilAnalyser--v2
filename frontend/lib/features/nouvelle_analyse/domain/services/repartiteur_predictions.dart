@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../../../../core/domain/classification_qualite.dart';
 import '../../../analyseur/domain/entities/resultat_scan_entity.dart';
 import '../../../configuration/domain/entities/configuration_entity.dart';
 import '../../../modeles/domain/entities/modele_entity.dart';
@@ -93,6 +94,9 @@ ResultatACreerEntity repartirPredictionsSurModeles({
     ),
     dureeAnalyseSecondes: resultatScan.dureeAnalyseSecondes,
     predictions: predictions,
+    categorie: acidite == null || configuration == null
+        ? null
+        : classifierAcidite(acidite: acidite, configuration: configuration),
   );
 }
 

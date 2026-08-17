@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:olive_iq_app/core/navigation/coquille_navigation.dart';
@@ -102,16 +103,20 @@ GoRouter _routeurTeste() {
 }
 
 Widget _widgetTeste(GoRouter router) {
-  return MaterialApp.router(
-    routerConfig: router,
-    locale: const Locale('fr'),
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: const [
-      AppLocalizations.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
+  // ProviderScope requis : la coquille embarque désormais IndicateurEtatSync
+  // (voir core/sync/indicateur_etat_sync.dart), un ConsumerWidget.
+  return ProviderScope(
+    child: MaterialApp.router(
+      routerConfig: router,
+      locale: const Locale('fr'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+    ),
   );
 }
 

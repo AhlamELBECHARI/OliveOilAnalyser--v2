@@ -49,6 +49,11 @@
   "erreurAutoModificationInterdite": "You cannot perform this action on your own account.",
   "erreurDernierAdministrateur": "Cannot do this: at least one active administrator must remain.",
 
+  "donneesLocalesBadge": "Local data (offline)",
+  "connexionRequisePremiereConnexionMessage": "Internet connection required for the first sign-in.",
+  "sessionExpireeHorsLigneMessage": "Your offline session expired after 30 days. Please reconnect with an internet connection.",
+  "deconnexionHorsLigneMessage": "You have been signed out. An internet connection will be required to sign back in.",
+
   "bonjour": "Hello,",
 
   "etatLaboratoire": "Lab status",
@@ -484,5 +489,29 @@
   "viderCacheBouton": "Clear local cache",
   "viderCacheConfirmationTitre": "Clear cache?",
   "viderCacheConfirmationTexte": "Temporary files will be deleted. Analyses waiting to sync are never affected.",
-  "cacheVideMessage": "Cache cleared."
+  "cacheVideMessage": "Cache cleared.",
+
+  "etatEnLigne": "Online",
+  "etatHorsLigne": "Offline",
+  "etatHorsLigneAvecAttente": "Offline · {nombre} pending",
+  "@etatHorsLigneAvecAttente": {
+    "placeholders": {"nombre": {"type": "int"}}
+  },
+  "etatSynchronisationEnCours": "Syncing…",
+  "etatEnAttenteDeSynchronisation": "{nombre} pending sync",
+  "@etatEnAttenteDeSynchronisation": {
+    "placeholders": {"nombre": {"type": "int"}}
+  },
+  "fileAttenteSyncTitre": "Sync queue",
+  "fileAttenteSyncSousTitre": "Items waiting to sync",
+  "relancerSynchronisationBouton": "Retry synchronization",
+  "fileAttenteVideMessage": "Everything is synced. Nothing pending.",
+  "typeElementEchantillon": "Sample",
+  "typeElementSpectre": "Spectrum",
+  "typeElementResultat": "Result",
+  "statutEnAttenteSync": "Waiting for network",
+  "statutErreurSyncAvecTentatives": "Failed · {nombre} attempt(s)",
+  "@statutErreurSyncAvecTentatives": {
+    "placeholders": {"nombre": {"type": "int"}}
+  }
 }

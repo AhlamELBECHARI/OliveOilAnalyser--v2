@@ -5,6 +5,8 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'tables/analyses_cache_table.dart';
+import 'tables/cache_generique_table.dart';
 import 'tables/echantillons_locaux_table.dart';
 import 'tables/predictions_locales_table.dart';
 import 'tables/resultats_locaux_table.dart';
@@ -15,16 +17,27 @@ part 'local_database.g.dart';
 /// Base SQLite locale (Drift) : toute analyse (échantillon, spectre,
 /// résultat) y est TOUJOURS écrite en premier, avant toute tentative
 /// réseau — voir features/analyseur (acquisition) et
-/// core/sync/synchronisation_service.dart (envoi vers l'API). Aucune
-/// logique de synchronisation ici : uniquement des requêtes CRUD/lecture.
+/// core/sync/synchronisation_service.dart (envoi vers l'API). Contient
+/// aussi désormais le cache de LECTURE (AnalysesCache, CacheGenerique) :
+/// toute donnée reçue du serveur y est écrite à la réception, pour que les
+/// écrans restent consultables hors ligne — voir cache_local_service.dart
+/// et statistiques_locales_service.dart. Aucune logique de décision
+/// réseau/synchronisation ici : uniquement des requêtes CRUD/lecture.
 @DriftDatabase(
-  tables: [EchantillonsLocaux, SpectresLocaux, ResultatsLocaux, PredictionsLocales],
+  tables: [
+    EchantillonsLocaux,
+    SpectresLocaux,
+    ResultatsLocaux,
+    PredictionsLocales,
+    AnalysesCache,
+    CacheGenerique,
+  ],
 )
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor]) : super(executor ?? _ouvrirConnexion());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -35,6 +48,12 @@ class LocalDatabase extends _$LocalDatabase {
           // uniquement, rien à migrer sur les données existantes.
           if (from < 2) {
             await m.createTable(predictionsLocales);
+          }
+          // v2 -> v3 : ajout du cache de lecture hors ligne (Partie A du
+          // cahier des charges) — tables nouvelles uniquement.
+          if (from < 3) {
+            await m.createTable(analysesCache);
+            await m.createTable(cacheGenerique);
           }
         },
       );
@@ -204,6 +223,27 @@ class LocalDatabase extends _$LocalDatabase {
     final spectres = await compterSpectresEnAttente();
     final resultats = await compterResultatsEnAttente();
     return echantillons + spectres + resultats;
+  }
+
+  // --- Cache de lecture : analyses (voir AnalysesCache) ---
+
+  Future<void> upsertAnalyseCache(AnalysesCacheCompanion donnees) =>
+      into(analysesCache).insertOnConflictUpdate(donnees);
+
+  Future<void> upsertAnalysesCache(List<AnalysesCacheCompanion> donnees) => batch((b) {
+        b.insertAllOnConflictUpdate(analysesCache, donnees);
+      });
+
+  Future<List<AnalyseCacheData>> obtenirAnalysesCache() => select(analysesCache).get();
+
+  // --- Cache de lecture générique (voir CacheGenerique) ---
+
+  Future<void> ecrireCache(String cle, String valeurJson) => into(cacheGenerique)
+      .insertOnConflictUpdate(CacheGeneriqueCompanion.insert(cle: cle, valeurJson: valeurJson));
+
+  Future<String?> lireCache(String cle) async {
+    final ligne = await (select(cacheGenerique)..where((t) => t.cle.equals(cle))).getSingleOrNull();
+    return ligne?.valeurJson;
   }
 }
 

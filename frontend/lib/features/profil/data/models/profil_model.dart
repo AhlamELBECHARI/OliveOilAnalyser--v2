@@ -32,4 +32,20 @@ class ProfilModel extends ProfilEntity {
       dateCreation: DateTime.parse(json['date_creation'] as String),
     );
   }
+
+  /// Pour le cache local hors ligne (voir core/local_storage/cache_local_service.dart)
+  /// — même forme que la réponse API, pour que [fromJson] puisse relire tel quel.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'nom': nom,
+        'email': email,
+        'role': role,
+        'telephone': telephone,
+        'fonction': fonction,
+        'laboratoire': laboratoire,
+        'institution': institution,
+        'photo_profil': photoProfilUrl,
+        'date_derniere_connexion': dateDerniereConnexion?.toIso8601String(),
+        'date_creation': dateCreation.toIso8601String(),
+      };
 }

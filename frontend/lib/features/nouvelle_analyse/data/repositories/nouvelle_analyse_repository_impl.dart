@@ -105,10 +105,48 @@ class NouvelleAnalyseRepositoryImpl implements NouvelleAnalyseRepository {
           ),
       ];
       await _base.insererResultat(companionResultat, companionsPredictions);
+      await _mettreAJourCacheAnalyses(
+        resultatId: resultatId,
+        echantillonId: echantillonId,
+        resultat: resultat,
+      );
       unawaited(_synchronisation.synchroniser());
       return const Right(null);
     } catch (_) {
       return const Left(ErreurStockageLocalFailure());
+    }
+  }
+
+  /// Fait apparaître immédiatement une analyse créée hors ligne dans le
+  /// calcul local du tableau de bord/historique (voir
+  /// core/local_storage/statistiques_locales_service.dart) — sans attendre
+  /// un futur GET réussi. Best-effort : un échec ici ne doit jamais faire
+  /// échouer l'enregistrement du résultat lui-même, déjà confirmé au-dessus.
+  Future<void> _mettreAJourCacheAnalyses({
+    required String resultatId,
+    required String echantillonId,
+    required ResultatACreerEntity resultat,
+  }) async {
+    if (resultat.acidite == null) return;
+    try {
+      final echantillon = await _base.obtenirEchantillon(echantillonId);
+      if (echantillon == null) return;
+      await _base.upsertAnalyseCache(AnalysesCacheCompanion.insert(
+        id: resultatId,
+        numeroEchantillon: Value(echantillon.numero),
+        producteurEchantillon: Value(echantillon.producteur),
+        varieteEchantillon: Value(echantillon.variete),
+        regionEchantillon: Value(echantillon.region),
+        origineEchantillon: Value(echantillon.origine),
+        acidite: resultat.acidite!,
+        indicePeroxyde: Value(resultat.indicePeroxyde),
+        dateCalcul: DateTime.now(),
+        conforme: Value(resultat.conforme),
+        categorie: resultat.categorie?.name ?? 'lampante',
+        dureeAnalyseSecondes: Value(resultat.dureeAnalyseSecondes),
+      ));
+    } catch (_) {
+      // Best-effort — voir docstring.
     }
   }
 }

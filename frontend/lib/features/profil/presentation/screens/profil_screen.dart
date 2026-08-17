@@ -361,6 +361,33 @@ class ProfilScreen extends ConsumerWidget {
               children: [
                 const _LigneSynchronisationCloud(),
                 const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
+                Consumer(builder: (context, ref, _) {
+                  final enAttente = ref.watch(elementsEnAttenteSyncProvider).valueOrNull ?? 0;
+                  return LigneParametre(
+                    icone: Icons.cloud_upload_outlined,
+                    titre: l10n.fileAttenteSyncTitre,
+                    sousTitre: l10n.fileAttenteSyncSousTitre,
+                    fin: enAttente == 0
+                        ? null
+                        : Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: AppColors.orangeFond,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '$enAttente',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.orangeIcone,
+                              ),
+                            ),
+                          ),
+                    onTap: () => context.push('/synchronisation/file-attente'),
+                  );
+                }),
+                const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
                 LigneParametre(
                   icone: Icons.storage_outlined,
                   titre: l10n.gestionDonneesTitre,

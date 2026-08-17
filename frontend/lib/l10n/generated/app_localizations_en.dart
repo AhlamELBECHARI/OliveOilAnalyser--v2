@@ -147,6 +147,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cannot do this: at least one active administrator must remain.';
 
   @override
+  String get donneesLocalesBadge => 'Local data (offline)';
+
+  @override
+  String get connexionRequisePremiereConnexionMessage =>
+      'Internet connection required for the first sign-in.';
+
+  @override
+  String get sessionExpireeHorsLigneMessage =>
+      'Your offline session expired after 30 days. Please reconnect with an internet connection.';
+
+  @override
+  String get deconnexionHorsLigneMessage =>
+      'You have been signed out. An internet connection will be required to sign back in.';
+
+  @override
   String get bonjour => 'Hello,';
 
   @override
@@ -1364,4 +1379,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cacheVideMessage => 'Cache cleared.';
+
+  @override
+  String get etatEnLigne => 'Online';
+
+  @override
+  String get etatHorsLigne => 'Offline';
+
+  @override
+  String etatHorsLigneAvecAttente(int nombre) {
+    return 'Offline · $nombre pending';
+  }
+
+  @override
+  String get etatSynchronisationEnCours => 'Syncing…';
+
+  @override
+  String etatEnAttenteDeSynchronisation(int nombre) {
+    return '$nombre pending sync';
+  }
+
+  @override
+  String get fileAttenteSyncTitre => 'Sync queue';
+
+  @override
+  String get fileAttenteSyncSousTitre => 'Items waiting to sync';
+
+  @override
+  String get relancerSynchronisationBouton => 'Retry synchronization';
+
+  @override
+  String get fileAttenteVideMessage => 'Everything is synced. Nothing pending.';
+
+  @override
+  String get typeElementEchantillon => 'Sample';
+
+  @override
+  String get typeElementSpectre => 'Spectrum';
+
+  @override
+  String get typeElementResultat => 'Result';
+
+  @override
+  String get statutEnAttenteSync => 'Waiting for network';
+
+  @override
+  String statutErreurSyncAvecTentatives(int nombre) {
+    return 'Failed · $nombre attempt(s)';
+  }
 }

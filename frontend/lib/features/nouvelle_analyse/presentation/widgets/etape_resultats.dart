@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/domain/classification_qualite.dart';
 import '../../../../core/localization/build_context_l10n_extension.dart';
 import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/files/telechargeur_fichier.dart';
@@ -133,9 +134,14 @@ ModeleEntity? _trouverModele(List<ModeleEntity> modeles, int id) {
 String _categorieLabel(BuildContext context, {required double acidite, required ConfigurationEntity? configuration}) {
   final l10n = context.l10n;
   if (configuration == null) return '—';
-  if (acidite <= configuration.seuilAciditeEvoo) return l10n.categorieEvooLabel;
-  if (acidite <= configuration.seuilAciditeVoo) return l10n.categorieVooLabel;
-  return l10n.categorieLampanteLabel;
+  switch (classifierAcidite(acidite: acidite, configuration: configuration)) {
+    case CategorieQualiteHuile.evoo:
+      return l10n.categorieEvooLabel;
+    case CategorieQualiteHuile.voo:
+      return l10n.categorieVooLabel;
+    case CategorieQualiteHuile.lampante:
+      return l10n.categorieLampanteLabel;
+  }
 }
 
 class _BlocPredictionsAcidite extends StatelessWidget {

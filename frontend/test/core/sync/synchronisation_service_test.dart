@@ -4,10 +4,16 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:olive_iq_app/core/local_storage/local_database.dart';
+import 'package:olive_iq_app/core/network/connectivity_service.dart';
+import 'package:olive_iq_app/core/network/token_refresher.dart';
 import 'package:olive_iq_app/core/sync/synchronisation_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockDio extends Mock implements Dio {}
+
+class MockConnectivityService extends Mock implements ConnectivityService {}
+
+class MockTokenRefresher extends Mock implements TokenRefresher {}
 
 Response<Object?> _reponseSucces(String chemin) {
   return Response(requestOptions: RequestOptions(path: chemin), statusCode: 201, data: {});
@@ -23,6 +29,8 @@ DioException _erreurServeur(String chemin) {
 void main() {
   late LocalDatabase base;
   late MockDio dio;
+  late MockConnectivityService connectivite;
+  late MockTokenRefresher tokenRefresher;
   late SynchronisationService service;
 
   setUpAll(() {
@@ -32,13 +40,20 @@ void main() {
   setUp(() async {
     base = LocalDatabase(NativeDatabase.memory());
     dio = MockDio();
+    connectivite = MockConnectivityService();
+    when(() => connectivite.estEnLigne()).thenAnswer((_) async => true);
+    when(() => connectivite.flusEnLigne).thenAnswer((_) => const Stream.empty());
+    tokenRefresher = MockTokenRefresher();
+    when(() => tokenRefresher.rafraichir())
+        .thenAnswer((_) async => ResultatRafraichissement.succes);
     SharedPreferences.setMockInitialValues({});
     final preferences = await SharedPreferences.getInstance();
     service = SynchronisationService(
       base: base,
       dio: dio,
       preferences: preferences,
-      connectivite: null,
+      connectivite: connectivite,
+      tokenRefresher: tokenRefresher,
     );
   });
 
@@ -193,5 +208,75 @@ void main() {
     await service.synchroniser();
 
     expect(service.derniereSynchronisation, isNotNull);
+  });
+
+  group('bascule hors ligne', () {
+    test("synchroniser() n'appelle jamais le réseau quand l'appareil est hors ligne", () async {
+      when(() => connectivite.estEnLigne()).thenAnswer((_) async => false);
+      await insererEchantillon('ech-11');
+
+      await service.synchroniser();
+
+      verifyNever(() => dio.post(any(), data: any(named: 'data')));
+      expect((await base.obtenirEchantillon('ech-11'))!.statutSync, 'enAttente');
+    });
+
+    test(
+        "flusElementsEnAttente reflète un élément créé hors ligne immédiatement, "
+        "même si aucune tentative réseau n'a lieu (l'indicateur global ne doit jamais rester "
+        "figé sur un ancien compte pendant que l'appareil est hors ligne)", () async {
+      when(() => connectivite.estEnLigne()).thenAnswer((_) async => false);
+
+      final valeurs = <int>[];
+      final abonnement = service.flusElementsEnAttente.listen(valeurs.add);
+
+      await insererEchantillon('ech-11b');
+      await service.synchroniser();
+      await Future<void>.delayed(Duration.zero);
+      await abonnement.cancel();
+
+      expect(valeurs, contains(1));
+      verifyNever(() => dio.post(any(), data: any(named: 'data')));
+    });
+
+    test('une session hors ligne invalide interrompt la passe sans toucher la file d\'attente', () async {
+      when(() => tokenRefresher.rafraichir())
+          .thenAnswer((_) async => ResultatRafraichissement.sessionInvalide);
+      await insererEchantillon('ech-12');
+
+      await service.synchroniser();
+
+      verifyNever(() => dio.post(any(), data: any(named: 'data')));
+      expect((await base.obtenirEchantillon('ech-12'))!.statutSync, 'enAttente');
+    });
+
+    test('un échec réseau du rafraîchissement du token ne bloque pas la synchronisation du reste',
+        () async {
+      when(() => tokenRefresher.rafraichir())
+          .thenAnswer((_) async => ResultatRafraichissement.echecReseau);
+      await insererEchantillon('ech-13');
+      when(() => dio.post('/echantillons/', data: any(named: 'data')))
+          .thenAnswer((_) async => _reponseSucces('/echantillons/'));
+
+      await service.synchroniser();
+
+      expect((await base.obtenirEchantillon('ech-13'))!.statutSync, 'synchronise');
+    });
+
+    test('après un échec, une relance non forcée est freinée par le backoff mais une relance forcée ne l\'est pas',
+        () async {
+      await insererEchantillon('ech-14');
+      when(() => dio.post('/echantillons/', data: any(named: 'data')))
+          .thenThrow(_erreurServeur('/echantillons/'));
+
+      await service.synchroniser();
+      verify(() => dio.post('/echantillons/', data: any(named: 'data'))).called(1);
+
+      await service.synchroniser();
+      verifyNever(() => dio.post('/echantillons/', data: any(named: 'data')));
+
+      await service.synchroniser(forcer: true);
+      verify(() => dio.post('/echantillons/', data: any(named: 'data'))).called(1);
+    });
   });
 }

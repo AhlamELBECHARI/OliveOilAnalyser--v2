@@ -3,9 +3,13 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/app_config.dart';
+import '../local_storage/cache_local_service.dart';
 import '../local_storage/local_database.dart';
+import '../local_storage/statistiques_locales_service.dart';
 import '../navigation/app_navigator.dart';
+import '../network/connectivity_service.dart';
 import '../network/dio_client.dart';
+import '../network/token_refresher.dart';
 import '../storage/token_storage_service.dart';
 import '../sync/synchronisation_service.dart';
 import '../../features/administration/data/datasources/administration_remote_datasource.dart';
@@ -52,8 +56,9 @@ import '../../features/authentification/data/datasources/auth_remote_datasource.
 import '../../features/authentification/data/repositories/auth_repository_impl.dart';
 import '../../features/authentification/domain/repositories/auth_repository.dart';
 import '../../features/authentification/domain/usecases/confirmer_reset_mot_de_passe_usecase.dart';
+import '../../features/authentification/domain/usecases/consommer_raison_message_login_usecase.dart';
 import '../../features/authentification/domain/usecases/demander_reset_mot_de_passe_usecase.dart';
-import '../../features/authentification/domain/usecases/get_session_locale_usecase.dart';
+import '../../features/authentification/domain/usecases/obtenir_etat_session_locale_usecase.dart';
 import '../../features/authentification/domain/usecases/login_usecase.dart';
 import '../../features/authentification/domain/usecases/logout_usecase.dart';
 import '../../features/authentification/domain/usecases/obtenir_role_session_usecase.dart';
@@ -119,21 +124,36 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<TokenStorageService>(() => TokenStorageService());
   sl.registerLazySingleton<AppNavigator>(() => AppNavigator());
   sl.registerLazySingleton<LocalDatabase>(() => LocalDatabase());
+  sl.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerSingleton<SharedPreferences>(sharedPreferences);
+
+  // Cache de lecture hors ligne (voir core/local_storage) : partagé par
+  // toutes les features qui doivent rester consultables sans réseau.
+  sl.registerLazySingleton<CacheLocalService>(() => CacheLocalService(base: sl()));
+  sl.registerLazySingleton<StatistiquesLocalesService>(
+    () => StatistiquesLocalesService(base: sl()),
+  );
 
   sl.registerLazySingleton<DioClient>(() => DioClient(
         tokenStorage: sl(),
         onSessionExpiree: () => sl<AppNavigator>().retourAuLogin(),
       ));
   sl.registerLazySingleton<Dio>(() => sl<DioClient>().dio);
+  sl.registerLazySingleton<TokenRefresher>(() => sl<DioClient>().tokenRefresher);
 
   // Synchronisation hors ligne (voir core/local_storage/local_database.dart) :
   // un seul service, partagé par toute l'app, qui pousse vers l'API tout ce
   // qui a été écrit localement en attendant le réseau. Démarré une seule
   // fois ici (écoute de la connectivité), jamais réinstancié par écran.
   sl.registerLazySingleton<SynchronisationService>(
-    () => SynchronisationService(base: sl(), dio: sl(), preferences: sl()),
+    () => SynchronisationService(
+      base: sl(),
+      dio: sl(),
+      preferences: sl(),
+      connectivite: sl(),
+      tokenRefresher: sl(),
+    ),
   );
   sl<SynchronisationService>().demarrerEcoute();
 
@@ -142,19 +162,20 @@ Future<void> initDependencies() async {
     () => AuthRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(tokenStorage: sl()),
+    () => AuthLocalDataSourceImpl(tokenStorage: sl(), preferences: sl()),
   );
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()),
+    () => AuthRepositoryImpl(remoteDataSource: sl(), localDataSource: sl(), connectivityService: sl()),
   );
 
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => DemanderResetMotDePasseUseCase(sl()));
   sl.registerLazySingleton(() => VerifierCodeResetUseCase(sl()));
   sl.registerLazySingleton(() => ConfirmerResetMotDePasseUseCase(sl()));
-  sl.registerLazySingleton(() => GetSessionLocaleUseCase(sl()));
+  sl.registerLazySingleton(() => ObtenirEtatSessionLocaleUseCase(sl()));
   sl.registerLazySingleton(() => ObtenirRoleSessionUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
+  sl.registerLazySingleton(() => ConsommerRaisonMessageLoginUseCase(sl()));
 
   // --- Feature: analyseur (module Bluetooth) ---
   // Seul point de choix entre le simulateur et la vraie implémentation SPP
@@ -194,7 +215,7 @@ Future<void> initDependencies() async {
     () => DashboardRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<DashboardRepository>(
-    () => DashboardRepositoryImpl(remoteDataSource: sl()),
+    () => DashboardRepositoryImpl(remoteDataSource: sl(), statistiquesLocales: sl(), cacheLocal: sl()),
   );
 
   sl.registerLazySingleton(() => ObtenirStatistiquesUseCase(sl()));
@@ -218,7 +239,7 @@ Future<void> initDependencies() async {
     () => ConfigurationRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<ConfigurationRepository>(
-    () => ConfigurationRepositoryImpl(remoteDataSource: sl()),
+    () => ConfigurationRepositoryImpl(remoteDataSource: sl(), cacheLocal: sl()),
   );
   sl.registerLazySingleton(() => ObtenirConfigurationUseCase(sl()));
   sl.registerLazySingleton(() => ModifierConfigurationUseCase(sl()));
@@ -228,7 +249,7 @@ Future<void> initDependencies() async {
     () => ProfilRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<ProfilRepository>(
-    () => ProfilRepositoryImpl(remoteDataSource: sl(), tokenStorage: sl()),
+    () => ProfilRepositoryImpl(remoteDataSource: sl(), tokenStorage: sl(), cacheLocal: sl()),
   );
   sl.registerLazySingleton(() => ObtenirProfilUseCase(sl()));
   sl.registerLazySingleton(() => ModifierProfilUseCase(sl()));
@@ -242,7 +263,7 @@ Future<void> initDependencies() async {
     () => AlertesRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<AlertesRepository>(
-    () => AlertesRepositoryImpl(remoteDataSource: sl()),
+    () => AlertesRepositoryImpl(remoteDataSource: sl(), cacheLocal: sl()),
   );
   sl.registerLazySingleton(() => ListerAlertesUseCase(sl()));
 
@@ -251,7 +272,7 @@ Future<void> initDependencies() async {
     () => HistoriqueRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<HistoriqueRepository>(
-    () => HistoriqueRepositoryImpl(remoteDataSource: sl()),
+    () => HistoriqueRepositoryImpl(remoteDataSource: sl(), localDatabase: sl(), statistiquesLocales: sl()),
   );
   sl.registerLazySingleton(() => ListerAnalysesUseCase(sl()));
   sl.registerLazySingleton(() => ObtenirStatistiquesRapidesUseCase(sl()));
@@ -267,7 +288,7 @@ Future<void> initDependencies() async {
     () => ModelesRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<ModelesRepository>(
-    () => ModelesRepositoryImpl(remoteDataSource: sl()),
+    () => ModelesRepositoryImpl(remoteDataSource: sl(), cacheLocal: sl()),
   );
   sl.registerLazySingleton(() => ListerModelesUseCase(sl()));
   sl.registerLazySingleton(() => CreerModeleUseCase(sl()));

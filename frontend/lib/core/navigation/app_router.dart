@@ -21,6 +21,7 @@ import '../../features/modeles/presentation/screens/modeles_screen.dart';
 import '../../features/nouvelle_analyse/presentation/screens/nouvelle_analyse_screen.dart';
 import '../../features/profil/presentation/screens/a_propos_screen.dart';
 import '../../features/profil/presentation/screens/centre_aide_screen.dart';
+import '../../features/profil/presentation/screens/file_attente_sync_screen.dart';
 import '../../features/profil/presentation/screens/gestion_donnees_screen.dart';
 import '../../features/profil/presentation/screens/informations_personnelles_screen.dart';
 import '../../features/profil/presentation/screens/mentions_legales_screen.dart';
@@ -50,6 +51,13 @@ GoRouter creerRouter({required String emplacementInitial}) {
       GoRoute(
         path: '/mot-de-passe-oublie',
         builder: (context, state) => const EmailResetScreen(),
+      ),
+      // Route racine (hors des deux coquilles) : atteignable depuis
+      // l'indicateur global aussi bien en espace utilisateur qu'admin — voir
+      // core/sync/indicateur_etat_sync.dart.
+      GoRoute(
+        path: '/synchronisation/file-attente',
+        builder: (context, state) => const FileAttenteSyncScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>

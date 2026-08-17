@@ -8,8 +8,10 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/files/telechargeur_fichier.dart';
 import '../../../../core/localization/build_context_l10n_extension.dart';
 import '../../../../core/localization/failure_localizer.dart';
+import '../../../../core/network/connectivite_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/bandeau_donnees_locales.dart';
 import '../../../../core/widgets/entete_ecran.dart';
 import '../../domain/entities/analyse_historique_entity.dart';
 import '../../domain/entities/demande_export_entity.dart';
@@ -190,6 +192,10 @@ class HistoriqueScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
+          if (!(ref.watch(connectiviteProvider).valueOrNull ?? true)) ...[
+            BandeauDonneesLocales(texte: l10n.donneesLocalesBadge),
+            const SizedBox(height: 16),
+          ],
           if (state.statistiques != null) ...[
             CarteApercuHistorique(apercu: state.statistiques!.apercu),
             const SizedBox(height: 16),

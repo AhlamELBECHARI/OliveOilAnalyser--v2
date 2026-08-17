@@ -12,6 +12,12 @@ final elementsEnAttenteSyncProvider = StreamProvider.autoDispose<int>((ref) {
   return sl<SynchronisationService>().flusElementsEnAttente;
 });
 
+/// Vrai pendant qu'une passe de synchronisation est en cours — alimente
+/// l'indicateur global (voir core/sync/indicateur_etat_sync.dart).
+final synchronisationEnCoursProvider = StreamProvider.autoDispose<bool>((ref) {
+  return sl<SynchronisationService>().flusSynchronisationEnCours;
+});
+
 /// Date de la dernière synchronisation réussie (Partie B, "Données &
 /// Synchronisation") — valeur initiale lue immédiatement, puis mise à jour
 /// à chaud via le flux du service.

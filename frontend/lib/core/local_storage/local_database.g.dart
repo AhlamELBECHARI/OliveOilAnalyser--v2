@@ -2960,6 +2960,1124 @@ class PredictionsLocalesCompanion
   }
 }
 
+class $AnalysesCacheTable extends AnalysesCache
+    with TableInfo<$AnalysesCacheTable, AnalyseCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AnalysesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _numeroEchantillonMeta = const VerificationMeta(
+    'numeroEchantillon',
+  );
+  @override
+  late final GeneratedColumn<String> numeroEchantillon =
+      GeneratedColumn<String>(
+        'numero_echantillon',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
+  static const VerificationMeta _producteurEchantillonMeta =
+      const VerificationMeta('producteurEchantillon');
+  @override
+  late final GeneratedColumn<String> producteurEchantillon =
+      GeneratedColumn<String>(
+        'producteur_echantillon',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
+  static const VerificationMeta _varieteEchantillonMeta =
+      const VerificationMeta('varieteEchantillon');
+  @override
+  late final GeneratedColumn<String> varieteEchantillon =
+      GeneratedColumn<String>(
+        'variete_echantillon',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
+  static const VerificationMeta _regionEchantillonMeta = const VerificationMeta(
+    'regionEchantillon',
+  );
+  @override
+  late final GeneratedColumn<String> regionEchantillon =
+      GeneratedColumn<String>(
+        'region_echantillon',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
+  static const VerificationMeta _origineEchantillonMeta =
+      const VerificationMeta('origineEchantillon');
+  @override
+  late final GeneratedColumn<String> origineEchantillon =
+      GeneratedColumn<String>(
+        'origine_echantillon',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
+  static const VerificationMeta _aciditeMeta = const VerificationMeta(
+    'acidite',
+  );
+  @override
+  late final GeneratedColumn<double> acidite = GeneratedColumn<double>(
+    'acidite',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _indicePeroxydeMeta = const VerificationMeta(
+    'indicePeroxyde',
+  );
+  @override
+  late final GeneratedColumn<double> indicePeroxyde = GeneratedColumn<double>(
+    'indice_peroxyde',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dateCalculMeta = const VerificationMeta(
+    'dateCalcul',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dateCalcul = GeneratedColumn<DateTime>(
+    'date_calcul',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _conformeMeta = const VerificationMeta(
+    'conforme',
+  );
+  @override
+  late final GeneratedColumn<bool> conforme = GeneratedColumn<bool>(
+    'conforme',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("conforme" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _categorieMeta = const VerificationMeta(
+    'categorie',
+  );
+  @override
+  late final GeneratedColumn<String> categorie = GeneratedColumn<String>(
+    'categorie',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dureeAnalyseSecondesMeta =
+      const VerificationMeta('dureeAnalyseSecondes');
+  @override
+  late final GeneratedColumn<int> dureeAnalyseSecondes = GeneratedColumn<int>(
+    'duree_analyse_secondes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _auteurIdMeta = const VerificationMeta(
+    'auteurId',
+  );
+  @override
+  late final GeneratedColumn<int> auteurId = GeneratedColumn<int>(
+    'auteur_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _auteurNomMeta = const VerificationMeta(
+    'auteurNom',
+  );
+  @override
+  late final GeneratedColumn<String> auteurNom = GeneratedColumn<String>(
+    'auteur_nom',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    numeroEchantillon,
+    producteurEchantillon,
+    varieteEchantillon,
+    regionEchantillon,
+    origineEchantillon,
+    acidite,
+    indicePeroxyde,
+    dateCalcul,
+    conforme,
+    categorie,
+    dureeAnalyseSecondes,
+    auteurId,
+    auteurNom,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'analyses_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AnalyseCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('numero_echantillon')) {
+      context.handle(
+        _numeroEchantillonMeta,
+        numeroEchantillon.isAcceptableOrUnknown(
+          data['numero_echantillon']!,
+          _numeroEchantillonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('producteur_echantillon')) {
+      context.handle(
+        _producteurEchantillonMeta,
+        producteurEchantillon.isAcceptableOrUnknown(
+          data['producteur_echantillon']!,
+          _producteurEchantillonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('variete_echantillon')) {
+      context.handle(
+        _varieteEchantillonMeta,
+        varieteEchantillon.isAcceptableOrUnknown(
+          data['variete_echantillon']!,
+          _varieteEchantillonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('region_echantillon')) {
+      context.handle(
+        _regionEchantillonMeta,
+        regionEchantillon.isAcceptableOrUnknown(
+          data['region_echantillon']!,
+          _regionEchantillonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('origine_echantillon')) {
+      context.handle(
+        _origineEchantillonMeta,
+        origineEchantillon.isAcceptableOrUnknown(
+          data['origine_echantillon']!,
+          _origineEchantillonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('acidite')) {
+      context.handle(
+        _aciditeMeta,
+        acidite.isAcceptableOrUnknown(data['acidite']!, _aciditeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_aciditeMeta);
+    }
+    if (data.containsKey('indice_peroxyde')) {
+      context.handle(
+        _indicePeroxydeMeta,
+        indicePeroxyde.isAcceptableOrUnknown(
+          data['indice_peroxyde']!,
+          _indicePeroxydeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('date_calcul')) {
+      context.handle(
+        _dateCalculMeta,
+        dateCalcul.isAcceptableOrUnknown(data['date_calcul']!, _dateCalculMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateCalculMeta);
+    }
+    if (data.containsKey('conforme')) {
+      context.handle(
+        _conformeMeta,
+        conforme.isAcceptableOrUnknown(data['conforme']!, _conformeMeta),
+      );
+    }
+    if (data.containsKey('categorie')) {
+      context.handle(
+        _categorieMeta,
+        categorie.isAcceptableOrUnknown(data['categorie']!, _categorieMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categorieMeta);
+    }
+    if (data.containsKey('duree_analyse_secondes')) {
+      context.handle(
+        _dureeAnalyseSecondesMeta,
+        dureeAnalyseSecondes.isAcceptableOrUnknown(
+          data['duree_analyse_secondes']!,
+          _dureeAnalyseSecondesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auteur_id')) {
+      context.handle(
+        _auteurIdMeta,
+        auteurId.isAcceptableOrUnknown(data['auteur_id']!, _auteurIdMeta),
+      );
+    }
+    if (data.containsKey('auteur_nom')) {
+      context.handle(
+        _auteurNomMeta,
+        auteurNom.isAcceptableOrUnknown(data['auteur_nom']!, _auteurNomMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AnalyseCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AnalyseCacheData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      numeroEchantillon: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}numero_echantillon'],
+      )!,
+      producteurEchantillon: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}producteur_echantillon'],
+      )!,
+      varieteEchantillon: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}variete_echantillon'],
+      )!,
+      regionEchantillon: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}region_echantillon'],
+      )!,
+      origineEchantillon: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origine_echantillon'],
+      )!,
+      acidite: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}acidite'],
+      )!,
+      indicePeroxyde: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}indice_peroxyde'],
+      ),
+      dateCalcul: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date_calcul'],
+      )!,
+      conforme: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}conforme'],
+      )!,
+      categorie: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}categorie'],
+      )!,
+      dureeAnalyseSecondes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duree_analyse_secondes'],
+      ),
+      auteurId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}auteur_id'],
+      )!,
+      auteurNom: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}auteur_nom'],
+      )!,
+    );
+  }
+
+  @override
+  $AnalysesCacheTable createAlias(String alias) {
+    return $AnalysesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class AnalyseCacheData extends DataClass
+    implements Insertable<AnalyseCacheData> {
+  final String id;
+  final String numeroEchantillon;
+  final String producteurEchantillon;
+  final String varieteEchantillon;
+  final String regionEchantillon;
+  final String origineEchantillon;
+  final double acidite;
+  final double? indicePeroxyde;
+  final DateTime dateCalcul;
+  final bool conforme;
+  final String categorie;
+  final int? dureeAnalyseSecondes;
+  final int auteurId;
+  final String auteurNom;
+  const AnalyseCacheData({
+    required this.id,
+    required this.numeroEchantillon,
+    required this.producteurEchantillon,
+    required this.varieteEchantillon,
+    required this.regionEchantillon,
+    required this.origineEchantillon,
+    required this.acidite,
+    this.indicePeroxyde,
+    required this.dateCalcul,
+    required this.conforme,
+    required this.categorie,
+    this.dureeAnalyseSecondes,
+    required this.auteurId,
+    required this.auteurNom,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['numero_echantillon'] = Variable<String>(numeroEchantillon);
+    map['producteur_echantillon'] = Variable<String>(producteurEchantillon);
+    map['variete_echantillon'] = Variable<String>(varieteEchantillon);
+    map['region_echantillon'] = Variable<String>(regionEchantillon);
+    map['origine_echantillon'] = Variable<String>(origineEchantillon);
+    map['acidite'] = Variable<double>(acidite);
+    if (!nullToAbsent || indicePeroxyde != null) {
+      map['indice_peroxyde'] = Variable<double>(indicePeroxyde);
+    }
+    map['date_calcul'] = Variable<DateTime>(dateCalcul);
+    map['conforme'] = Variable<bool>(conforme);
+    map['categorie'] = Variable<String>(categorie);
+    if (!nullToAbsent || dureeAnalyseSecondes != null) {
+      map['duree_analyse_secondes'] = Variable<int>(dureeAnalyseSecondes);
+    }
+    map['auteur_id'] = Variable<int>(auteurId);
+    map['auteur_nom'] = Variable<String>(auteurNom);
+    return map;
+  }
+
+  AnalysesCacheCompanion toCompanion(bool nullToAbsent) {
+    return AnalysesCacheCompanion(
+      id: Value(id),
+      numeroEchantillon: Value(numeroEchantillon),
+      producteurEchantillon: Value(producteurEchantillon),
+      varieteEchantillon: Value(varieteEchantillon),
+      regionEchantillon: Value(regionEchantillon),
+      origineEchantillon: Value(origineEchantillon),
+      acidite: Value(acidite),
+      indicePeroxyde: indicePeroxyde == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indicePeroxyde),
+      dateCalcul: Value(dateCalcul),
+      conforme: Value(conforme),
+      categorie: Value(categorie),
+      dureeAnalyseSecondes: dureeAnalyseSecondes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dureeAnalyseSecondes),
+      auteurId: Value(auteurId),
+      auteurNom: Value(auteurNom),
+    );
+  }
+
+  factory AnalyseCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AnalyseCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      numeroEchantillon: serializer.fromJson<String>(json['numeroEchantillon']),
+      producteurEchantillon: serializer.fromJson<String>(
+        json['producteurEchantillon'],
+      ),
+      varieteEchantillon: serializer.fromJson<String>(
+        json['varieteEchantillon'],
+      ),
+      regionEchantillon: serializer.fromJson<String>(json['regionEchantillon']),
+      origineEchantillon: serializer.fromJson<String>(
+        json['origineEchantillon'],
+      ),
+      acidite: serializer.fromJson<double>(json['acidite']),
+      indicePeroxyde: serializer.fromJson<double?>(json['indicePeroxyde']),
+      dateCalcul: serializer.fromJson<DateTime>(json['dateCalcul']),
+      conforme: serializer.fromJson<bool>(json['conforme']),
+      categorie: serializer.fromJson<String>(json['categorie']),
+      dureeAnalyseSecondes: serializer.fromJson<int?>(
+        json['dureeAnalyseSecondes'],
+      ),
+      auteurId: serializer.fromJson<int>(json['auteurId']),
+      auteurNom: serializer.fromJson<String>(json['auteurNom']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'numeroEchantillon': serializer.toJson<String>(numeroEchantillon),
+      'producteurEchantillon': serializer.toJson<String>(producteurEchantillon),
+      'varieteEchantillon': serializer.toJson<String>(varieteEchantillon),
+      'regionEchantillon': serializer.toJson<String>(regionEchantillon),
+      'origineEchantillon': serializer.toJson<String>(origineEchantillon),
+      'acidite': serializer.toJson<double>(acidite),
+      'indicePeroxyde': serializer.toJson<double?>(indicePeroxyde),
+      'dateCalcul': serializer.toJson<DateTime>(dateCalcul),
+      'conforme': serializer.toJson<bool>(conforme),
+      'categorie': serializer.toJson<String>(categorie),
+      'dureeAnalyseSecondes': serializer.toJson<int?>(dureeAnalyseSecondes),
+      'auteurId': serializer.toJson<int>(auteurId),
+      'auteurNom': serializer.toJson<String>(auteurNom),
+    };
+  }
+
+  AnalyseCacheData copyWith({
+    String? id,
+    String? numeroEchantillon,
+    String? producteurEchantillon,
+    String? varieteEchantillon,
+    String? regionEchantillon,
+    String? origineEchantillon,
+    double? acidite,
+    Value<double?> indicePeroxyde = const Value.absent(),
+    DateTime? dateCalcul,
+    bool? conforme,
+    String? categorie,
+    Value<int?> dureeAnalyseSecondes = const Value.absent(),
+    int? auteurId,
+    String? auteurNom,
+  }) => AnalyseCacheData(
+    id: id ?? this.id,
+    numeroEchantillon: numeroEchantillon ?? this.numeroEchantillon,
+    producteurEchantillon: producteurEchantillon ?? this.producteurEchantillon,
+    varieteEchantillon: varieteEchantillon ?? this.varieteEchantillon,
+    regionEchantillon: regionEchantillon ?? this.regionEchantillon,
+    origineEchantillon: origineEchantillon ?? this.origineEchantillon,
+    acidite: acidite ?? this.acidite,
+    indicePeroxyde: indicePeroxyde.present
+        ? indicePeroxyde.value
+        : this.indicePeroxyde,
+    dateCalcul: dateCalcul ?? this.dateCalcul,
+    conforme: conforme ?? this.conforme,
+    categorie: categorie ?? this.categorie,
+    dureeAnalyseSecondes: dureeAnalyseSecondes.present
+        ? dureeAnalyseSecondes.value
+        : this.dureeAnalyseSecondes,
+    auteurId: auteurId ?? this.auteurId,
+    auteurNom: auteurNom ?? this.auteurNom,
+  );
+  AnalyseCacheData copyWithCompanion(AnalysesCacheCompanion data) {
+    return AnalyseCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      numeroEchantillon: data.numeroEchantillon.present
+          ? data.numeroEchantillon.value
+          : this.numeroEchantillon,
+      producteurEchantillon: data.producteurEchantillon.present
+          ? data.producteurEchantillon.value
+          : this.producteurEchantillon,
+      varieteEchantillon: data.varieteEchantillon.present
+          ? data.varieteEchantillon.value
+          : this.varieteEchantillon,
+      regionEchantillon: data.regionEchantillon.present
+          ? data.regionEchantillon.value
+          : this.regionEchantillon,
+      origineEchantillon: data.origineEchantillon.present
+          ? data.origineEchantillon.value
+          : this.origineEchantillon,
+      acidite: data.acidite.present ? data.acidite.value : this.acidite,
+      indicePeroxyde: data.indicePeroxyde.present
+          ? data.indicePeroxyde.value
+          : this.indicePeroxyde,
+      dateCalcul: data.dateCalcul.present
+          ? data.dateCalcul.value
+          : this.dateCalcul,
+      conforme: data.conforme.present ? data.conforme.value : this.conforme,
+      categorie: data.categorie.present ? data.categorie.value : this.categorie,
+      dureeAnalyseSecondes: data.dureeAnalyseSecondes.present
+          ? data.dureeAnalyseSecondes.value
+          : this.dureeAnalyseSecondes,
+      auteurId: data.auteurId.present ? data.auteurId.value : this.auteurId,
+      auteurNom: data.auteurNom.present ? data.auteurNom.value : this.auteurNom,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnalyseCacheData(')
+          ..write('id: $id, ')
+          ..write('numeroEchantillon: $numeroEchantillon, ')
+          ..write('producteurEchantillon: $producteurEchantillon, ')
+          ..write('varieteEchantillon: $varieteEchantillon, ')
+          ..write('regionEchantillon: $regionEchantillon, ')
+          ..write('origineEchantillon: $origineEchantillon, ')
+          ..write('acidite: $acidite, ')
+          ..write('indicePeroxyde: $indicePeroxyde, ')
+          ..write('dateCalcul: $dateCalcul, ')
+          ..write('conforme: $conforme, ')
+          ..write('categorie: $categorie, ')
+          ..write('dureeAnalyseSecondes: $dureeAnalyseSecondes, ')
+          ..write('auteurId: $auteurId, ')
+          ..write('auteurNom: $auteurNom')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    numeroEchantillon,
+    producteurEchantillon,
+    varieteEchantillon,
+    regionEchantillon,
+    origineEchantillon,
+    acidite,
+    indicePeroxyde,
+    dateCalcul,
+    conforme,
+    categorie,
+    dureeAnalyseSecondes,
+    auteurId,
+    auteurNom,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AnalyseCacheData &&
+          other.id == this.id &&
+          other.numeroEchantillon == this.numeroEchantillon &&
+          other.producteurEchantillon == this.producteurEchantillon &&
+          other.varieteEchantillon == this.varieteEchantillon &&
+          other.regionEchantillon == this.regionEchantillon &&
+          other.origineEchantillon == this.origineEchantillon &&
+          other.acidite == this.acidite &&
+          other.indicePeroxyde == this.indicePeroxyde &&
+          other.dateCalcul == this.dateCalcul &&
+          other.conforme == this.conforme &&
+          other.categorie == this.categorie &&
+          other.dureeAnalyseSecondes == this.dureeAnalyseSecondes &&
+          other.auteurId == this.auteurId &&
+          other.auteurNom == this.auteurNom);
+}
+
+class AnalysesCacheCompanion extends UpdateCompanion<AnalyseCacheData> {
+  final Value<String> id;
+  final Value<String> numeroEchantillon;
+  final Value<String> producteurEchantillon;
+  final Value<String> varieteEchantillon;
+  final Value<String> regionEchantillon;
+  final Value<String> origineEchantillon;
+  final Value<double> acidite;
+  final Value<double?> indicePeroxyde;
+  final Value<DateTime> dateCalcul;
+  final Value<bool> conforme;
+  final Value<String> categorie;
+  final Value<int?> dureeAnalyseSecondes;
+  final Value<int> auteurId;
+  final Value<String> auteurNom;
+  final Value<int> rowid;
+  const AnalysesCacheCompanion({
+    this.id = const Value.absent(),
+    this.numeroEchantillon = const Value.absent(),
+    this.producteurEchantillon = const Value.absent(),
+    this.varieteEchantillon = const Value.absent(),
+    this.regionEchantillon = const Value.absent(),
+    this.origineEchantillon = const Value.absent(),
+    this.acidite = const Value.absent(),
+    this.indicePeroxyde = const Value.absent(),
+    this.dateCalcul = const Value.absent(),
+    this.conforme = const Value.absent(),
+    this.categorie = const Value.absent(),
+    this.dureeAnalyseSecondes = const Value.absent(),
+    this.auteurId = const Value.absent(),
+    this.auteurNom = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AnalysesCacheCompanion.insert({
+    required String id,
+    this.numeroEchantillon = const Value.absent(),
+    this.producteurEchantillon = const Value.absent(),
+    this.varieteEchantillon = const Value.absent(),
+    this.regionEchantillon = const Value.absent(),
+    this.origineEchantillon = const Value.absent(),
+    required double acidite,
+    this.indicePeroxyde = const Value.absent(),
+    required DateTime dateCalcul,
+    this.conforme = const Value.absent(),
+    required String categorie,
+    this.dureeAnalyseSecondes = const Value.absent(),
+    this.auteurId = const Value.absent(),
+    this.auteurNom = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       acidite = Value(acidite),
+       dateCalcul = Value(dateCalcul),
+       categorie = Value(categorie);
+  static Insertable<AnalyseCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? numeroEchantillon,
+    Expression<String>? producteurEchantillon,
+    Expression<String>? varieteEchantillon,
+    Expression<String>? regionEchantillon,
+    Expression<String>? origineEchantillon,
+    Expression<double>? acidite,
+    Expression<double>? indicePeroxyde,
+    Expression<DateTime>? dateCalcul,
+    Expression<bool>? conforme,
+    Expression<String>? categorie,
+    Expression<int>? dureeAnalyseSecondes,
+    Expression<int>? auteurId,
+    Expression<String>? auteurNom,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (numeroEchantillon != null) 'numero_echantillon': numeroEchantillon,
+      if (producteurEchantillon != null)
+        'producteur_echantillon': producteurEchantillon,
+      if (varieteEchantillon != null) 'variete_echantillon': varieteEchantillon,
+      if (regionEchantillon != null) 'region_echantillon': regionEchantillon,
+      if (origineEchantillon != null) 'origine_echantillon': origineEchantillon,
+      if (acidite != null) 'acidite': acidite,
+      if (indicePeroxyde != null) 'indice_peroxyde': indicePeroxyde,
+      if (dateCalcul != null) 'date_calcul': dateCalcul,
+      if (conforme != null) 'conforme': conforme,
+      if (categorie != null) 'categorie': categorie,
+      if (dureeAnalyseSecondes != null)
+        'duree_analyse_secondes': dureeAnalyseSecondes,
+      if (auteurId != null) 'auteur_id': auteurId,
+      if (auteurNom != null) 'auteur_nom': auteurNom,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AnalysesCacheCompanion copyWith({
+    Value<String>? id,
+    Value<String>? numeroEchantillon,
+    Value<String>? producteurEchantillon,
+    Value<String>? varieteEchantillon,
+    Value<String>? regionEchantillon,
+    Value<String>? origineEchantillon,
+    Value<double>? acidite,
+    Value<double?>? indicePeroxyde,
+    Value<DateTime>? dateCalcul,
+    Value<bool>? conforme,
+    Value<String>? categorie,
+    Value<int?>? dureeAnalyseSecondes,
+    Value<int>? auteurId,
+    Value<String>? auteurNom,
+    Value<int>? rowid,
+  }) {
+    return AnalysesCacheCompanion(
+      id: id ?? this.id,
+      numeroEchantillon: numeroEchantillon ?? this.numeroEchantillon,
+      producteurEchantillon:
+          producteurEchantillon ?? this.producteurEchantillon,
+      varieteEchantillon: varieteEchantillon ?? this.varieteEchantillon,
+      regionEchantillon: regionEchantillon ?? this.regionEchantillon,
+      origineEchantillon: origineEchantillon ?? this.origineEchantillon,
+      acidite: acidite ?? this.acidite,
+      indicePeroxyde: indicePeroxyde ?? this.indicePeroxyde,
+      dateCalcul: dateCalcul ?? this.dateCalcul,
+      conforme: conforme ?? this.conforme,
+      categorie: categorie ?? this.categorie,
+      dureeAnalyseSecondes: dureeAnalyseSecondes ?? this.dureeAnalyseSecondes,
+      auteurId: auteurId ?? this.auteurId,
+      auteurNom: auteurNom ?? this.auteurNom,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (numeroEchantillon.present) {
+      map['numero_echantillon'] = Variable<String>(numeroEchantillon.value);
+    }
+    if (producteurEchantillon.present) {
+      map['producteur_echantillon'] = Variable<String>(
+        producteurEchantillon.value,
+      );
+    }
+    if (varieteEchantillon.present) {
+      map['variete_echantillon'] = Variable<String>(varieteEchantillon.value);
+    }
+    if (regionEchantillon.present) {
+      map['region_echantillon'] = Variable<String>(regionEchantillon.value);
+    }
+    if (origineEchantillon.present) {
+      map['origine_echantillon'] = Variable<String>(origineEchantillon.value);
+    }
+    if (acidite.present) {
+      map['acidite'] = Variable<double>(acidite.value);
+    }
+    if (indicePeroxyde.present) {
+      map['indice_peroxyde'] = Variable<double>(indicePeroxyde.value);
+    }
+    if (dateCalcul.present) {
+      map['date_calcul'] = Variable<DateTime>(dateCalcul.value);
+    }
+    if (conforme.present) {
+      map['conforme'] = Variable<bool>(conforme.value);
+    }
+    if (categorie.present) {
+      map['categorie'] = Variable<String>(categorie.value);
+    }
+    if (dureeAnalyseSecondes.present) {
+      map['duree_analyse_secondes'] = Variable<int>(dureeAnalyseSecondes.value);
+    }
+    if (auteurId.present) {
+      map['auteur_id'] = Variable<int>(auteurId.value);
+    }
+    if (auteurNom.present) {
+      map['auteur_nom'] = Variable<String>(auteurNom.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnalysesCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('numeroEchantillon: $numeroEchantillon, ')
+          ..write('producteurEchantillon: $producteurEchantillon, ')
+          ..write('varieteEchantillon: $varieteEchantillon, ')
+          ..write('regionEchantillon: $regionEchantillon, ')
+          ..write('origineEchantillon: $origineEchantillon, ')
+          ..write('acidite: $acidite, ')
+          ..write('indicePeroxyde: $indicePeroxyde, ')
+          ..write('dateCalcul: $dateCalcul, ')
+          ..write('conforme: $conforme, ')
+          ..write('categorie: $categorie, ')
+          ..write('dureeAnalyseSecondes: $dureeAnalyseSecondes, ')
+          ..write('auteurId: $auteurId, ')
+          ..write('auteurNom: $auteurNom, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CacheGeneriqueTable extends CacheGenerique
+    with TableInfo<$CacheGeneriqueTable, CacheGeneriqueData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CacheGeneriqueTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _cleMeta = const VerificationMeta('cle');
+  @override
+  late final GeneratedColumn<String> cle = GeneratedColumn<String>(
+    'cle',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valeurJsonMeta = const VerificationMeta(
+    'valeurJson',
+  );
+  @override
+  late final GeneratedColumn<String> valeurJson = GeneratedColumn<String>(
+    'valeur_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateEcritureMeta = const VerificationMeta(
+    'dateEcriture',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dateEcriture = GeneratedColumn<DateTime>(
+    'date_ecriture',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [cle, valeurJson, dateEcriture];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cache_generique';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CacheGeneriqueData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('cle')) {
+      context.handle(
+        _cleMeta,
+        cle.isAcceptableOrUnknown(data['cle']!, _cleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cleMeta);
+    }
+    if (data.containsKey('valeur_json')) {
+      context.handle(
+        _valeurJsonMeta,
+        valeurJson.isAcceptableOrUnknown(data['valeur_json']!, _valeurJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valeurJsonMeta);
+    }
+    if (data.containsKey('date_ecriture')) {
+      context.handle(
+        _dateEcritureMeta,
+        dateEcriture.isAcceptableOrUnknown(
+          data['date_ecriture']!,
+          _dateEcritureMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {cle};
+  @override
+  CacheGeneriqueData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CacheGeneriqueData(
+      cle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cle'],
+      )!,
+      valeurJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}valeur_json'],
+      )!,
+      dateEcriture: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date_ecriture'],
+      )!,
+    );
+  }
+
+  @override
+  $CacheGeneriqueTable createAlias(String alias) {
+    return $CacheGeneriqueTable(attachedDatabase, alias);
+  }
+}
+
+class CacheGeneriqueData extends DataClass
+    implements Insertable<CacheGeneriqueData> {
+  final String cle;
+  final String valeurJson;
+  final DateTime dateEcriture;
+  const CacheGeneriqueData({
+    required this.cle,
+    required this.valeurJson,
+    required this.dateEcriture,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['cle'] = Variable<String>(cle);
+    map['valeur_json'] = Variable<String>(valeurJson);
+    map['date_ecriture'] = Variable<DateTime>(dateEcriture);
+    return map;
+  }
+
+  CacheGeneriqueCompanion toCompanion(bool nullToAbsent) {
+    return CacheGeneriqueCompanion(
+      cle: Value(cle),
+      valeurJson: Value(valeurJson),
+      dateEcriture: Value(dateEcriture),
+    );
+  }
+
+  factory CacheGeneriqueData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CacheGeneriqueData(
+      cle: serializer.fromJson<String>(json['cle']),
+      valeurJson: serializer.fromJson<String>(json['valeurJson']),
+      dateEcriture: serializer.fromJson<DateTime>(json['dateEcriture']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'cle': serializer.toJson<String>(cle),
+      'valeurJson': serializer.toJson<String>(valeurJson),
+      'dateEcriture': serializer.toJson<DateTime>(dateEcriture),
+    };
+  }
+
+  CacheGeneriqueData copyWith({
+    String? cle,
+    String? valeurJson,
+    DateTime? dateEcriture,
+  }) => CacheGeneriqueData(
+    cle: cle ?? this.cle,
+    valeurJson: valeurJson ?? this.valeurJson,
+    dateEcriture: dateEcriture ?? this.dateEcriture,
+  );
+  CacheGeneriqueData copyWithCompanion(CacheGeneriqueCompanion data) {
+    return CacheGeneriqueData(
+      cle: data.cle.present ? data.cle.value : this.cle,
+      valeurJson: data.valeurJson.present
+          ? data.valeurJson.value
+          : this.valeurJson,
+      dateEcriture: data.dateEcriture.present
+          ? data.dateEcriture.value
+          : this.dateEcriture,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CacheGeneriqueData(')
+          ..write('cle: $cle, ')
+          ..write('valeurJson: $valeurJson, ')
+          ..write('dateEcriture: $dateEcriture')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(cle, valeurJson, dateEcriture);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CacheGeneriqueData &&
+          other.cle == this.cle &&
+          other.valeurJson == this.valeurJson &&
+          other.dateEcriture == this.dateEcriture);
+}
+
+class CacheGeneriqueCompanion extends UpdateCompanion<CacheGeneriqueData> {
+  final Value<String> cle;
+  final Value<String> valeurJson;
+  final Value<DateTime> dateEcriture;
+  final Value<int> rowid;
+  const CacheGeneriqueCompanion({
+    this.cle = const Value.absent(),
+    this.valeurJson = const Value.absent(),
+    this.dateEcriture = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CacheGeneriqueCompanion.insert({
+    required String cle,
+    required String valeurJson,
+    this.dateEcriture = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : cle = Value(cle),
+       valeurJson = Value(valeurJson);
+  static Insertable<CacheGeneriqueData> custom({
+    Expression<String>? cle,
+    Expression<String>? valeurJson,
+    Expression<DateTime>? dateEcriture,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (cle != null) 'cle': cle,
+      if (valeurJson != null) 'valeur_json': valeurJson,
+      if (dateEcriture != null) 'date_ecriture': dateEcriture,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CacheGeneriqueCompanion copyWith({
+    Value<String>? cle,
+    Value<String>? valeurJson,
+    Value<DateTime>? dateEcriture,
+    Value<int>? rowid,
+  }) {
+    return CacheGeneriqueCompanion(
+      cle: cle ?? this.cle,
+      valeurJson: valeurJson ?? this.valeurJson,
+      dateEcriture: dateEcriture ?? this.dateEcriture,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (cle.present) {
+      map['cle'] = Variable<String>(cle.value);
+    }
+    if (valeurJson.present) {
+      map['valeur_json'] = Variable<String>(valeurJson.value);
+    }
+    if (dateEcriture.present) {
+      map['date_ecriture'] = Variable<DateTime>(dateEcriture.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CacheGeneriqueCompanion(')
+          ..write('cle: $cle, ')
+          ..write('valeurJson: $valeurJson, ')
+          ..write('dateEcriture: $dateEcriture, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -2971,6 +4089,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   );
   late final $PredictionsLocalesTable predictionsLocales =
       $PredictionsLocalesTable(this);
+  late final $AnalysesCacheTable analysesCache = $AnalysesCacheTable(this);
+  late final $CacheGeneriqueTable cacheGenerique = $CacheGeneriqueTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2980,6 +4100,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
     spectresLocaux,
     resultatsLocaux,
     predictionsLocales,
+    analysesCache,
+    cacheGenerique,
   ];
 }
 
@@ -5073,6 +6195,575 @@ typedef $$PredictionsLocalesTableProcessedTableManager =
       PredictionsLocalesData,
       PrefetchHooks Function({bool resultatId})
     >;
+typedef $$AnalysesCacheTableCreateCompanionBuilder =
+    AnalysesCacheCompanion Function({
+      required String id,
+      Value<String> numeroEchantillon,
+      Value<String> producteurEchantillon,
+      Value<String> varieteEchantillon,
+      Value<String> regionEchantillon,
+      Value<String> origineEchantillon,
+      required double acidite,
+      Value<double?> indicePeroxyde,
+      required DateTime dateCalcul,
+      Value<bool> conforme,
+      required String categorie,
+      Value<int?> dureeAnalyseSecondes,
+      Value<int> auteurId,
+      Value<String> auteurNom,
+      Value<int> rowid,
+    });
+typedef $$AnalysesCacheTableUpdateCompanionBuilder =
+    AnalysesCacheCompanion Function({
+      Value<String> id,
+      Value<String> numeroEchantillon,
+      Value<String> producteurEchantillon,
+      Value<String> varieteEchantillon,
+      Value<String> regionEchantillon,
+      Value<String> origineEchantillon,
+      Value<double> acidite,
+      Value<double?> indicePeroxyde,
+      Value<DateTime> dateCalcul,
+      Value<bool> conforme,
+      Value<String> categorie,
+      Value<int?> dureeAnalyseSecondes,
+      Value<int> auteurId,
+      Value<String> auteurNom,
+      Value<int> rowid,
+    });
+
+class $$AnalysesCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $AnalysesCacheTable> {
+  $$AnalysesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get numeroEchantillon => $composableBuilder(
+    column: $table.numeroEchantillon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get producteurEchantillon => $composableBuilder(
+    column: $table.producteurEchantillon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get varieteEchantillon => $composableBuilder(
+    column: $table.varieteEchantillon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get regionEchantillon => $composableBuilder(
+    column: $table.regionEchantillon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get origineEchantillon => $composableBuilder(
+    column: $table.origineEchantillon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get acidite => $composableBuilder(
+    column: $table.acidite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get indicePeroxyde => $composableBuilder(
+    column: $table.indicePeroxyde,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dateCalcul => $composableBuilder(
+    column: $table.dateCalcul,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get conforme => $composableBuilder(
+    column: $table.conforme,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categorie => $composableBuilder(
+    column: $table.categorie,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dureeAnalyseSecondes => $composableBuilder(
+    column: $table.dureeAnalyseSecondes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get auteurId => $composableBuilder(
+    column: $table.auteurId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get auteurNom => $composableBuilder(
+    column: $table.auteurNom,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AnalysesCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $AnalysesCacheTable> {
+  $$AnalysesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get numeroEchantillon => $composableBuilder(
+    column: $table.numeroEchantillon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get producteurEchantillon => $composableBuilder(
+    column: $table.producteurEchantillon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get varieteEchantillon => $composableBuilder(
+    column: $table.varieteEchantillon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get regionEchantillon => $composableBuilder(
+    column: $table.regionEchantillon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get origineEchantillon => $composableBuilder(
+    column: $table.origineEchantillon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get acidite => $composableBuilder(
+    column: $table.acidite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get indicePeroxyde => $composableBuilder(
+    column: $table.indicePeroxyde,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateCalcul => $composableBuilder(
+    column: $table.dateCalcul,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get conforme => $composableBuilder(
+    column: $table.conforme,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categorie => $composableBuilder(
+    column: $table.categorie,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dureeAnalyseSecondes => $composableBuilder(
+    column: $table.dureeAnalyseSecondes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get auteurId => $composableBuilder(
+    column: $table.auteurId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get auteurNom => $composableBuilder(
+    column: $table.auteurNom,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AnalysesCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $AnalysesCacheTable> {
+  $$AnalysesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get numeroEchantillon => $composableBuilder(
+    column: $table.numeroEchantillon,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get producteurEchantillon => $composableBuilder(
+    column: $table.producteurEchantillon,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get varieteEchantillon => $composableBuilder(
+    column: $table.varieteEchantillon,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get regionEchantillon => $composableBuilder(
+    column: $table.regionEchantillon,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get origineEchantillon => $composableBuilder(
+    column: $table.origineEchantillon,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get acidite =>
+      $composableBuilder(column: $table.acidite, builder: (column) => column);
+
+  GeneratedColumn<double> get indicePeroxyde => $composableBuilder(
+    column: $table.indicePeroxyde,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dateCalcul => $composableBuilder(
+    column: $table.dateCalcul,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get conforme =>
+      $composableBuilder(column: $table.conforme, builder: (column) => column);
+
+  GeneratedColumn<String> get categorie =>
+      $composableBuilder(column: $table.categorie, builder: (column) => column);
+
+  GeneratedColumn<int> get dureeAnalyseSecondes => $composableBuilder(
+    column: $table.dureeAnalyseSecondes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get auteurId =>
+      $composableBuilder(column: $table.auteurId, builder: (column) => column);
+
+  GeneratedColumn<String> get auteurNom =>
+      $composableBuilder(column: $table.auteurNom, builder: (column) => column);
+}
+
+class $$AnalysesCacheTableTableManager
+    extends
+        RootTableManager<
+          _$LocalDatabase,
+          $AnalysesCacheTable,
+          AnalyseCacheData,
+          $$AnalysesCacheTableFilterComposer,
+          $$AnalysesCacheTableOrderingComposer,
+          $$AnalysesCacheTableAnnotationComposer,
+          $$AnalysesCacheTableCreateCompanionBuilder,
+          $$AnalysesCacheTableUpdateCompanionBuilder,
+          (
+            AnalyseCacheData,
+            BaseReferences<
+              _$LocalDatabase,
+              $AnalysesCacheTable,
+              AnalyseCacheData
+            >,
+          ),
+          AnalyseCacheData,
+          PrefetchHooks Function()
+        > {
+  $$AnalysesCacheTableTableManager(
+    _$LocalDatabase db,
+    $AnalysesCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AnalysesCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AnalysesCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AnalysesCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> numeroEchantillon = const Value.absent(),
+                Value<String> producteurEchantillon = const Value.absent(),
+                Value<String> varieteEchantillon = const Value.absent(),
+                Value<String> regionEchantillon = const Value.absent(),
+                Value<String> origineEchantillon = const Value.absent(),
+                Value<double> acidite = const Value.absent(),
+                Value<double?> indicePeroxyde = const Value.absent(),
+                Value<DateTime> dateCalcul = const Value.absent(),
+                Value<bool> conforme = const Value.absent(),
+                Value<String> categorie = const Value.absent(),
+                Value<int?> dureeAnalyseSecondes = const Value.absent(),
+                Value<int> auteurId = const Value.absent(),
+                Value<String> auteurNom = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AnalysesCacheCompanion(
+                id: id,
+                numeroEchantillon: numeroEchantillon,
+                producteurEchantillon: producteurEchantillon,
+                varieteEchantillon: varieteEchantillon,
+                regionEchantillon: regionEchantillon,
+                origineEchantillon: origineEchantillon,
+                acidite: acidite,
+                indicePeroxyde: indicePeroxyde,
+                dateCalcul: dateCalcul,
+                conforme: conforme,
+                categorie: categorie,
+                dureeAnalyseSecondes: dureeAnalyseSecondes,
+                auteurId: auteurId,
+                auteurNom: auteurNom,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String> numeroEchantillon = const Value.absent(),
+                Value<String> producteurEchantillon = const Value.absent(),
+                Value<String> varieteEchantillon = const Value.absent(),
+                Value<String> regionEchantillon = const Value.absent(),
+                Value<String> origineEchantillon = const Value.absent(),
+                required double acidite,
+                Value<double?> indicePeroxyde = const Value.absent(),
+                required DateTime dateCalcul,
+                Value<bool> conforme = const Value.absent(),
+                required String categorie,
+                Value<int?> dureeAnalyseSecondes = const Value.absent(),
+                Value<int> auteurId = const Value.absent(),
+                Value<String> auteurNom = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AnalysesCacheCompanion.insert(
+                id: id,
+                numeroEchantillon: numeroEchantillon,
+                producteurEchantillon: producteurEchantillon,
+                varieteEchantillon: varieteEchantillon,
+                regionEchantillon: regionEchantillon,
+                origineEchantillon: origineEchantillon,
+                acidite: acidite,
+                indicePeroxyde: indicePeroxyde,
+                dateCalcul: dateCalcul,
+                conforme: conforme,
+                categorie: categorie,
+                dureeAnalyseSecondes: dureeAnalyseSecondes,
+                auteurId: auteurId,
+                auteurNom: auteurNom,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AnalysesCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$LocalDatabase,
+      $AnalysesCacheTable,
+      AnalyseCacheData,
+      $$AnalysesCacheTableFilterComposer,
+      $$AnalysesCacheTableOrderingComposer,
+      $$AnalysesCacheTableAnnotationComposer,
+      $$AnalysesCacheTableCreateCompanionBuilder,
+      $$AnalysesCacheTableUpdateCompanionBuilder,
+      (
+        AnalyseCacheData,
+        BaseReferences<_$LocalDatabase, $AnalysesCacheTable, AnalyseCacheData>,
+      ),
+      AnalyseCacheData,
+      PrefetchHooks Function()
+    >;
+typedef $$CacheGeneriqueTableCreateCompanionBuilder =
+    CacheGeneriqueCompanion Function({
+      required String cle,
+      required String valeurJson,
+      Value<DateTime> dateEcriture,
+      Value<int> rowid,
+    });
+typedef $$CacheGeneriqueTableUpdateCompanionBuilder =
+    CacheGeneriqueCompanion Function({
+      Value<String> cle,
+      Value<String> valeurJson,
+      Value<DateTime> dateEcriture,
+      Value<int> rowid,
+    });
+
+class $$CacheGeneriqueTableFilterComposer
+    extends Composer<_$LocalDatabase, $CacheGeneriqueTable> {
+  $$CacheGeneriqueTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get cle => $composableBuilder(
+    column: $table.cle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get valeurJson => $composableBuilder(
+    column: $table.valeurJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dateEcriture => $composableBuilder(
+    column: $table.dateEcriture,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CacheGeneriqueTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CacheGeneriqueTable> {
+  $$CacheGeneriqueTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get cle => $composableBuilder(
+    column: $table.cle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get valeurJson => $composableBuilder(
+    column: $table.valeurJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateEcriture => $composableBuilder(
+    column: $table.dateEcriture,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CacheGeneriqueTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CacheGeneriqueTable> {
+  $$CacheGeneriqueTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get cle =>
+      $composableBuilder(column: $table.cle, builder: (column) => column);
+
+  GeneratedColumn<String> get valeurJson => $composableBuilder(
+    column: $table.valeurJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dateEcriture => $composableBuilder(
+    column: $table.dateEcriture,
+    builder: (column) => column,
+  );
+}
+
+class $$CacheGeneriqueTableTableManager
+    extends
+        RootTableManager<
+          _$LocalDatabase,
+          $CacheGeneriqueTable,
+          CacheGeneriqueData,
+          $$CacheGeneriqueTableFilterComposer,
+          $$CacheGeneriqueTableOrderingComposer,
+          $$CacheGeneriqueTableAnnotationComposer,
+          $$CacheGeneriqueTableCreateCompanionBuilder,
+          $$CacheGeneriqueTableUpdateCompanionBuilder,
+          (
+            CacheGeneriqueData,
+            BaseReferences<
+              _$LocalDatabase,
+              $CacheGeneriqueTable,
+              CacheGeneriqueData
+            >,
+          ),
+          CacheGeneriqueData,
+          PrefetchHooks Function()
+        > {
+  $$CacheGeneriqueTableTableManager(
+    _$LocalDatabase db,
+    $CacheGeneriqueTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CacheGeneriqueTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CacheGeneriqueTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CacheGeneriqueTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> cle = const Value.absent(),
+                Value<String> valeurJson = const Value.absent(),
+                Value<DateTime> dateEcriture = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CacheGeneriqueCompanion(
+                cle: cle,
+                valeurJson: valeurJson,
+                dateEcriture: dateEcriture,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String cle,
+                required String valeurJson,
+                Value<DateTime> dateEcriture = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CacheGeneriqueCompanion.insert(
+                cle: cle,
+                valeurJson: valeurJson,
+                dateEcriture: dateEcriture,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CacheGeneriqueTableProcessedTableManager =
+    ProcessedTableManager<
+      _$LocalDatabase,
+      $CacheGeneriqueTable,
+      CacheGeneriqueData,
+      $$CacheGeneriqueTableFilterComposer,
+      $$CacheGeneriqueTableOrderingComposer,
+      $$CacheGeneriqueTableAnnotationComposer,
+      $$CacheGeneriqueTableCreateCompanionBuilder,
+      $$CacheGeneriqueTableUpdateCompanionBuilder,
+      (
+        CacheGeneriqueData,
+        BaseReferences<
+          _$LocalDatabase,
+          $CacheGeneriqueTable,
+          CacheGeneriqueData
+        >,
+      ),
+      CacheGeneriqueData,
+      PrefetchHooks Function()
+    >;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -5085,4 +6776,8 @@ class $LocalDatabaseManager {
       $$ResultatsLocauxTableTableManager(_db, _db.resultatsLocaux);
   $$PredictionsLocalesTableTableManager get predictionsLocales =>
       $$PredictionsLocalesTableTableManager(_db, _db.predictionsLocales);
+  $$AnalysesCacheTableTableManager get analysesCache =>
+      $$AnalysesCacheTableTableManager(_db, _db.analysesCache);
+  $$CacheGeneriqueTableTableManager get cacheGenerique =>
+      $$CacheGeneriqueTableTableManager(_db, _db.cacheGenerique);
 }

@@ -10,6 +10,12 @@ class TokenStorageService {
   // uniquement à choisir la coquille de navigation (utilisateur/admin) au
   // démarrage de l'app, avant tout appel réseau — voir main.dart.
   static const _cleRole = 'olive_iq_role';
+  // Horodatage de la dernière fois où le serveur a réellement confirmé la
+  // session (login ou refresh réussi) — jamais déduit du JWT. Sert
+  // uniquement à borner la durée de validité d'une session hors ligne (voir
+  // AuthLocalDataSourceImpl.obtenirEtatSessionLocale), jamais à décider de
+  // la validité réelle du token, qui reste l'affaire exclusive du serveur.
+  static const _cleDerniereAuthentification = 'olive_iq_derniere_authentification';
 
   final FlutterSecureStorage _storage;
 
@@ -38,6 +44,14 @@ class TokenStorageService {
 
   Future<String?> lireRole() => _storage.read(key: _cleRole);
 
+  Future<void> enregistrerDerniereAuthentification(DateTime instant) =>
+      _storage.write(key: _cleDerniereAuthentification, value: instant.toIso8601String());
+
+  Future<DateTime?> lireDerniereAuthentification() async {
+    final valeur = await _storage.read(key: _cleDerniereAuthentification);
+    return valeur == null ? null : DateTime.tryParse(valeur);
+  }
+
   Future<bool> possedeTokens() async {
     final refresh = await lireRefreshToken();
     return refresh != null && refresh.isNotEmpty;
@@ -48,6 +62,7 @@ class TokenStorageService {
       _storage.delete(key: _cleAccessToken),
       _storage.delete(key: _cleRefreshToken),
       _storage.delete(key: _cleRole),
+      _storage.delete(key: _cleDerniereAuthentification),
     ]);
   }
 }

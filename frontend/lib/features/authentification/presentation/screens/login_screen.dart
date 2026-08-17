@@ -6,9 +6,12 @@ import '../../../../core/demo/demo_credentials.dart';
 import '../../../../core/demo/demo_mode_provider.dart';
 import '../../../../core/localization/build_context_l10n_extension.dart';
 import '../../../../core/localization/failure_localizer.dart';
+import '../../../../core/network/connectivite_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../domain/entities/raison_message_login.dart';
 import '../providers/login_provider.dart';
+import '../providers/raison_message_login_provider.dart';
 import '../widgets/champ_texte_olive_iq.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -30,6 +33,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  String? _messageInformatif(BuildContext context, RaisonMessageLogin raison, bool enLigne) {
+    final l10n = context.l10n;
+    switch (raison) {
+      case RaisonMessageLogin.sessionExpireeHorsLigne:
+        return l10n.sessionExpireeHorsLigneMessage;
+      case RaisonMessageLogin.deconnexionHorsLigne:
+        return l10n.deconnexionHorsLigneMessage;
+      case RaisonMessageLogin.aucune:
+        return enLigne ? null : l10n.connexionRequisePremiereConnexionMessage;
+    }
   }
 
   String? _validerEmail(String? valeur) {
@@ -89,6 +104,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     final state = ref.watch(loginProvider);
+    final enLigne = ref.watch(connectiviteProvider).valueOrNull ?? true;
+    final raisonMessage =
+        ref.watch(raisonMessageLoginProvider).valueOrNull ?? RaisonMessageLogin.aucune;
+    final messageInformatif = _messageInformatif(context, raisonMessage, enLigne);
 
     return Scaffold(
       backgroundColor: AppColors.fond,
@@ -116,6 +135,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   const _SousTitreEncadre(),
+                  if (messageInformatif != null) ...[
+                    const SizedBox(height: 16),
+                    _BandeauInformatif(message: messageInformatif),
+                  ],
                   const SizedBox(height: 40),
                   Text(
                     l10n.bienvenue,
@@ -229,6 +252,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Bandeau informatif persistant (pas une snackbar, qui disparaîtrait trop
+/// vite et pourrait être manquée) : session hors ligne expirée, déconnexion
+/// hors ligne, ou connexion internet requise pour la toute première
+/// connexion.
+class _BandeauInformatif extends StatelessWidget {
+  final String message;
+
+  const _BandeauInformatif({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.orangeFond,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.orangeIcone.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.wifi_off_outlined, color: AppColors.orangeIcone, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTextStyles.sousTexteBienvenue.copyWith(color: AppColors.grisFonce),
+            ),
+          ),
+        ],
       ),
     );
   }

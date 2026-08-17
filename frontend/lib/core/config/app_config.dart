@@ -10,8 +10,12 @@ class AppConfig {
     defaultValue: 'http://10.0.2.2:8000/api',
   );
 
-  static const Duration timeoutConnexion = Duration(seconds: 15);
-  static const Duration timeoutReponse = Duration(seconds: 15);
+  // Délais courts et explicites (cahier des charges, Partie A, section 7) :
+  // une absence de réseau doit échouer vite pour laisser la place au repli
+  // sur le cache local, jamais laisser un écran "en chargement" de longues
+  // secondes avant de s'en apercevoir.
+  static const Duration timeoutConnexion = Duration(seconds: 5);
+  static const Duration timeoutReponse = Duration(seconds: 10);
 
   /// Bascule entre l'implémentation Bluetooth réelle (AnalyseurBluetoothImpl)
   /// et le simulateur NIR (AnalyseurSimuleImpl), tant que le protocole du

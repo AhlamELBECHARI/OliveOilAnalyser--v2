@@ -40,4 +40,29 @@ class ModeleModel extends ModeleEntity {
           : DateTime.parse(json['date_entrainement'] as String),
     );
   }
+
+  /// Pour le cache local des modèles actifs (voir
+  /// core/local_storage/cache_local_service.dart), nécessaire au calcul de
+  /// conformité hors ligne — même forme que la réponse API.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'nom': nom,
+        'version': version,
+        'algorithme': algorithme,
+        'type_modele': typeModele == TypeModele.classification ? 'classification' : 'regression',
+        'grandeur_predite': switch (grandeurPredite) {
+          GrandeurPredite.indicePeroxyde => 'indice_peroxyde',
+          GrandeurPredite.authenticite => 'authenticite',
+          GrandeurPredite.acidite => 'acidite',
+        },
+        'r2': r2,
+        'rmsecv': rmsecv,
+        'exactitude': exactitude,
+        'precision_classification': precisionClassification,
+        'rappel': rappel,
+        'est_reference': estReference,
+        'est_actif': estActif,
+        'est_deprecie': estDeprecie,
+        'date_entrainement': dateEntrainement?.toIso8601String(),
+      };
 }

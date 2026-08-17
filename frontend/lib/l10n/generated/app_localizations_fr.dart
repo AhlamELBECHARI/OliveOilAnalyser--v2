@@ -149,6 +149,21 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible : il doit rester au moins un administrateur actif.';
 
   @override
+  String get donneesLocalesBadge => 'Données locales (hors ligne)';
+
+  @override
+  String get connexionRequisePremiereConnexionMessage =>
+      'Connexion internet requise pour la première connexion.';
+
+  @override
+  String get sessionExpireeHorsLigneMessage =>
+      'Votre session hors ligne a expiré après 30 jours. Reconnectez-vous avec une connexion internet.';
+
+  @override
+  String get deconnexionHorsLigneMessage =>
+      'Vous êtes déconnecté(e). Une connexion internet sera nécessaire pour vous reconnecter.';
+
+  @override
   String get bonjour => 'Bonjour,';
 
   @override
@@ -1376,4 +1391,53 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cacheVideMessage => 'Cache vidé.';
+
+  @override
+  String get etatEnLigne => 'En ligne';
+
+  @override
+  String get etatHorsLigne => 'Hors ligne';
+
+  @override
+  String etatHorsLigneAvecAttente(int nombre) {
+    return 'Hors ligne · $nombre en attente';
+  }
+
+  @override
+  String get etatSynchronisationEnCours => 'Synchronisation…';
+
+  @override
+  String etatEnAttenteDeSynchronisation(int nombre) {
+    return '$nombre en attente de synchronisation';
+  }
+
+  @override
+  String get fileAttenteSyncTitre => 'File d\'attente';
+
+  @override
+  String get fileAttenteSyncSousTitre =>
+      'Éléments en attente de synchronisation';
+
+  @override
+  String get relancerSynchronisationBouton => 'Relancer la synchronisation';
+
+  @override
+  String get fileAttenteVideMessage => 'Tout est synchronisé. Rien en attente.';
+
+  @override
+  String get typeElementEchantillon => 'Échantillon';
+
+  @override
+  String get typeElementSpectre => 'Spectre';
+
+  @override
+  String get typeElementResultat => 'Résultat';
+
+  @override
+  String get statutEnAttenteSync => 'En attente de réseau';
+
+  @override
+  String statutErreurSyncAvecTentatives(int nombre) {
+    return 'Échec · $nombre tentative(s)';
+  }
 }

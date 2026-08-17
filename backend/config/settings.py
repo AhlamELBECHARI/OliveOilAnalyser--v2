@@ -187,7 +187,11 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(env("JWT_ACCESS_LIFETIME_MIN", "30"))),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("JWT_REFRESH_LIFETIME_DAYS", "7"))),
+    # Aligné sur la politique produit "session hors ligne valide 30 jours"
+    # (voir frontend/lib/features/authentification) : un refresh token plus
+    # court forcerait une reconnexion par mot de passe avant même la limite
+    # locale annoncée à l'utilisateur.
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("JWT_REFRESH_LIFETIME_DAYS", "30"))),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     # date_derniere_connexion est géré nous-mêmes dans comptes.services.login

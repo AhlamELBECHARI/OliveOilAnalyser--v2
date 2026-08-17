@@ -56,6 +56,11 @@
   "erreurAutoModificationInterdite": "Vous ne pouvez pas effectuer cette action sur votre propre compte.",
   "erreurDernierAdministrateur": "Impossible : il doit rester au moins un administrateur actif.",
 
+  "donneesLocalesBadge": "Données locales (hors ligne)",
+  "connexionRequisePremiereConnexionMessage": "Connexion internet requise pour la première connexion.",
+  "sessionExpireeHorsLigneMessage": "Votre session hors ligne a expiré après 30 jours. Reconnectez-vous avec une connexion internet.",
+  "deconnexionHorsLigneMessage": "Vous êtes déconnecté(e). Une connexion internet sera nécessaire pour vous reconnecter.",
+
   "bonjour": "Bonjour,",
 
   "etatLaboratoire": "État du laboratoire",
@@ -548,5 +553,29 @@
   "viderCacheBouton": "Vider le cache local",
   "viderCacheConfirmationTitre": "Vider le cache ?",
   "viderCacheConfirmationTexte": "Les fichiers temporaires seront supprimés. Les analyses en attente de synchronisation ne sont jamais affectées.",
-  "cacheVideMessage": "Cache vidé."
+  "cacheVideMessage": "Cache vidé.",
+
+  "etatEnLigne": "En ligne",
+  "etatHorsLigne": "Hors ligne",
+  "etatHorsLigneAvecAttente": "Hors ligne · {nombre} en attente",
+  "@etatHorsLigneAvecAttente": {
+    "placeholders": {"nombre": {"type": "int"}}
+  },
+  "etatSynchronisationEnCours": "Synchronisation…",
+  "etatEnAttenteDeSynchronisation": "{nombre} en attente de synchronisation",
+  "@etatEnAttenteDeSynchronisation": {
+    "placeholders": {"nombre": {"type": "int"}}
+  },
+  "fileAttenteSyncTitre": "File d'attente",
+  "fileAttenteSyncSousTitre": "Éléments en attente de synchronisation",
+  "relancerSynchronisationBouton": "Relancer la synchronisation",
+  "fileAttenteVideMessage": "Tout est synchronisé. Rien en attente.",
+  "typeElementEchantillon": "Échantillon",
+  "typeElementSpectre": "Spectre",
+  "typeElementResultat": "Résultat",
+  "statutEnAttenteSync": "En attente de réseau",
+  "statutErreurSyncAvecTentatives": "Échec · {nombre} tentative(s)",
+  "@statutErreurSyncAvecTentatives": {
+    "placeholders": {"nombre": {"type": "int"}}
+  }
 }

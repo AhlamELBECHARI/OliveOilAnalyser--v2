@@ -2,7 +2,10 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/network/connectivity_service.dart';
 import '../../domain/entities/auth_session_entity.dart';
+import '../../domain/entities/etat_session_locale.dart';
+import '../../domain/entities/raison_message_login.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
@@ -10,10 +13,12 @@ import '../datasources/auth_remote_datasource.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthLocalDataSource localDataSource;
+  final ConnectivityService connectivityService;
 
   const AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
+    required this.connectivityService,
   });
 
   @override
@@ -112,11 +117,22 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> possedeSessionLocale() => localDataSource.possedeSessionLocale();
+  Future<EtatSessionLocale> obtenirEtatSessionLocale() =>
+      localDataSource.obtenirEtatSessionLocale();
 
   @override
   Future<String?> obtenirRoleSession() => localDataSource.obtenirRoleSession();
 
   @override
-  Future<void> deconnecter() => localDataSource.supprimerSession();
+  Future<void> deconnecter() async {
+    final enLigne = await connectivityService.estEnLigne();
+    if (!enLigne) {
+      await localDataSource.enregistrerRaisonMessageLogin(RaisonMessageLogin.deconnexionHorsLigne);
+    }
+    await localDataSource.supprimerSession();
+  }
+
+  @override
+  Future<RaisonMessageLogin> consommerRaisonMessageLogin() =>
+      localDataSource.consommerRaisonMessageLogin();
 }

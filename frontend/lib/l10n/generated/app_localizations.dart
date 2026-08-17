@@ -350,6 +350,30 @@ abstract class AppLocalizations {
   /// **'Impossible : il doit rester au moins un administrateur actif.'**
   String get erreurDernierAdministrateur;
 
+  /// No description provided for @donneesLocalesBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données locales (hors ligne)'**
+  String get donneesLocalesBadge;
+
+  /// No description provided for @connexionRequisePremiereConnexionMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion internet requise pour la première connexion.'**
+  String get connexionRequisePremiereConnexionMessage;
+
+  /// No description provided for @sessionExpireeHorsLigneMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre session hors ligne a expiré après 30 jours. Reconnectez-vous avec une connexion internet.'**
+  String get sessionExpireeHorsLigneMessage;
+
+  /// No description provided for @deconnexionHorsLigneMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes déconnecté(e). Une connexion internet sera nécessaire pour vous reconnecter.'**
+  String get deconnexionHorsLigneMessage;
+
   /// No description provided for @bonjour.
   ///
   /// In fr, this message translates to:
@@ -2653,6 +2677,90 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Cache vidé.'**
   String get cacheVideMessage;
+
+  /// No description provided for @etatEnLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'En ligne'**
+  String get etatEnLigne;
+
+  /// No description provided for @etatHorsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors ligne'**
+  String get etatHorsLigne;
+
+  /// No description provided for @etatHorsLigneAvecAttente.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors ligne · {nombre} en attente'**
+  String etatHorsLigneAvecAttente(int nombre);
+
+  /// No description provided for @etatSynchronisationEnCours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisation…'**
+  String get etatSynchronisationEnCours;
+
+  /// No description provided for @etatEnAttenteDeSynchronisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nombre} en attente de synchronisation'**
+  String etatEnAttenteDeSynchronisation(int nombre);
+
+  /// No description provided for @fileAttenteSyncTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'File d\'attente'**
+  String get fileAttenteSyncTitre;
+
+  /// No description provided for @fileAttenteSyncSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éléments en attente de synchronisation'**
+  String get fileAttenteSyncSousTitre;
+
+  /// No description provided for @relancerSynchronisationBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relancer la synchronisation'**
+  String get relancerSynchronisationBouton;
+
+  /// No description provided for @fileAttenteVideMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout est synchronisé. Rien en attente.'**
+  String get fileAttenteVideMessage;
+
+  /// No description provided for @typeElementEchantillon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échantillon'**
+  String get typeElementEchantillon;
+
+  /// No description provided for @typeElementSpectre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spectre'**
+  String get typeElementSpectre;
+
+  /// No description provided for @typeElementResultat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultat'**
+  String get typeElementResultat;
+
+  /// No description provided for @statutEnAttenteSync.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de réseau'**
+  String get statutEnAttenteSync;
+
+  /// No description provided for @statutErreurSyncAvecTentatives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec · {nombre} tentative(s)'**
+  String statutErreurSyncAvecTentatives(int nombre);
 }
 
 class _AppLocalizationsDelegate

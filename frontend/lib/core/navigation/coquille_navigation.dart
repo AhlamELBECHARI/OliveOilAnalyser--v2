@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/dashboard/presentation/widgets/barre_navigation_bas.dart';
+import '../sync/indicateur_etat_sync.dart';
 
 /// Coquille de navigation partagée par les 5 onglets. La
 /// BottomNavigationBar est déclarée UNE SEULE FOIS ici — jamais dans un
@@ -43,9 +44,15 @@ class CoquilleNavigation extends StatelessWidget {
       },
       child: Scaffold(
         body: navigationShell,
-        bottomNavigationBar: BarreNavigationBas(
-          indexActif: navigationShell.currentIndex,
-          onTap: _onTap,
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const IndicateurEtatSync(),
+            BarreNavigationBas(
+              indexActif: navigationShell.currentIndex,
+              onTap: _onTap,
+            ),
+          ],
         ),
       ),
     );

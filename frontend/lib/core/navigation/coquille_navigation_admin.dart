@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../sync/indicateur_etat_sync.dart';
 import 'barre_navigation_admin.dart';
 
 /// Coquille de navigation de l'espace admin — même mécanique que
@@ -30,9 +31,15 @@ class CoquilleNavigationAdmin extends StatelessWidget {
       },
       child: Scaffold(
         body: navigationShell,
-        bottomNavigationBar: BarreNavigationAdmin(
-          indexActif: navigationShell.currentIndex,
-          onTap: _onTap,
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const IndicateurEtatSync(),
+            BarreNavigationAdmin(
+              indexActif: navigationShell.currentIndex,
+              onTap: _onTap,
+            ),
+          ],
         ),
       ),
     );

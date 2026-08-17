@@ -6,8 +6,10 @@ import 'package:intl/intl.dart';
 import '../../../../core/demo/demo_mode_provider.dart';
 import '../../../../core/localization/build_context_l10n_extension.dart';
 import '../../../../core/localization/failure_localizer.dart';
+import '../../../../core/network/connectivite_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/bandeau_donnees_locales.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/entities/etat_analyseur_entity.dart';
 import '../../domain/entities/statistiques_dashboard_entity.dart';
@@ -49,6 +51,7 @@ class _ContenuReel extends ConsumerWidget {
     final l10n = context.l10n;
     final state = ref.watch(dashboardProvider);
     final estModeDemo = ref.watch(demoModeProvider);
+    final enLigne = ref.watch(connectiviteProvider).valueOrNull ?? true;
 
     if (state.statistiques == null && state.enChargement) {
       return const Center(child: CircularProgressIndicator(color: AppColors.vertOlive));
@@ -90,6 +93,7 @@ class _ContenuReel extends ConsumerWidget {
       alertesNonLues: state.alertesNonLues,
       onRafraichir: () => ref.read(dashboardProvider.notifier).charger(),
       banniereModeDemo: estModeDemo,
+      donneesLocales: !enLigne,
     );
   }
 }
@@ -100,6 +104,7 @@ class _DashboardContenu extends StatelessWidget {
   final int alertesNonLues;
   final Future<void> Function() onRafraichir;
   final bool banniereModeDemo;
+  final bool donneesLocales;
 
   const _DashboardContenu({
     required this.statistiques,
@@ -107,6 +112,7 @@ class _DashboardContenu extends StatelessWidget {
     required this.alertesNonLues,
     required this.onRafraichir,
     required this.banniereModeDemo,
+    required this.donneesLocales,
   });
 
   String? _texteVariationMois(double? variation, AppLocalizations l10n, NumberFormat formatVariation) {
@@ -148,6 +154,10 @@ class _DashboardContenu extends StatelessWidget {
               ),
               child: Text(l10n.modeDemoBanniere, style: AppTextStyles.sousTexteBienvenue),
             ),
+            const SizedBox(height: 16),
+          ],
+          if (donneesLocales) ...[
+            BandeauDonneesLocales(texte: l10n.donneesLocalesBadge),
             const SizedBox(height: 16),
           ],
           DashboardHeader(

@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../local_storage/local_database.dart';
+import '../network/connectivity_service.dart';
+import '../network/token_refresher.dart';
 
 const _cleSyncActivee = 'olive_iq_sync_activee';
 const _cleDerniereSynchronisation = 'olive_iq_derniere_synchronisation';
+const _delaiBackoffMax = Duration(minutes: 5);
 
 /// Service de synchronisation hors ligne : pousse vers l'API tout
 /// échantillon/spectre écrit localement (voir LocalDatabase) mais pas
@@ -21,23 +24,29 @@ const _cleDerniereSynchronisation = 'olive_iq_derniere_synchronisation';
 class SynchronisationService {
   final LocalDatabase _base;
   final Dio _dio;
-  final Connectivity _connectivite;
+  final ConnectivityService _connectivite;
+  final TokenRefresher _tokenRefresher;
   final SharedPreferences _preferences;
 
-  StreamSubscription<List<ConnectivityResult>>? _abonnementConnectivite;
+  StreamSubscription<bool>? _abonnementConnectivite;
   bool _synchronisationEnCours = false;
+  int _echecsConsecutifs = 0;
+  DateTime? _prochaineTentativeAutorisee;
   final _elementsEnAttenteController = StreamController<int>.broadcast();
   final _derniereSynchronisationController = StreamController<DateTime?>.broadcast();
+  final _enCoursController = StreamController<bool>.broadcast();
 
   SynchronisationService({
     required LocalDatabase base,
     required Dio dio,
     required SharedPreferences preferences,
-    Connectivity? connectivite,
+    required ConnectivityService connectivite,
+    required TokenRefresher tokenRefresher,
   })  : _base = base,
         _dio = dio,
         _preferences = preferences,
-        _connectivite = connectivite ?? Connectivity();
+        _connectivite = connectivite,
+        _tokenRefresher = tokenRefresher;
 
   /// Nombre d'échantillons/spectres écrits localement mais pas encore
   /// confirmés par l'API — alimente l'indicateur visible "en attente de
@@ -48,6 +57,10 @@ class SynchronisationService {
   /// fin d'une passe), persistée localement — voir Partie B, section
   /// "Données & Synchronisation".
   Stream<DateTime?> get flusDerniereSynchronisation => _derniereSynchronisationController.stream;
+
+  /// Vrai pendant qu'une passe de synchronisation est en cours — alimente
+  /// l'indicateur global en ligne/hors ligne/synchronisation (Partie C).
+  Stream<bool> get flusSynchronisationEnCours => _enCoursController.stream;
 
   DateTime? get derniereSynchronisation {
     final valeur = _preferences.getString(_cleDerniereSynchronisation);
@@ -62,18 +75,18 @@ class SynchronisationService {
 
   Future<void> definirActivee(bool activee) async {
     await _preferences.setBool(_cleSyncActivee, activee);
-    if (activee) unawaited(synchroniser());
+    if (activee) unawaited(synchroniser(forcer: true));
   }
 
   /// À appeler une fois au démarrage de l'app (voir injection_container) :
   /// tente une synchronisation immédiate puis se ré-abonne aux changements
   /// de connectivité pour re-synchroniser dès qu'une connexion réapparaît.
+  /// Un retour de réseau est toujours un événement neuf : il ignore le
+  /// délai de backoff (voir [synchroniser]).
   void demarrerEcoute() {
     unawaited(synchroniser());
-    _abonnementConnectivite ??= _connectivite.onConnectivityChanged.listen((resultats) {
-      if (resultats.any((resultat) => resultat != ConnectivityResult.none)) {
-        unawaited(synchroniser());
-      }
+    _abonnementConnectivite ??= _connectivite.flusEnLigne.listen((enLigne) {
+      if (enLigne) unawaited(synchroniser(forcer: true));
     });
   }
 
@@ -82,17 +95,49 @@ class SynchronisationService {
     _abonnementConnectivite = null;
   }
 
-  /// Pousse tous les échantillons puis spectres en attente vers l'API.
-  /// Réentrant : un appel pendant qu'une synchronisation est déjà en cours
-  /// est ignoré silencieusement (le prochain déclencheur la relancera).
-  /// Jamais appelée depuis la Presentation directement — toujours en
-  /// arrière-plan, sans jamais bloquer un écran ni faire échouer une
-  /// action utilisateur pour une simple absence de réseau. No-op tant que
-  /// [estActivee] est faux.
-  Future<void> synchroniser() async {
+  /// Pousse tous les échantillons puis spectres en attente vers l'API, après
+  /// avoir renouvelé le token d'accès si besoin. Réentrant : un appel
+  /// pendant qu'une synchronisation est déjà en cours est ignoré
+  /// silencieusement (le prochain déclencheur la relancera). Jamais appelée
+  /// depuis la Presentation directement — toujours en arrière-plan, sans
+  /// jamais bloquer un écran ni faire échouer une action utilisateur pour
+  /// une simple absence de réseau. No-op tant que [estActivee] est faux.
+  ///
+  /// [forcer] ignore le backoff progressif (voir _echecsConsecutifs) :
+  /// utilisé pour un retour de réseau détecté, l'activation du réglage, ou
+  /// une relance manuelle depuis l'écran "File d'attente" — jamais pour les
+  /// déclenchements opportunistes après une simple écriture locale, qui
+  /// doivent rester silencieusement freinés après des échecs répétés pour
+  /// ne jamais boucler indéfiniment sur un serveur qui refuse.
+  Future<void> synchroniser({bool forcer = false}) async {
+    // Toujours à jour, y compris hors ligne ou avant même de savoir si une
+    // tentative réseau aura lieu : c'est une simple lecture locale, jamais
+    // une preuve de synchronisation réussie (voir _publierElementsEnAttente,
+    // seul endroit qui horodate "dernière synchronisation"). Sans ceci, un
+    // élément créé hors ligne resterait invisible dans l'indicateur global
+    // et l'écran "File d'attente" tant qu'aucune passe complète n'a eu lieu.
+    unawaited(_publierCompteEnAttente());
+
     if (_synchronisationEnCours || !estActivee) return;
+    if (!forcer &&
+        _prochaineTentativeAutorisee != null &&
+        DateTime.now().isBefore(_prochaineTentativeAutorisee!)) {
+      return;
+    }
+    // Vérification locale (pas de requête réseau) : évite de payer le délai
+    // d'expiration de chaque appel Dio quand l'absence de réseau est déjà
+    // connue de l'OS (cahier des charges, Partie A, section 7).
+    if (!await _connectivite.estEnLigne()) return;
+
     _synchronisationEnCours = true;
+    if (!_enCoursController.isClosed) _enCoursController.add(true);
     try {
+      final rafraichissement = await _tokenRefresher.rafraichir();
+      // Une session hors ligne expirée (sessionInvalide) laisse la file
+      // d'attente intacte : elle sera rejouée après reconnexion — jamais de
+      // perte de données locales pour un problème d'authentification.
+      if (rafraichissement == ResultatRafraichissement.sessionInvalide) return;
+
       await _synchroniserEchantillons();
       // Un spectre ne peut être accepté par l'API que si son échantillon
       // parent l'est déjà (contrainte de clé étrangère côté serveur) :
@@ -100,9 +145,32 @@ class SynchronisationService {
       await _synchroniserSpectres();
       // Même contrainte pour les résultats (FK vers l'échantillon).
       await _synchroniserResultats();
+
+      final enAttente = await _base.compterElementsEnAttente();
+      if (enAttente == 0) {
+        _echecsConsecutifs = 0;
+        _prochaineTentativeAutorisee = null;
+      } else {
+        _echecsConsecutifs++;
+        final secondes = math.min(
+          _delaiBackoffMax.inSeconds,
+          math.pow(2, _echecsConsecutifs).toInt(),
+        );
+        _prochaineTentativeAutorisee = DateTime.now().add(Duration(seconds: secondes));
+      }
     } finally {
       _synchronisationEnCours = false;
+      if (!_enCoursController.isClosed) _enCoursController.add(false);
       await _publierElementsEnAttente();
+    }
+  }
+
+  /// Republie uniquement le compte (lecture locale pure, jamais un indice de
+  /// succès réseau) — voir l'appel en tête de [synchroniser].
+  Future<void> _publierCompteEnAttente() async {
+    final enAttente = await _base.compterElementsEnAttente();
+    if (!_elementsEnAttenteController.isClosed) {
+      _elementsEnAttenteController.add(enAttente);
     }
   }
 
@@ -235,5 +303,6 @@ class SynchronisationService {
     arreterEcoute();
     await _elementsEnAttenteController.close();
     await _derniereSynchronisationController.close();
+    await _enCoursController.close();
   }
 }

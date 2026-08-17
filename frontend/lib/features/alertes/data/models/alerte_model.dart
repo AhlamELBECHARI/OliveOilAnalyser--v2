@@ -20,4 +20,19 @@ class AlerteModel extends AlerteEntity {
       estResolue: json['est_resolue'] as bool,
     );
   }
+
+  /// Pour le cache local (voir core/local_storage/cache_local_service.dart)
+  /// — même forme que la réponse API.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'message': message,
+        'niveau_gravite': switch (niveauGravite) {
+          NiveauGravite.avertissement => 'avertissement',
+          NiveauGravite.critique => 'critique',
+          NiveauGravite.info => 'info',
+        },
+        'date_creation': dateCreation.toIso8601String(),
+        'est_resolue': estResolue,
+      };
 }
