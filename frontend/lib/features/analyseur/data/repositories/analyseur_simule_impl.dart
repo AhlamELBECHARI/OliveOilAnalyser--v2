@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import '../../domain/entities/appareil_appaire_entity.dart';
+import '../../domain/entities/appareil_decouvert_entity.dart';
 import '../../domain/entities/commande_analyseur.dart';
+import '../../domain/entities/diagnostic_bluetooth_entity.dart';
 import '../../domain/entities/etat_connexion_analyseur_entity.dart';
 import '../../domain/entities/info_appareil_analyseur_entity.dart';
 import '../../domain/entities/resultat_scan_entity.dart';
@@ -262,4 +264,31 @@ class AnalyseurSimuleImpl implements AnalyseurRepository {
     await Future.delayed(_DelaisSimulation.connexion);
     return adresse == _appareilSimule.adresse;
   }
+
+  // Le simulateur n'a rien à découvrir ni à diagnostiquer : ces méthodes
+  // n'existent que pour le Bluetooth réel (voir AnalyseurBluetoothImpl). Le
+  // badge "Mode simulateur" de l'écran de configuration explique déjà
+  // pourquoi ces sections y sont absentes.
+  @override
+  Stream<AppareilDecouvertEntity> decouvrirAppareilsProximite() => const Stream.empty();
+
+  @override
+  Future<void> arreterDecouverte() async {}
+
+  @override
+  Future<DiagnosticBluetoothEntity> obtenirDiagnostic() async {
+    return const DiagnosticBluetoothEntity(
+      etatAdaptateur: EtatAdaptateurBluetooth.inconnu,
+      permissions: [],
+      serviceLocalisationActif: true,
+      localisationRequise: false,
+      nombreAppareilsClassicDetectes: 0,
+    );
+  }
+
+  @override
+  Future<void> activerBluetooth() async {}
+
+  @override
+  Future<bool> appairerAppareil(String adresse) async => false;
 }

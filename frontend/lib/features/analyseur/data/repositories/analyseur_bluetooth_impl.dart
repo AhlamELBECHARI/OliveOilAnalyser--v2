@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../domain/entities/appareil_appaire_entity.dart';
+import '../../domain/entities/appareil_decouvert_entity.dart';
 import '../../domain/entities/commande_analyseur.dart';
+import '../../domain/entities/diagnostic_bluetooth_entity.dart';
 import '../../domain/entities/etat_connexion_analyseur_entity.dart';
 import '../../domain/entities/info_appareil_analyseur_entity.dart';
 import '../../domain/entities/resultat_scan_entity.dart';
@@ -27,11 +31,12 @@ import '../protocole/protocole_spectrometre.dart' as protocole;
 /// reconnexion est retentée automatiquement à intervalles espacés jusqu'à
 /// ce que [liberer] soit appelé.
 ///
-/// N'a pas pu être testée avec un vrai instrument dans cette session (pas
-/// de matériel disponible, développement fait sur Windows desktop où
-/// flutter_bluetooth_serial n'a pas d'implémentation native) : à valider
-/// manuellement sur un appareil Android avec le spectromètre appairé dès
-/// que possible.
+/// Chaque cause de blocage (permission refusée/refusée définitivement,
+/// Bluetooth désactivé, localisation désactivée sur Android ≤ 11, appareil
+/// introuvable) est diagnostiquée EXPLICITEMENT avant toute tentative — voir
+/// [_verifierPreRequisConnexion] — jamais un échec silencieux : la
+/// Presentation doit toujours pouvoir afficher un message et une action
+/// adaptés (cahier des charges, Partie B, section 3).
 class AnalyseurBluetoothImpl implements AnalyseurRepository {
   static const _delaiEntreTentatives = Duration(seconds: 5);
   static const _delaiTimeoutInfoAppareil = Duration(seconds: 3);
@@ -52,6 +57,11 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
   Timer? _minuteurReconnexion;
   bool _arretDemande = false;
   Completer<({String numeroSerie, String firmware, int? batterie})>? _reponseInfoEnAttente;
+
+  StreamSubscription<BluetoothDiscoveryResult>? _abonnementDecouverte;
+  int _dernierNombreAppareilsDetectes = 0;
+  DateTime? _dateDernierBalayage;
+  int? _sdkAndroidCache;
 
   @override
   Stream<EtatConnexionAnalyseurEntity> get flusEtatConnexion async* {
@@ -74,17 +84,77 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
     _etatController.add(etat);
   }
 
-  /// Bluetooth Classic (SPP) exige, selon la version d'Android, la
-  /// localisation (pré-Android 12) ou les permissions granulaires
-  /// Bluetooth (Android 12+) pour lister/découvrir des appareils. On
-  /// demande les deux jeux : le système ignore celles non applicables.
-  Future<bool> _verifierPermissions() async {
+  /// Version d'API Android (mise en cache, ne change jamais en cours de
+  /// session) — sert uniquement à savoir si la localisation est réellement
+  /// exigée par la découverte Bluetooth Classic (Android ≤ 11 seulement,
+  /// voir android:usesPermissionFlags="neverForLocation" dans le manifeste).
+  Future<int?> _sdkAndroid() async {
+    if (_sdkAndroidCache != null) return _sdkAndroidCache;
+    try {
+      final info = await DeviceInfoPlugin().androidInfo;
+      _sdkAndroidCache = info.version.sdkInt;
+    } catch (_) {
+      _sdkAndroidCache = null;
+    }
+    return _sdkAndroidCache;
+  }
+
+  EtatPermission _versEtatPermission(PermissionStatus statut) {
+    if (statut.isGranted) return EtatPermission.accordee;
+    if (statut.isPermanentlyDenied) return EtatPermission.refuseeDefinitivement;
+    return EtatPermission.refusee;
+  }
+
+  /// Diagnostique, DANS L'ORDRE, chaque cause possible de blocage avant
+  /// toute tentative de connexion/découverte : adaptateur désactivé,
+  /// permissions refusées (simplement ou définitivement), puis — seulement
+  /// si réellement exigée sur cette version d'Android — service de
+  /// localisation désactivé. Retourne `null` si tout est en ordre.
+  Future<CauseEchecConnexion?> _verifierPreRequisConnexion() async {
+    final bluetoothActif = await FlutterBluetoothSerial.instance.isEnabled ?? false;
+    if (!bluetoothActif) return CauseEchecConnexion.bluetoothDesactive;
+
     final statuts = await [
       Permission.bluetoothScan,
       Permission.bluetoothConnect,
       Permission.locationWhenInUse,
     ].request();
-    return statuts.values.every((statut) => statut.isGranted);
+
+    if (statuts.values.any((s) => s.isPermanentlyDenied)) {
+      return CauseEchecConnexion.permissionRefuseeDefinitivement;
+    }
+    if (statuts.values.any((s) => !s.isGranted)) {
+      return CauseEchecConnexion.permissionRefusee;
+    }
+
+    final sdkInt = await _sdkAndroid();
+    if (sdkInt != null && sdkInt <= 30) {
+      final localisationActive = await Geolocator.isLocationServiceEnabled();
+      if (!localisationActive) return CauseEchecConnexion.localisationDesactivee;
+    }
+
+    return null;
+  }
+
+  String _messagePourCause(CauseEchecConnexion cause) {
+    switch (cause) {
+      case CauseEchecConnexion.permissionRefusee:
+        return "Permissions Bluetooth/localisation refusées : impossible de rechercher l'analyseur. "
+            "Autorisez-les pour continuer.";
+      case CauseEchecConnexion.permissionRefuseeDefinitivement:
+        return 'Permissions refusées définitivement. Ouvrez les réglages de l\'application pour les '
+            'autoriser manuellement.';
+      case CauseEchecConnexion.bluetoothDesactive:
+        return "Le Bluetooth du téléphone est désactivé.";
+      case CauseEchecConnexion.localisationDesactivee:
+        return 'Le service de localisation du téléphone est désactivé (requis pour la recherche '
+            'Bluetooth sur cette version d\'Android).';
+      case CauseEchecConnexion.appareilIntrouvable:
+        return "Appareil « ${protocole.nomAppareilAttendu} » non appairé. Appairez-le d'abord dans "
+            "les réglages Bluetooth du téléphone, ou choisissez-le dans « Configurer l'appareil ».";
+      case CauseEchecConnexion.autre:
+        return 'Connexion impossible.';
+    }
   }
 
   @override
@@ -92,12 +162,9 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
     _arretDemande = false;
     _publierEtat(const EtatConnexionAnalyseurEntity.recherche());
 
-    final permissionsAccordees = await _verifierPermissions();
-    if (!permissionsAccordees) {
-      _publierEtat(const EtatConnexionAnalyseurEntity.erreur(
-        "Permissions Bluetooth/localisation refusées : impossible de rechercher l'analyseur. "
-        'Autorisez-les dans les réglages de l\'application.',
-      ));
+    final cause = await _verifierPreRequisConnexion();
+    if (cause != null) {
+      _publierEtat(EtatConnexionAnalyseurEntity.erreur(_messagePourCause(cause), cause: cause));
       return;
     }
 
@@ -132,15 +199,17 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
         }
       }
       if (appareil == null) {
-        throw StateError(
-          "Appareil « ${protocole.nomAppareilAttendu} » non appairé. "
-          "Appairez-le d'abord dans les réglages Bluetooth du téléphone, ou "
-          "choisissez-le dans « Configurer l'appareil ».",
-        );
+        throw StateError(_messagePourCause(CauseEchecConnexion.appareilIntrouvable));
       }
 
       _publierEtat(const EtatConnexionAnalyseurEntity.recherche());
-      final connexion = await BluetoothConnection.toAddress(appareil.address);
+      // Délai explicite (cahier des charges, section 6) : sans lui, un
+      // appareil appairé mais hors de portée/éteint peut laisser ce Future
+      // en attente indéfiniment côté OS.
+      final connexion = await BluetoothConnection.toAddress(appareil.address).timeout(
+        _delaiTimeoutTest,
+        onTimeout: () => throw TimeoutException('Délai de connexion dépassé.'),
+      );
       if (_arretDemande) {
         await connexion.finish();
         return;
@@ -154,8 +223,16 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
         onDone: _gererDeconnexion,
         onError: (_) => _gererDeconnexion(),
       );
+    } on StateError catch (e) {
+      _publierEtat(EtatConnexionAnalyseurEntity.erreur(
+        e.message,
+        cause: CauseEchecConnexion.appareilIntrouvable,
+      ));
+      _planifierReconnexion();
     } catch (e) {
-      _publierEtat(EtatConnexionAnalyseurEntity.erreur(e.toString()));
+      _publierEtat(
+        EtatConnexionAnalyseurEntity.erreur(e.toString(), cause: CauseEchecConnexion.autre),
+      );
       _planifierReconnexion();
     }
   }
@@ -166,9 +243,10 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
       _publierEtat(const EtatConnexionAnalyseurEntity.deconnecte());
       return;
     }
-    _publierEtat(
-      const EtatConnexionAnalyseurEntity.erreur('Connexion Bluetooth perdue. Nouvelle tentative...'),
-    );
+    _publierEtat(EtatConnexionAnalyseurEntity.erreur(
+      'Connexion Bluetooth perdue. Nouvelle tentative...',
+      cause: CauseEchecConnexion.autre,
+    ));
     _planifierReconnexion();
   }
 
@@ -250,6 +328,8 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
     _arretDemande = true;
     _minuteurReconnexion?.cancel();
     await _abonnementEntree?.cancel();
+    await _abonnementDecouverte?.cancel();
+    _abonnementDecouverte = null;
     await _connexion?.finish();
     await _etatController.close();
     await _spectreController.close();
@@ -257,8 +337,8 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
 
   @override
   Future<List<AppareilAppaireEntity>> listerAppareilsAppaires() async {
-    final permissionsAccordees = await _verifierPermissions();
-    if (!permissionsAccordees) return const [];
+    final statut = await Permission.bluetoothConnect.request();
+    if (!statut.isGranted) return const [];
     final appareils = await FlutterBluetoothSerial.instance.getBondedDevices();
     return appareils
         .map((a) => AppareilAppaireEntity(adresse: a.address, nom: a.name ?? a.address))
@@ -285,6 +365,129 @@ class AnalyseurBluetoothImpl implements AnalyseurRepository {
       return false;
     } finally {
       await connexionTest?.finish();
+    }
+  }
+
+  /// Découverte ACTIVE (pas seulement les appareils appairés) — voir
+  /// AnalyseurRepository.decouvrirAppareilsProximite. Le Stream se ferme de
+  /// lui-même à la fin du balayage système ; annuler l'abonnement (ou
+  /// appeler [arreterDecouverte]) l'arrête avant son terme.
+  @override
+  Stream<AppareilDecouvertEntity> decouvrirAppareilsProximite() {
+    late StreamController<AppareilDecouvertEntity> controller;
+    final adressesVues = <String>{};
+
+    Future<void> arreter() async {
+      await _abonnementDecouverte?.cancel();
+      _abonnementDecouverte = null;
+      await FlutterBluetoothSerial.instance.cancelDiscovery();
+    }
+
+    Future<void> demarrer() async {
+      final cause = await _verifierPreRequisConnexion();
+      // "appareilIntrouvable" n'a pas de sens pour une découverte (elle ne
+      // dépend d'aucun appareil déjà appairé) : seuls l'adaptateur et les
+      // permissions la bloquent réellement.
+      final blocageReel = cause == CauseEchecConnexion.bluetoothDesactive ||
+          cause == CauseEchecConnexion.permissionRefusee ||
+          cause == CauseEchecConnexion.permissionRefuseeDefinitivement ||
+          cause == CauseEchecConnexion.localisationDesactivee;
+      if (blocageReel) {
+        controller.addError(ErreurBluetooth(_messagePourCause(cause!), cause));
+        await controller.close();
+        return;
+      }
+
+      _dernierNombreAppareilsDetectes = 0;
+      _dateDernierBalayage = DateTime.now();
+
+      await _abonnementDecouverte?.cancel();
+      _abonnementDecouverte = FlutterBluetoothSerial.instance.startDiscovery().listen(
+        (resultat) {
+          if (!adressesVues.add(resultat.device.address)) return; // déjà vu ce balayage
+          _dernierNombreAppareilsDetectes++;
+          if (!controller.isClosed) {
+            controller.add(AppareilDecouvertEntity(
+              adresse: resultat.device.address,
+              nom: resultat.device.name ?? resultat.device.address,
+              forceSignal: resultat.rssi == 0 ? null : resultat.rssi,
+              dejaAppaire: resultat.device.bondState.isBonded,
+            ));
+          }
+        },
+        onDone: () {
+          if (!controller.isClosed) controller.close();
+        },
+        onError: (Object e) {
+          if (!controller.isClosed) controller.addError(e);
+        },
+      );
+    }
+
+    controller = StreamController<AppareilDecouvertEntity>(onCancel: arreter);
+    demarrer();
+    return controller.stream;
+  }
+
+  @override
+  Future<void> arreterDecouverte() async {
+    await _abonnementDecouverte?.cancel();
+    _abonnementDecouverte = null;
+    await FlutterBluetoothSerial.instance.cancelDiscovery();
+  }
+
+  @override
+  Future<DiagnosticBluetoothEntity> obtenirDiagnostic() async {
+    final bluetoothActif = await FlutterBluetoothSerial.instance.isEnabled;
+    final sdkInt = await _sdkAndroid();
+    final localisationRequise = sdkInt != null && sdkInt <= 30;
+
+    final statutScan = await Permission.bluetoothScan.status;
+    final statutConnect = await Permission.bluetoothConnect.status;
+    final statutLocalisation = await Permission.locationWhenInUse.status;
+    bool serviceLocalisationActif;
+    try {
+      serviceLocalisationActif = await Geolocator.isLocationServiceEnabled();
+    } catch (_) {
+      serviceLocalisationActif = true;
+    }
+
+    return DiagnosticBluetoothEntity(
+      etatAdaptateur: bluetoothActif == null
+          ? EtatAdaptateurBluetooth.inconnu
+          : (bluetoothActif ? EtatAdaptateurBluetooth.actif : EtatAdaptateurBluetooth.inactif),
+      permissions: [
+        PermissionDiagnostiquee(
+          type: PermissionBluetooth.bluetoothScan,
+          etat: _versEtatPermission(statutScan),
+        ),
+        PermissionDiagnostiquee(
+          type: PermissionBluetooth.bluetoothConnect,
+          etat: _versEtatPermission(statutConnect),
+        ),
+        PermissionDiagnostiquee(
+          type: PermissionBluetooth.localisation,
+          etat: _versEtatPermission(statutLocalisation),
+        ),
+      ],
+      serviceLocalisationActif: serviceLocalisationActif,
+      localisationRequise: localisationRequise,
+      nombreAppareilsClassicDetectes: _dernierNombreAppareilsDetectes,
+      dateDernierBalayage: _dateDernierBalayage,
+    );
+  }
+
+  @override
+  Future<void> activerBluetooth() async {
+    await FlutterBluetoothSerial.instance.requestEnable();
+  }
+
+  @override
+  Future<bool> appairerAppareil(String adresse) async {
+    try {
+      return await FlutterBluetoothSerial.instance.bondDeviceAtAddress(adresse) ?? false;
+    } catch (_) {
+      return false;
     }
   }
 }

@@ -1440,4 +1440,161 @@ class AppLocalizationsFr extends AppLocalizations {
   String statutErreurSyncAvecTentatives(int nombre) {
     return 'Échec · $nombre tentative(s)';
   }
+
+  @override
+  String get modeSimulateurTitre => 'Mode simulateur';
+
+  @override
+  String get modeSimulateurSousTitreActif =>
+      'Actif — l\'appareil simulé NIR-Simulateur-01 est utilisé';
+
+  @override
+  String get modeSimulateurSousTitreInactif =>
+      'Inactif — le Bluetooth réel est utilisé';
+
+  @override
+  String get modeActifBadgeSimulateur => 'Mode simulateur';
+
+  @override
+  String get modeActifBadgeBluetooth => 'Bluetooth réel';
+
+  @override
+  String get causeBluetoothDesactiveTexte =>
+      'Le Bluetooth du téléphone est désactivé.';
+
+  @override
+  String get causePermissionRefuseeTexte =>
+      'Permissions Bluetooth/localisation refusées.';
+
+  @override
+  String get causePermissionRefuseeDefinitivementTexte =>
+      'Permissions refusées définitivement. Ouvrez les réglages de l\'application pour les autoriser.';
+
+  @override
+  String get causeLocalisationDesactiveeTexte =>
+      'Le service de localisation est désactivé (requis pour la recherche Bluetooth sur cette version d\'Android).';
+
+  @override
+  String get boutonActiverBluetooth => 'Activer le Bluetooth';
+
+  @override
+  String get boutonOuvrirReglages => 'Ouvrir les réglages';
+
+  @override
+  String get boutonActiverLocalisation => 'Activer la localisation';
+
+  @override
+  String get boutonAutoriser => 'Autoriser';
+
+  @override
+  String get appareilsAppairesTitre => 'Appareils appairés';
+
+  @override
+  String get appareilsProximiteTitre => 'Appareils détectés à proximité';
+
+  @override
+  String get rechercherAppareilsBouton => 'Rechercher';
+
+  @override
+  String get rechercheEnCoursTexte => 'Recherche en cours…';
+
+  @override
+  String get arreterRechercheBouton => 'Arrêter';
+
+  @override
+  String get aucunAppareilDetecteTexte =>
+      'Aucun appareil détecté. Lancez une recherche.';
+
+  @override
+  String get appareilDejaAppaireBadge => 'Appairé';
+
+  @override
+  String get appairerBouton => 'Appairer';
+
+  @override
+  String get definirParDefautBouton => 'Utiliser cet appareil';
+
+  @override
+  String get appairageEnCoursTexte => 'Appairage…';
+
+  @override
+  String get diagnosticBluetoothLien => 'Diagnostic Bluetooth';
+
+  @override
+  String get avertissementBleTexte =>
+      'Seuls les appareils Bluetooth Classic apparaissent ici. Un spectromètre en Bluetooth Low Energy (BLE) restera invisible — voir le diagnostic pour en savoir plus.';
+
+  @override
+  String get diagnosticBluetoothTitre => 'Diagnostic Bluetooth';
+
+  @override
+  String get diagnosticBluetoothSousTitre =>
+      'État de l\'adaptateur, des permissions et du dernier balayage';
+
+  @override
+  String get diagnosticAdaptateurLabel => 'Adaptateur Bluetooth';
+
+  @override
+  String get diagnosticAdaptateurActif => 'Activé';
+
+  @override
+  String get diagnosticAdaptateurInactif => 'Désactivé';
+
+  @override
+  String get diagnosticAdaptateurInconnu => 'Inconnu';
+
+  @override
+  String get diagnosticPermissionsTitre => 'Permissions';
+
+  @override
+  String get diagnosticPermissionBluetoothScan => 'Recherche Bluetooth';
+
+  @override
+  String get diagnosticPermissionBluetoothConnect => 'Connexion Bluetooth';
+
+  @override
+  String get diagnosticPermissionLocalisation => 'Localisation';
+
+  @override
+  String get diagnosticPermissionAccordee => 'Accordée';
+
+  @override
+  String get diagnosticPermissionRefusee => 'Refusée';
+
+  @override
+  String get diagnosticPermissionRefuseeDefinitivement =>
+      'Refusée définitivement';
+
+  @override
+  String get diagnosticLocalisationNonRequiseTexte =>
+      'non requise sur cette version d\'Android';
+
+  @override
+  String get diagnosticServiceLocalisationLabel => 'Service de localisation';
+
+  @override
+  String get diagnosticServiceActif => 'Activé';
+
+  @override
+  String get diagnosticServiceInactif => 'Désactivé';
+
+  @override
+  String get diagnosticNombreAppareilsLabel =>
+      'Appareils Classic détectés au dernier balayage';
+
+  @override
+  String get diagnosticDernierBalayageLabel => 'Dernier balayage';
+
+  @override
+  String get diagnosticJamaisBalaye => 'Jamais';
+
+  @override
+  String get diagnosticMessageBleTexte =>
+      'Si votre appareil n\'apparaît toujours pas, il s\'agit peut-être d\'un appareil Bluetooth Low Energy (BLE) : ce type de recherche ne détecte que le Bluetooth Classic (SPP).';
+
+  @override
+  String get diagnosticRafraichirBouton => 'Actualiser';
+
+  @override
+  String get diagnosticToutOperationnelTexte => 'Tout est opérationnel.';
 }

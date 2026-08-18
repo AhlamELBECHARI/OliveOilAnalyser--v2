@@ -17,6 +17,7 @@ import '../../../../core/usecase/usecase.dart';
 import '../../../../core/widgets/carte_stylisee.dart';
 import '../../../authentification/domain/usecases/logout_usecase.dart';
 import '../../../alertes/presentation/providers/alertes_provider.dart';
+import '../../../analyseur/presentation/providers/mode_simulateur_provider.dart';
 import '../../../configuration/domain/entities/configuration_entity.dart';
 import '../../../configuration/presentation/providers/configuration_provider.dart';
 import '../../../parametres/presentation/providers/locale_provider.dart';
@@ -316,6 +317,8 @@ class ProfilScreen extends ConsumerWidget {
                   onTap: () => context.push('/parametres/preferences-analyse'),
                 ),
                 const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
+                const _LigneModeSimulateur(),
+                const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
                 _LigneNotifications(l10n: l10n),
                 const Divider(height: 1, color: AppColors.grisLigne, indent: 16, endIndent: 16),
                 Consumer(builder: (context, ref, _) {
@@ -497,6 +500,32 @@ class _LigneNotifications extends ConsumerWidget {
                   ));
                 }
               },
+      ),
+    );
+  }
+}
+
+/// Bascule simulateur/Bluetooth réel — modifiable À L'EXÉCUTION (voir
+/// AnalyseurRepositoryRouter, seul lecteur de ce réglage). Le simulateur
+/// reste indispensable pour développer/démontrer sans matériel : cet
+/// interrupteur ne le supprime jamais, il choisit seulement lequel des deux
+/// est actif pour la prochaine connexion.
+class _LigneModeSimulateur extends ConsumerWidget {
+  const _LigneModeSimulateur();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final actif = ref.watch(modeSimulateurProvider);
+
+    return LigneParametre(
+      icone: Icons.developer_mode_outlined,
+      titre: l10n.modeSimulateurTitre,
+      sousTitre: actif ? l10n.modeSimulateurSousTitreActif : l10n.modeSimulateurSousTitreInactif,
+      fin: Switch(
+        value: actif,
+        activeThumbColor: AppColors.vertOlive,
+        onChanged: (valeur) => ref.read(modeSimulateurProvider.notifier).definir(valeur),
       ),
     );
   }

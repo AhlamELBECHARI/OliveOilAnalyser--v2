@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/build_context_l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/usecase/usecase.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../analyseur/domain/entities/etat_connexion_analyseur_entity.dart';
 import '../../../analyseur/domain/entities/info_appareil_analyseur_entity.dart';
+import '../../../analyseur/domain/usecases/activer_bluetooth_usecase.dart';
+import '../../../analyseur/presentation/providers/mode_simulateur_provider.dart';
 import '../../../analyseur/presentation/screens/configuration_appareil_screen.dart';
 
 /// Étape 1/4 du parcours Analyse : écran d'entrée qui gère la liaison avec
@@ -14,11 +21,15 @@ import '../../../analyseur/presentation/screens/configuration_appareil_screen.da
 /// par défaut au chargement de l'écran) et donne un recours en cas
 /// d'échec — elle ne la remplace jamais.
 ///
+/// Affiche aussi lequel des deux — simulateur ou Bluetooth réel — est
+/// actif (voir ModeSimulateurDataSource) : jamais implicite pour
+/// l'utilisateur.
+///
 /// Ne montre pas de "qualité du signal" séparée du niveau de batterie : le
 /// protocole Bluetooth Classic (SPP) utilisé n'expose pas de RSSI exploitable
 /// (voir data/protocole/protocole_spectrometre.dart) et ce projet ne fabrique
 /// jamais de métrique fictive pour combler l'UI.
-class EtapeConnexionAnalyseur extends StatelessWidget {
+class EtapeConnexionAnalyseur extends ConsumerWidget {
   final EtatConnexionAnalyseurEntity etatConnexion;
   final InfoAppareilAnalyseurEntity? infoAppareil;
   final VoidCallback onReessayer;
@@ -45,14 +56,41 @@ class EtapeConnexionAnalyseur extends StatelessWidget {
     return etatConnexion.messageErreur ?? l10n.etapeConnexionEchecTexteGenerique;
   }
 
+  /// Bouton d'action secondaire adapté à la cause précise de l'échec —
+  /// jamais seulement "Réessayer" quand une action différente (activer le
+  /// Bluetooth, ouvrir les réglages...) résoudrait réellement le blocage.
+  (String, VoidCallback)? _actionPourCause(AppLocalizations l10n, WidgetRef ref) {
+    switch (etatConnexion.causeEchec) {
+      case CauseEchecConnexion.bluetoothDesactive:
+        return (l10n.boutonActiverBluetooth, () async {
+          await sl<ActiverBluetoothUseCase>()(const NoParams());
+          onReessayer();
+        });
+      case CauseEchecConnexion.permissionRefuseeDefinitivement:
+        return (l10n.boutonOuvrirReglages, () => openAppSettings());
+      case CauseEchecConnexion.localisationDesactivee:
+        return (l10n.boutonActiverLocalisation, () => Geolocator.openLocationSettings());
+      case CauseEchecConnexion.permissionRefusee:
+      case CauseEchecConnexion.appareilIntrouvable:
+      case CauseEchecConnexion.autre:
+      case null:
+        return null;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final enRecherche = etatConnexion.etat == EtatConnexion.recherche;
+    final modeSimulateur = ref.watch(modeSimulateurProvider);
+    final actionCause = _actionPourCause(l10n, ref);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       children: [
+        Center(
+          child: _BadgeMode(modeSimulateur: modeSimulateur),
+        ),
         const SizedBox(height: 16),
         Center(
           child: Column(
@@ -107,6 +145,17 @@ class EtapeConnexionAnalyseur extends StatelessWidget {
               child: Text(l10n.reessayerConnexionBouton, style: AppTextStyles.boutonPrincipal),
             ),
           ),
+          if (actionCause != null) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: OutlinedButton(
+                onPressed: actionCause.$2,
+                child: Text(actionCause.$1),
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Center(
             child: TextButton.icon(
@@ -133,6 +182,37 @@ class EtapeConnexionAnalyseur extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Indique lequel des deux — simulateur ou Bluetooth réel — est actif (voir
+/// ModeSimulateurDataSource) : jamais implicite, l'utilisateur doit toujours
+/// savoir ce qu'il teste réellement.
+class _BadgeMode extends StatelessWidget {
+  final bool modeSimulateur;
+
+  const _BadgeMode({required this.modeSimulateur});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final couleur = modeSimulateur ? AppColors.orangeIcone : AppColors.bleuIcone;
+    final fond = modeSimulateur ? AppColors.orangeFond : AppColors.bleuFond;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(color: fond, borderRadius: BorderRadius.circular(20)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(modeSimulateur ? Icons.developer_mode_outlined : Icons.bluetooth, size: 14, color: couleur),
+          const SizedBox(width: 6),
+          Text(
+            modeSimulateur ? l10n.modeActifBadgeSimulateur : l10n.modeActifBadgeBluetooth,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: couleur),
+          ),
+        ],
+      ),
     );
   }
 }

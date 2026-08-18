@@ -1,5 +1,7 @@
 import '../entities/appareil_appaire_entity.dart';
+import '../entities/appareil_decouvert_entity.dart';
 import '../entities/commande_analyseur.dart';
+import '../entities/diagnostic_bluetooth_entity.dart';
 import '../entities/etat_connexion_analyseur_entity.dart';
 import '../entities/info_appareil_analyseur_entity.dart';
 import '../entities/resultat_scan_entity.dart';
@@ -80,4 +82,30 @@ abstract class AnalyseurRepository {
   /// sans toucher à l'état de connexion principal — sert uniquement au
   /// bouton "Tester la connexion" de l'écran de configuration.
   Future<bool> testerConnexion(String adresse);
+
+  /// Lance une recherche ACTIVE des appareils Bluetooth Classic à
+  /// proximité, pas seulement ceux déjà appairés — voir écran "Configuration
+  /// de l'appareil", section "Appareils détectés à proximité". Émet chaque
+  /// appareil trouvé au fur et à mesure du balayage ; le Stream se ferme de
+  /// lui-même à la fin du balayage (voir [arreterDecouverte] pour l'annuler
+  /// manuellement avant son terme, ex. en quittant l'écran).
+  Stream<AppareilDecouvertEntity> decouvrirAppareilsProximite();
+
+  /// Annule un balayage en cours. Sans effet s'il n'y en a aucun.
+  Future<void> arreterDecouverte();
+
+  /// Photographie de l'état Bluetooth (adaptateur, permissions, service de
+  /// localisation, dernier balayage) — voir écran de diagnostic (cahier des
+  /// charges, section 5).
+  Future<DiagnosticBluetoothEntity> obtenirDiagnostic();
+
+  /// Demande l'activation de l'adaptateur Bluetooth (boîte de dialogue
+  /// système). Sans effet côté simulateur.
+  Future<void> activerBluetooth();
+
+  /// Lance l'appairage système avec l'appareil à [adresse] (issu d'une
+  /// découverte, voir [decouvrirAppareilsProximite]) — nécessaire avant de
+  /// pouvoir le définir comme appareil par défaut. Retourne `true` si
+  /// appairé, `false` si annulé/échoué.
+  Future<bool> appairerAppareil(String adresse);
 }

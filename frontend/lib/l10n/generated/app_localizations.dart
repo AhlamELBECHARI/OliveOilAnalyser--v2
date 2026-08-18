@@ -2761,6 +2761,294 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Échec · {nombre} tentative(s)'**
   String statutErreurSyncAvecTentatives(int nombre);
+
+  /// No description provided for @modeSimulateurTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode simulateur'**
+  String get modeSimulateurTitre;
+
+  /// No description provided for @modeSimulateurSousTitreActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif — l\'appareil simulé NIR-Simulateur-01 est utilisé'**
+  String get modeSimulateurSousTitreActif;
+
+  /// No description provided for @modeSimulateurSousTitreInactif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inactif — le Bluetooth réel est utilisé'**
+  String get modeSimulateurSousTitreInactif;
+
+  /// No description provided for @modeActifBadgeSimulateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode simulateur'**
+  String get modeActifBadgeSimulateur;
+
+  /// No description provided for @modeActifBadgeBluetooth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bluetooth réel'**
+  String get modeActifBadgeBluetooth;
+
+  /// No description provided for @causeBluetoothDesactiveTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Bluetooth du téléphone est désactivé.'**
+  String get causeBluetoothDesactiveTexte;
+
+  /// No description provided for @causePermissionRefuseeTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permissions Bluetooth/localisation refusées.'**
+  String get causePermissionRefuseeTexte;
+
+  /// No description provided for @causePermissionRefuseeDefinitivementTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permissions refusées définitivement. Ouvrez les réglages de l\'application pour les autoriser.'**
+  String get causePermissionRefuseeDefinitivementTexte;
+
+  /// No description provided for @causeLocalisationDesactiveeTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service de localisation est désactivé (requis pour la recherche Bluetooth sur cette version d\'Android).'**
+  String get causeLocalisationDesactiveeTexte;
+
+  /// No description provided for @boutonActiverBluetooth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le Bluetooth'**
+  String get boutonActiverBluetooth;
+
+  /// No description provided for @boutonOuvrirReglages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir les réglages'**
+  String get boutonOuvrirReglages;
+
+  /// No description provided for @boutonActiverLocalisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer la localisation'**
+  String get boutonActiverLocalisation;
+
+  /// No description provided for @boutonAutoriser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autoriser'**
+  String get boutonAutoriser;
+
+  /// No description provided for @appareilsAppairesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appareils appairés'**
+  String get appareilsAppairesTitre;
+
+  /// No description provided for @appareilsProximiteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appareils détectés à proximité'**
+  String get appareilsProximiteTitre;
+
+  /// No description provided for @rechercherAppareilsBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get rechercherAppareilsBouton;
+
+  /// No description provided for @rechercheEnCoursTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche en cours…'**
+  String get rechercheEnCoursTexte;
+
+  /// No description provided for @arreterRechercheBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter'**
+  String get arreterRechercheBouton;
+
+  /// No description provided for @aucunAppareilDetecteTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun appareil détecté. Lancez une recherche.'**
+  String get aucunAppareilDetecteTexte;
+
+  /// No description provided for @appareilDejaAppaireBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appairé'**
+  String get appareilDejaAppaireBadge;
+
+  /// No description provided for @appairerBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appairer'**
+  String get appairerBouton;
+
+  /// No description provided for @definirParDefautBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser cet appareil'**
+  String get definirParDefautBouton;
+
+  /// No description provided for @appairageEnCoursTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appairage…'**
+  String get appairageEnCoursTexte;
+
+  /// No description provided for @diagnosticBluetoothLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diagnostic Bluetooth'**
+  String get diagnosticBluetoothLien;
+
+  /// No description provided for @avertissementBleTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuls les appareils Bluetooth Classic apparaissent ici. Un spectromètre en Bluetooth Low Energy (BLE) restera invisible — voir le diagnostic pour en savoir plus.'**
+  String get avertissementBleTexte;
+
+  /// No description provided for @diagnosticBluetoothTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diagnostic Bluetooth'**
+  String get diagnosticBluetoothTitre;
+
+  /// No description provided for @diagnosticBluetoothSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'État de l\'adaptateur, des permissions et du dernier balayage'**
+  String get diagnosticBluetoothSousTitre;
+
+  /// No description provided for @diagnosticAdaptateurLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adaptateur Bluetooth'**
+  String get diagnosticAdaptateurLabel;
+
+  /// No description provided for @diagnosticAdaptateurActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activé'**
+  String get diagnosticAdaptateurActif;
+
+  /// No description provided for @diagnosticAdaptateurInactif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivé'**
+  String get diagnosticAdaptateurInactif;
+
+  /// No description provided for @diagnosticAdaptateurInconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inconnu'**
+  String get diagnosticAdaptateurInconnu;
+
+  /// No description provided for @diagnosticPermissionsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permissions'**
+  String get diagnosticPermissionsTitre;
+
+  /// No description provided for @diagnosticPermissionBluetoothScan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche Bluetooth'**
+  String get diagnosticPermissionBluetoothScan;
+
+  /// No description provided for @diagnosticPermissionBluetoothConnect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion Bluetooth'**
+  String get diagnosticPermissionBluetoothConnect;
+
+  /// No description provided for @diagnosticPermissionLocalisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Localisation'**
+  String get diagnosticPermissionLocalisation;
+
+  /// No description provided for @diagnosticPermissionAccordee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accordée'**
+  String get diagnosticPermissionAccordee;
+
+  /// No description provided for @diagnosticPermissionRefusee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refusée'**
+  String get diagnosticPermissionRefusee;
+
+  /// No description provided for @diagnosticPermissionRefuseeDefinitivement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refusée définitivement'**
+  String get diagnosticPermissionRefuseeDefinitivement;
+
+  /// No description provided for @diagnosticLocalisationNonRequiseTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'non requise sur cette version d\'Android'**
+  String get diagnosticLocalisationNonRequiseTexte;
+
+  /// No description provided for @diagnosticServiceLocalisationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service de localisation'**
+  String get diagnosticServiceLocalisationLabel;
+
+  /// No description provided for @diagnosticServiceActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activé'**
+  String get diagnosticServiceActif;
+
+  /// No description provided for @diagnosticServiceInactif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivé'**
+  String get diagnosticServiceInactif;
+
+  /// No description provided for @diagnosticNombreAppareilsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appareils Classic détectés au dernier balayage'**
+  String get diagnosticNombreAppareilsLabel;
+
+  /// No description provided for @diagnosticDernierBalayageLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernier balayage'**
+  String get diagnosticDernierBalayageLabel;
+
+  /// No description provided for @diagnosticJamaisBalaye.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jamais'**
+  String get diagnosticJamaisBalaye;
+
+  /// No description provided for @diagnosticMessageBleTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si votre appareil n\'apparaît toujours pas, il s\'agit peut-être d\'un appareil Bluetooth Low Energy (BLE) : ce type de recherche ne détecte que le Bluetooth Classic (SPP).'**
+  String get diagnosticMessageBleTexte;
+
+  /// No description provided for @diagnosticRafraichirBouton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser'**
+  String get diagnosticRafraichirBouton;
+
+  /// No description provided for @diagnosticToutOperationnelTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout est opérationnel.'**
+  String get diagnosticToutOperationnelTexte;
 }
 
 class _AppLocalizationsDelegate

@@ -1427,4 +1427,159 @@ class AppLocalizationsEn extends AppLocalizations {
   String statutErreurSyncAvecTentatives(int nombre) {
     return 'Failed · $nombre attempt(s)';
   }
+
+  @override
+  String get modeSimulateurTitre => 'Simulator mode';
+
+  @override
+  String get modeSimulateurSousTitreActif =>
+      'On — the simulated NIR-Simulateur-01 device is used';
+
+  @override
+  String get modeSimulateurSousTitreInactif =>
+      'Off — real Bluetooth hardware is used';
+
+  @override
+  String get modeActifBadgeSimulateur => 'Simulator mode';
+
+  @override
+  String get modeActifBadgeBluetooth => 'Real Bluetooth';
+
+  @override
+  String get causeBluetoothDesactiveTexte =>
+      'The phone\'s Bluetooth is turned off.';
+
+  @override
+  String get causePermissionRefuseeTexte =>
+      'Bluetooth/location permissions were denied.';
+
+  @override
+  String get causePermissionRefuseeDefinitivementTexte =>
+      'Permissions were permanently denied. Open the app settings to allow them.';
+
+  @override
+  String get causeLocalisationDesactiveeTexte =>
+      'Location services are off (required for Bluetooth discovery on this Android version).';
+
+  @override
+  String get boutonActiverBluetooth => 'Turn on Bluetooth';
+
+  @override
+  String get boutonOuvrirReglages => 'Open settings';
+
+  @override
+  String get boutonActiverLocalisation => 'Turn on location';
+
+  @override
+  String get boutonAutoriser => 'Allow';
+
+  @override
+  String get appareilsAppairesTitre => 'Paired devices';
+
+  @override
+  String get appareilsProximiteTitre => 'Devices detected nearby';
+
+  @override
+  String get rechercherAppareilsBouton => 'Search';
+
+  @override
+  String get rechercheEnCoursTexte => 'Searching…';
+
+  @override
+  String get arreterRechercheBouton => 'Stop';
+
+  @override
+  String get aucunAppareilDetecteTexte => 'No device detected. Start a search.';
+
+  @override
+  String get appareilDejaAppaireBadge => 'Paired';
+
+  @override
+  String get appairerBouton => 'Pair';
+
+  @override
+  String get definirParDefautBouton => 'Use this device';
+
+  @override
+  String get appairageEnCoursTexte => 'Pairing…';
+
+  @override
+  String get diagnosticBluetoothLien => 'Bluetooth diagnostics';
+
+  @override
+  String get avertissementBleTexte =>
+      'Only Bluetooth Classic devices show up here. A Bluetooth Low Energy (BLE) spectrometer will stay invisible — see diagnostics for details.';
+
+  @override
+  String get diagnosticBluetoothTitre => 'Bluetooth diagnostics';
+
+  @override
+  String get diagnosticBluetoothSousTitre =>
+      'Adapter, permissions and last scan status';
+
+  @override
+  String get diagnosticAdaptateurLabel => 'Bluetooth adapter';
+
+  @override
+  String get diagnosticAdaptateurActif => 'On';
+
+  @override
+  String get diagnosticAdaptateurInactif => 'Off';
+
+  @override
+  String get diagnosticAdaptateurInconnu => 'Unknown';
+
+  @override
+  String get diagnosticPermissionsTitre => 'Permissions';
+
+  @override
+  String get diagnosticPermissionBluetoothScan => 'Bluetooth scan';
+
+  @override
+  String get diagnosticPermissionBluetoothConnect => 'Bluetooth connect';
+
+  @override
+  String get diagnosticPermissionLocalisation => 'Location';
+
+  @override
+  String get diagnosticPermissionAccordee => 'Granted';
+
+  @override
+  String get diagnosticPermissionRefusee => 'Denied';
+
+  @override
+  String get diagnosticPermissionRefuseeDefinitivement => 'Permanently denied';
+
+  @override
+  String get diagnosticLocalisationNonRequiseTexte =>
+      'not required on this Android version';
+
+  @override
+  String get diagnosticServiceLocalisationLabel => 'Location service';
+
+  @override
+  String get diagnosticServiceActif => 'On';
+
+  @override
+  String get diagnosticServiceInactif => 'Off';
+
+  @override
+  String get diagnosticNombreAppareilsLabel =>
+      'Classic devices detected in the last scan';
+
+  @override
+  String get diagnosticDernierBalayageLabel => 'Last scan';
+
+  @override
+  String get diagnosticJamaisBalaye => 'Never';
+
+  @override
+  String get diagnosticMessageBleTexte =>
+      'If your device still doesn\'t show up, it may be a Bluetooth Low Energy (BLE) device: this type of search only detects Bluetooth Classic (SPP).';
+
+  @override
+  String get diagnosticRafraichirBouton => 'Refresh';
+
+  @override
+  String get diagnosticToutOperationnelTexte => 'Everything is working.';
 }

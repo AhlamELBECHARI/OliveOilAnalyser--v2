@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../config/app_config.dart';
 import '../local_storage/cache_local_service.dart';
 import '../local_storage/local_database.dart';
 import '../local_storage/statistiques_locales_service.dart';
@@ -35,14 +34,21 @@ import '../../features/administration/domain/usecases/resoudre_alerte_usecase.da
 import '../../features/administration/domain/usecases/revoquer_session_admin_usecase.dart';
 import '../../features/alertes/data/datasources/alertes_remote_datasource.dart';
 import '../../features/analyseur/data/local/appareil_prefere_datasource.dart';
+import '../../features/analyseur/data/local/mode_simulateur_datasource.dart';
 import '../../features/analyseur/data/repositories/analyseur_bluetooth_impl.dart';
+import '../../features/analyseur/data/repositories/analyseur_repository_router.dart';
 import '../../features/analyseur/data/repositories/analyseur_simule_impl.dart';
 import '../../features/analyseur/domain/repositories/analyseur_repository.dart';
+import '../../features/analyseur/domain/usecases/activer_bluetooth_usecase.dart';
+import '../../features/analyseur/domain/usecases/appairer_appareil_usecase.dart';
+import '../../features/analyseur/domain/usecases/arreter_decouverte_usecase.dart';
 import '../../features/analyseur/domain/usecases/connecter_automatiquement_usecase.dart';
+import '../../features/analyseur/domain/usecases/decouvrir_appareils_proximite_usecase.dart';
 import '../../features/analyseur/domain/usecases/definir_appareil_par_defaut_usecase.dart';
 import '../../features/analyseur/domain/usecases/envoyer_commande_usecase.dart';
 import '../../features/analyseur/domain/usecases/lister_appareils_appaires_usecase.dart';
 import '../../features/analyseur/domain/usecases/obtenir_appareil_par_defaut_usecase.dart';
+import '../../features/analyseur/domain/usecases/obtenir_diagnostic_bluetooth_usecase.dart';
 import '../../features/analyseur/domain/usecases/obtenir_info_appareil_usecase.dart';
 import '../../features/analyseur/domain/usecases/observer_etat_connexion_usecase.dart';
 import '../../features/analyseur/domain/usecases/observer_resultat_scan_usecase.dart';
@@ -178,16 +184,24 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => ConsommerRaisonMessageLoginUseCase(sl()));
 
   // --- Feature: analyseur (module Bluetooth) ---
-  // Seul point de choix entre le simulateur et la vraie implémentation SPP
-  // (voir AppConfig.utiliserAnalyseurSimule) : jamais de `if` dispersé
-  // ailleurs, l'UI ne dépend que d'AnalyseurRepository.
+  // Seul point de choix entre le simulateur et la vraie implémentation SPP :
+  // AnalyseurRepositoryRouter, qui délègue selon ModeSimulateurDataSource
+  // (modifiable À L'EXÉCUTION depuis Paramètres, voir mode_simulateur_provider.dart)
+  // — jamais un `if` dispersé ailleurs, l'UI ne dépend que d'AnalyseurRepository.
+  // AppConfig.utiliserAnalyseurSimule ne sert plus que de valeur par défaut
+  // tant qu'aucun choix explicite n'a été fait.
   sl.registerLazySingleton<AppareilPrefereDataSource>(
     () => AppareilPrefereDataSourceImpl(preferences: sl()),
   );
+  sl.registerLazySingleton<ModeSimulateurDataSource>(
+    () => ModeSimulateurDataSourceImpl(preferences: sl()),
+  );
   sl.registerLazySingleton<AnalyseurRepository>(
-    () => AppConfig.utiliserAnalyseurSimule
-        ? AnalyseurSimuleImpl()
-        : AnalyseurBluetoothImpl(appareilPrefere: sl()),
+    () => AnalyseurRepositoryRouter(
+      simule: AnalyseurSimuleImpl(),
+      bluetooth: AnalyseurBluetoothImpl(appareilPrefere: sl()),
+      modeSimulateur: sl(),
+    ),
   );
   sl.registerLazySingleton(() => ConnecterAutomatiquementUseCase(sl()));
   sl.registerLazySingleton(() => EnvoyerCommandeUseCase(sl()));
@@ -199,6 +213,11 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => DefinirAppareilParDefautUseCase(sl()));
   sl.registerLazySingleton(() => ObtenirAppareilParDefautUseCase(sl()));
   sl.registerLazySingleton(() => TesterConnexionUseCase(sl()));
+  sl.registerLazySingleton(() => DecouvrirAppareilsProximiteUseCase(sl()));
+  sl.registerLazySingleton(() => ArreterDecouverteUseCase(sl()));
+  sl.registerLazySingleton(() => ObtenirDiagnosticBluetoothUseCase(sl()));
+  sl.registerLazySingleton(() => ActiverBluetoothUseCase(sl()));
+  sl.registerLazySingleton(() => AppairerAppareilUseCase(sl()));
 
   // --- Feature: nouvelle_analyse ---
   // Écrit toujours d'abord en local (LocalDatabase) avant toute tentative
